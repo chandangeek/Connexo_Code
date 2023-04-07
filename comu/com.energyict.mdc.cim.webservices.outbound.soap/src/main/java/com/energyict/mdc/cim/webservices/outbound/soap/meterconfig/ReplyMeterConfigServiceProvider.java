@@ -9,13 +9,12 @@ import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.CimAttributeNames;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigExtendedDataFactory;
@@ -30,7 +29,6 @@ import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
-import ch.iec.tc57._2011.replymeterconfig.FaultMessage;
 import ch.iec.tc57._2011.replymeterconfig.MeterConfigPort;
 import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
 import ch.iec.tc57._2011.schema.message.ErrorType;
@@ -39,6 +37,7 @@ import ch.iec.tc57._2011.schema.message.Name;
 import ch.iec.tc57._2011.schema.message.ObjectType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -46,19 +45,15 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
-import javax.xml.ws.WebServiceException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -66,23 +61,18 @@ import java.util.stream.Collectors;
         service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class, StateTransitionWebServiceClient.class},
         immediate = true,
         property = {"name=" + ReplyMeterConfigWebService.NAME})
-public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointProvider<MeterConfigPort> implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider, ApplicationSpecific, StateTransitionWebServiceClient {
-
+public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointProvider<MeterConfigPort>
+        implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider, ApplicationSpecific, StateTransitionWebServiceClient {
     private static final String NOUN = "MeterConfig";
     private static final String RESOURCE_WSDL = "/wsdl/meterconfig/ReplyMeterConfig.wsdl";
-    private final Map<String, MeterConfigPort> meterConfigPorts = new ConcurrentHashMap<>();
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
-    private final List<MeterConfigExtendedDataFactory> meterConfigExtendedDataFactories = new ArrayList<>();
+    private final List<MeterConfigExtendedDataFactory> meterConfigExtendedDataFactories = new CopyOnWriteArrayList<>();
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     private volatile MeterConfigFactory meterConfigFactory;
     private volatile DeviceService deviceService;
-    private volatile WebServicesService webServicesService;
-    private volatile EndPointConfigurationService endPointConfigurationService;
-    private volatile MeteringService meteringService;
-
-    private Logger logger = Logger.getLogger(this.getClass().getName());
 
     public ReplyMeterConfigServiceProvider() {
         // for OSGi purposes
@@ -90,15 +80,13 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
     @Inject
     public ReplyMeterConfigServiceProvider(DeviceService deviceService,
-                                           WebServicesService webServicesService,
-                                           EndPointConfigurationService endPointConfigurationService,
-                                           MeteringService meteringService) {
+                                           MeterConfigFactory meterConfigFactory,
+                                           WebServicesService webServicesService) {
+        // for tests
         this();
         setDeviceService(deviceService);
         setMeterConfigFactory(meterConfigFactory);
         setWebServicesService(webServicesService);
-        setEndPointConfigurationService(endPointConfigurationService);
-        setMeteringService(meteringService);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -108,20 +96,6 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
     public void removeMeterConfigPort(MeterConfigPort meterConfigPort) {
         super.doRemoveEndpoint(meterConfigPort);
-    }
-
-    //  @Reference
-    // public void addWebServicesService(WebServicesService webServicesService) {
-    // Just to inject WebServicesService
-    // }
-
-    public Map<String, MeterConfigPort> getMeterConfigPorts() {
-        return Collections.unmodifiableMap(meterConfigPorts);
-    }
-
-    @Reference
-    public void setWebServicesService(WebServicesService webServicesService) {
-        this.webServicesService = webServicesService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -148,13 +122,8 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     }
 
     @Reference
-    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
-        this.endPointConfigurationService = endPointConfigurationService;
-    }
-
-    @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
+    public void setWebServicesService(WebServicesService webServicesService) {
+        // Just to inject WebServicesService
     }
 
     @Override
@@ -177,50 +146,93 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         return ReplyMeterConfigWebService.NAME;
     }
 
-    private List<EndPointConfiguration> getEndPointConfigurationByIds(List<Long> endPointConfigurationIds) {
-        return endPointConfigurationIds.stream()
-                .map(id -> endPointConfigurationService.getEndPointConfiguration(id))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-    }
-
     /**
      * StateTransitionWebServiceClient implementation
      */
     @Override
-    public void call(long id, List<Long> endPointConfigurationIds, String state, Instant effectiveDate) {
+    public void call(long id, Set<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate) {
         Optional<Device> device = deviceService.findDeviceByMeterId(id);
         if (device.isPresent()) {
             logger.info("Handling notifications for ReplyMeterConfig called by StateTransition for device " + device.get().getSerialNumber() + " and state=" + state);
-
-            getEndPointConfigurationByIds(endPointConfigurationIds)
-                    .stream()
-                    .filter(EndPointConfiguration::isActive)
-                    .forEach(endPointConfiguration ->
-                            callStateTransition(device.get(), endPointConfiguration, state, effectiveDate)
-                    );
+            if (!triggerCall(device.get(), endPointConfigurations, effectiveDate)) {
+                logger.warning("Failed to send MeterConfig notification about a state transition to some of the configured web service endpoints.");
+            }
         } else {
-            logger.warning("Could not call ReplyMeterConfig due to state-transition: device with meter-id=" + id + " was not found!");
+            logger.warning("Couldn't send MeterConfig notification about a state transition: device with meter-id=" + id + " wasn't found!");
         }
-    }
-
-    private void callStateTransition(Device device, EndPointConfiguration endPointConfiguration, String state, Instant effectiveDate) {
-        publish(endPointConfiguration);
-        triggerCall(device, endPointConfiguration, false);
     }
 
     @Override
     public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
-        publish(endPointConfiguration);
-        deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId()))
-                .ifPresent(device -> triggerCall(device, endPointConfiguration, true));
-        return true;
+        return deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId()))
+                .map(device -> triggerCall(device, Collections.singleton(endPointConfiguration), issue.getCreateDateTime()))
+                .orElse(true);
     }
 
-    private void publish(EndPointConfiguration endPointConfiguration) {
-        if (endPointConfiguration.isActive() && !webServicesService.isPublished(endPointConfiguration)) {
-            webServicesService.publishEndPoint(endPointConfiguration);
+    private boolean triggerCall(Device device, Collection<EndPointConfiguration> endPointConfigurations, Instant effectiveDate) {
+        MeterConfigEventMessageType message = createInfoResponseMessage(createMeterConfig(Collections.singletonList(device)), HeaderType.Verb.CHANGED, null);
+        logger.info("Calling changedMeterConfig on endpoints: "
+                + endPointConfigurations.stream().map(EndPointConfiguration::getName).collect(Collectors.joining(", ", "[", "]")));
+        SetMultimap<String, String> attributes = ImmutableSetMultimap.of(
+                CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), device.getName(),
+                CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getmRID(),
+                CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), device.getSerialNumber()
+        );
+        Map<WebServiceCallOccurrence, ?> replyMap = using("changedMeterConfig")
+                .toEndpoints(endPointConfigurations)
+                .withRelatedAttributes(attributes)
+                .send(message);
+        logger.info("Call was sent, checking reply message");
+        return replyMap.size() == endPointConfigurations.size() // make sure all the notifications are sent and answered
+                && replyMap.entrySet().stream()
+                .map(callAndResponse -> checkReplyMessage(callAndResponse.getKey(), (MeterConfigResponseMessageType) callAndResponse.getValue()))
+                .reduce(Boolean::logicalAnd) // make sure all the notifications are successful
+                .orElse(true); // no endpoint to send the notification, so positively relax
+    }
+
+    private boolean checkReplyMessage(WebServiceCallOccurrence webServiceCallOccurrence, MeterConfigResponseMessageType replyMessage) {
+        if (replyMessage == null) {
+            webServiceCallOccurrence.log(LogLevel.FINE, "Empty response received");
+            return true;
+        }
+
+        if (replyMessage.getReply() == null) {
+            webServiceCallOccurrence.log(LogLevel.FINE, "Empty reply information received");
+            return true;
+        }
+
+        if (replyMessage.getReply().getResult() == null) {
+            webServiceCallOccurrence.log(LogLevel.FINE, "Empty reply result received");
+            return true;
+        }
+
+        switch (replyMessage.getReply().getResult()) {
+            case OK:
+                webServiceCallOccurrence.log(LogLevel.INFO, "Response status is OK");
+                return true;
+            case PARTIAL:
+            case FAILED:
+            default:
+                replyMessage.getReply().getError().forEach(error ->
+                        webServiceCallOccurrence.log(convertLevel(error.getLevel()), "Received error: " + error.getCode() + ' ' + error.getDetails()));
+                webServiceCallOccurrence.log(LogLevel.SEVERE, "Response status is " + replyMessage.getReply().getResult().name());
+                return false;
+        }
+    }
+
+    private LogLevel convertLevel(ErrorType.Level level) {
+        if (level == null) {
+            return LogLevel.SEVERE;
+        }
+        switch (level) {
+            case INFORM:
+                return LogLevel.INFO;
+            case WARNING:
+                return LogLevel.WARNING;
+            case FATAL:
+            case CATASTROPHIC:
+            default:
+                return LogLevel.SEVERE;
         }
     }
 
@@ -272,93 +284,6 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
                 .toEndpoints(endPointConfiguration)
                 .withRelatedAttributes(values)
                 .send(message);
-    }
-
-    private void triggerCall(Device device, EndPointConfiguration endPointConfiguration, boolean isReply) {
-        try {
-            Optional.ofNullable(getMeterConfigPorts().get(endPointConfiguration.getUrl()))
-                    .ifPresent(meterConfigPortService -> {
-                        MeterConfigPort replyMeterConfigPort = setReplyAddress(meterConfigPortService, endPointConfiguration.getUrl());
-                        logger.info("Calling changed(MeterConfig) on " +
-                                ((BindingProvider) replyMeterConfigPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY));
-                        try {
-                            MeterConfigEventMessageType responseMessage = createInfoResponseMessage(createMeterConfig(Collections
-                                    .singletonList(device)), HeaderType.Verb.CHANGED, null);
-
-                            // we're not replying to a request, it's a pushed state-change notification
-                            if (!isReply) {
-                                responseMessage.setReply(null);
-                            }
-
-                            MeterConfigResponseMessageType replyMessage = replyMeterConfigPort.changedMeterConfig(responseMessage);
-                            logger.info("Call was sent, checking reply message");
-                            checkReplyMessage(endPointConfiguration, replyMessage);
-                        } catch (FaultMessage faultMessage) {
-                            String error = faultMessage.getLocalizedMessage();
-                            if (faultMessage.getCause() != null) {
-                                error += " " + faultMessage.getCause().getLocalizedMessage();
-                            }
-                            logger.severe(error);
-                            endPointConfiguration.log(error, faultMessage);
-                        }
-                    });
-        } catch (RuntimeException ex) {
-            String error = ex.getLocalizedMessage();
-            if (ex.getCause() != null) {
-                error += " " + ex.getCause().getLocalizedMessage();
-            }
-            logger.severe(error);
-            endPointConfiguration.log(LogLevel.SEVERE, error);
-        }
-
-    }
-
-    private void checkReplyMessage(EndPointConfiguration endPointConfiguration, MeterConfigResponseMessageType replyMessage) {
-        if (replyMessage == null) {
-            logger.info("Empty response received");
-            endPointConfiguration.log(LogLevel.FINE, "Empty response received");
-            return;
-        }
-
-        if (replyMessage.getReply() == null) {
-            logger.info("Empty <Reply> block received");
-            endPointConfiguration.log(LogLevel.FINE, "Empty reply information received");
-            return;
-        }
-
-        if (replyMessage.getReply().getResult() == null) {
-            logger.info("Empty or un-parsable <Result> block received");
-            endPointConfiguration.log(LogLevel.FINE, "Empty reply result received");
-            return;
-
-        }
-
-        logger.info("Result is " + replyMessage.getReply().getResult().toString());
-        switch (replyMessage.getReply().getResult()) {
-            case OK:
-                endPointConfiguration.log(LogLevel.INFO, "Reply response is OK");
-                return;
-            case PARTIAL:
-            case FAILED:
-                String error = extractErrors(replyMessage.getReply().getError());
-                String message = "Reply response is " + replyMessage.getReply().getResult().toString() + " " + error;
-                logger.severe(message);
-                throw new WebServiceException(message);
-        }
-
-    }
-
-    private String extractErrors(List<ErrorType> error) {
-        StringBuilder message = new StringBuilder();
-
-        if (error != null) {
-            for (ErrorType err : error) {
-                message.append(err.getCode()).append(" ");
-                message.append(err.getDetails()).append("; ");
-            }
-        }
-
-        return message.toString();
     }
 
     private MeterConfig createMeterConfig(Collection<Device> devices) {
@@ -448,32 +373,5 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     @Override
     public String getApplication() {
         return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
-    }
-
-    /**
-     * Setting the endpoint address property of the Response-Context.
-     * On OpenJDK it was observed that this address is by default the namespace address, not the configured url.
-     */
-    private MeterConfigPort setReplyAddress(MeterConfigPort meterConfigPort, String urlAddress) {
-        try {
-            java.net.URL wsdlUrl = new URL(urlAddress);
-
-            BindingProvider bindingProvider = (BindingProvider) meterConfigPort;
-
-            String endPointAddress = (String) bindingProvider.getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-
-            if (urlAddress.equals(endPointAddress)) {
-                logger.fine("Endpoint validated.");
-            } else {
-                logger.fine("Setting response URL to: " + wsdlUrl.toExternalForm());
-                bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, wsdlUrl.toExternalForm());
-            }
-        } catch (MalformedURLException e) {
-            logger.warning("URL " + urlAddress + " is malformed: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-
-        return meterConfigPort;
     }
 }

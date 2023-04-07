@@ -4,22 +4,28 @@
 package com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.EndDeviceConfigExtendedDataFactory;
-import com.elster.jupiter.metering.CimAttributeNames;
-import com.elster.jupiter.metering.EndDeviceAttributesProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.fsm.EndPointConfigurationReference;
 import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceAttributesProvider;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.util.HasName;
 
+import ch.iec.tc57._2011.enddeviceconfig.EndDeviceConfig;
+import ch.iec.tc57._2011.enddeviceconfigmessage.EndDeviceConfigEventMessageType;
+import ch.iec.tc57._2011.enddeviceconfigmessage.EndDeviceConfigPayloadType;
+import ch.iec.tc57._2011.replyenddeviceconfig.EndDeviceConfigPort;
+import ch.iec.tc57._2011.replyenddeviceconfig.ReplyEndDeviceConfig;
+import ch.iec.tc57._2011.schema.message.HeaderType;
+import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
@@ -27,24 +33,17 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import ch.iec.tc57._2011.schema.message.HeaderType;
-import ch.iec.tc57._2011.schema.message.ReplyType;
-import ch.iec.tc57._2011.replyenddeviceconfig.EndDeviceConfigPort;
-import ch.iec.tc57._2011.replyenddeviceconfig.ReplyEndDeviceConfig;
-import ch.iec.tc57._2011.enddeviceconfig.EndDeviceConfig;
-import ch.iec.tc57._2011.enddeviceconfigmessage.EndDeviceConfigEventMessageType;
-import ch.iec.tc57._2011.enddeviceconfigmessage.EndDeviceConfigPayloadType;
-
 import javax.inject.Inject;
 import javax.xml.ws.Service;
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig.provider",
         service = {TopicHandler.class, StateTransitionWebServiceClient.class, OutboundSoapEndPointProvider.class},
@@ -57,24 +56,21 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.enddeviceconfigmessage.ObjectFactory endDeviceConfigMessageObjectFactory = new ch.iec.tc57._2011.enddeviceconfigmessage.ObjectFactory();
 
-    private final List<EndDeviceConfigPort> stateEndDeviceConfigPortServices = new ArrayList<>();
-    private final List<EndDeviceConfigExtendedDataFactory> endDeviceConfigExtendedDataFactories = new ArrayList<>();
+    private final List<EndDeviceConfigExtendedDataFactory> endDeviceConfigExtendedDataFactories = new CopyOnWriteArrayList<>();
     private final EndDeviceConfigDataFactory endDeviceConfigDataFactory = new EndDeviceConfigDataFactory();
 
     private volatile MeteringService meteringService;
-    private volatile EndPointConfigurationService endPointConfigurationService;
-    private List<EndDeviceAttributesProvider> endDeviceAttributesProviders = new ArrayList<>();
+    private final List<EndDeviceAttributesProvider> endDeviceAttributesProviders = new CopyOnWriteArrayList<>();
 
     public EndDeviceConfigServiceProvider() {
         // for OSGI purposes
     }
 
     @Inject
-    public EndDeviceConfigServiceProvider(MeteringService meteringService,
-                                          EndPointConfigurationService endPointConfigurationService) {
+    public EndDeviceConfigServiceProvider(MeteringService meteringService) {
+        // for tests
         this();
         setMeteringService(meteringService);
-        setEndPointConfigurationService(endPointConfigurationService);
     }
 
     @Reference
@@ -83,8 +79,8 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
     }
 
     @Reference
-    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
-        this.endPointConfigurationService = endPointConfigurationService;
+    public void addWebServicesService(WebServicesService webServicesService) {
+        // Just to inject WebServicesService
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -101,20 +97,10 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
         this.endDeviceAttributesProviders.add(endDeviceAttributesProvider);
     }
 
-    @Reference
-    public void addWebServicesService(WebServicesService webServicesService) {
-        // Just to inject WebServicesService
-    }
-
     public void removeEndDeviceAttributesProvider(EndDeviceAttributesProvider endDeviceAttributesProvider) {
         endDeviceAttributesProviders.stream()
                 .filter(e -> e.getClass().equals(endDeviceAttributesProvider.getClass()))
-                .forEach(e -> endDeviceAttributesProviders.remove(e));
-    }
-
-
-    public List<EndDeviceConfigPort> getStateTransitionWebServiceClients() {
-        return Collections.unmodifiableList(this.stateEndDeviceConfigPortServices);
+                .forEach(endDeviceAttributesProviders::remove);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -151,25 +137,21 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
     }
 
     @Override
-    public void call(long id, List<Long> endPointConfigurationIds, String state, Instant effectiveDate) {
-        meteringService.findEndDeviceById(id).ifPresent(endDevice -> {
-            call(endDevice, getEndPointConfigurationByIds(endPointConfigurationIds), state, effectiveDate, false);
-        });
+    public void call(long id, Set<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate) {
+        meteringService.findEndDeviceById(id)
+                .ifPresent(endDevice -> call(endDevice, endPointConfigurations, state, effectiveDate, false));
     }
 
     @Override
     public void handle(LocalEvent localEvent) {
-        meteringService.findEndDeviceByName(((HasName) localEvent.getSource()).getName()).ifPresent(endDevice -> {
-            endDevice.getFiniteStateMachine().ifPresent(finiteStateMachine -> {
-                List<Long> endPointConfigurationIds = finiteStateMachine.getInitialState().getOnEntryEndPointConfigurations().stream()
-                        .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
-                        .map(EndPointConfiguration::getId)
-                        .collect(Collectors.toList());
-                endDevice.getLifecycleDates().getReceivedDate().ifPresent(effectiveDate -> {
-                    call(endDevice, getEndPointConfigurationByIds(endPointConfigurationIds), finiteStateMachine.getInitialState().getName(), effectiveDate, true);
-                });
-            });
-        });
+        meteringService.findEndDeviceByName(((HasName) localEvent.getSource()).getName()).ifPresent(endDevice ->
+                endDevice.getFiniteStateMachine().ifPresent(finiteStateMachine -> {
+                    List<EndPointConfiguration> endPointConfigurations = finiteStateMachine.getInitialState().getOnEntryEndPointConfigurations().stream()
+                            .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
+                            .collect(Collectors.toList());
+                    endDevice.getLifecycleDates().getReceivedDate().ifPresent(effectiveDate ->
+                            call(endDevice, endPointConfigurations, finiteStateMachine.getInitialState().getName(), effectiveDate, true));
+                }));
     }
 
     @Override
@@ -177,11 +159,10 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
         return "com/energyict/mdc/device/data/device/CREATED";
     }
 
-    private void call(EndDevice endDevice, List<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate, boolean isCreated) {
+    private void call(EndDevice endDevice, Collection<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate, boolean isCreated) {
         EndDeviceConfig endDeviceConfig = endDeviceConfigDataFactory.asEndDevice(endDevice, state, effectiveDate, endDeviceAttributesProviders);
-        getEndDeviceConfigExtendedDataFactories().forEach(endDeviceConfigExtendedDataFactory -> {
-            endDeviceConfigExtendedDataFactory.extendData(endDevice, endDeviceConfig);
-        });
+        getEndDeviceConfigExtendedDataFactories()
+                .forEach(endDeviceConfigExtendedDataFactory -> endDeviceConfigExtendedDataFactory.extendData(endDevice, endDeviceConfig));
         EndDeviceConfigEventMessageType message;
         String methodName;
         if (isCreated) {
@@ -200,14 +181,6 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
                 .toEndpoints(endPointConfigurations)
                 .withRelatedAttributes(values)
                 .send(message);
-    }
-
-    private List<EndPointConfiguration> getEndPointConfigurationByIds(List<Long> endPointConfigurationIds) {
-        return endPointConfigurationIds.stream()
-                .map(id -> endPointConfigurationService.getEndPointConfiguration(id))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
     }
 
     private EndDeviceConfigEventMessageType createResponseMessage(EndDeviceConfig endDeviceConfig, HeaderType.Verb verb) {

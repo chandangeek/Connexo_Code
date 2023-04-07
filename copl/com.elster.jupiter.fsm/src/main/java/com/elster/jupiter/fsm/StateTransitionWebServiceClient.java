@@ -4,10 +4,12 @@
 
 package com.elster.jupiter.fsm;
 
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+
 import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 
 @ConsumerType
 public interface StateTransitionWebServiceClient {
@@ -28,5 +30,5 @@ public interface StateTransitionWebServiceClient {
      * @param state - new device state
      * @param effectiveDate - effective date
      */
-    void call(long id, List<Long> endPointConfigurationIds, String state, Instant effectiveDate);
+    void call(long id, Set<EndPointConfiguration> endPointConfigurationIds, String state, Instant effectiveDate);
 }

@@ -208,7 +208,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
         @Override
-        public Map<EndPointConfiguration, ?> sendRawXml(String message) {
+        public Map<WebServiceCallOccurrence, ?> sendRawXml(String message) {
             payload = message;
             Method method = Arrays.stream(getService().getMethods())
                     .filter(meth -> meth.getName().equals(methodName))
@@ -237,7 +237,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
         @Override
-        public Map<EndPointConfiguration, ?> send(Object request) {
+        public Map<WebServiceCallOccurrence, ?> send(Object request) {
             Method method = Arrays.stream(getService().getMethods())
                     .filter(meth -> meth.getName().equals(methodName))
                     .filter(meth -> meth.getParameterCount() == 1)
@@ -248,7 +248,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
             return doSend(method, request);
         }
 
-        private Map<EndPointConfiguration, ?> doSend(Method method, Object request) {
+        private Map<WebServiceCallOccurrence, ?> doSend(Method method, Object request) {
             return getEndpoints().entrySet().stream()
                     .map(epcAndEP -> {
                         Object port = epcAndEP.getValue();
@@ -259,8 +259,8 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                                 webServicesService.getOngoingOccurrence(id).saveRelatedAttributes(values);
                             }
                             Object response = method.invoke(port, request);
-                            webServicesService.passOccurrence(id);
-                            return Pair.of(epcAndEP.getKey(), response);
+                            WebServiceCallOccurrence occurrence = webServicesService.passOccurrence(id);
+                            return Pair.of(occurrence, response);
                         } catch (IllegalAccessException | IllegalArgumentException e) {
                             throw new RuntimeException(e);
                         } catch (InvocationTargetException e) {
