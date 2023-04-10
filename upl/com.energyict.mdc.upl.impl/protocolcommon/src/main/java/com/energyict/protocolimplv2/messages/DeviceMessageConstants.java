@@ -1351,6 +1351,8 @@ public final class DeviceMessageConstants {
     public static final String configUserFileAttributeDefaultTranslation = "Configuration file";
     public static final String xmlMessageAttributeName = "GeneralDeviceMessage.xmlMessage";
     public static final String xmlMessageAttributeDefaultTranslation = "XML message";
+    public static final String setPSKValue = "GeneralDeviceMessage.setPSK";
+    public static final String setPSKDefaultTranslation = "Set PSK";
     public static final String transportTypeAttributeName = "AlarmConfigurationMessage.transportType";
     public static final String transportTypeAttributeDefaultTranslation = "Transport type";
     public static final String objectDefinitionsAttributeName = "AlarmConfigurationMessage.objectDefinitions";
@@ -1361,6 +1363,8 @@ public final class DeviceMessageConstants {
     public static final String destinationAddressAttributeDefaultTranslation = "Destination address (host:port)";
     public static final String messageTypeAttributeName = "AlarmConfigurationMessage.messageType";
     public static final String messageTypeAttributeDefaultTranslation = "Message type";
+    public static final String setDownlink = "GeneralDeviceMessage.setDownlink";
+    public static final String setDownlinkDefaultTranslation = "Send downlink";
 
     public static final String broadCastLogTableEntryTTLAttributeName = "PLCConfigurationDeviceMessage.broadcastlogtableentryttl";
     public static final String broadCastLogTableEntryTTLAttributeDefaultTranslation = "Broadcast log table entry TTL";
@@ -2194,4 +2198,5 @@ public final class DeviceMessageConstants {
     public static final String maxShortRetriesDefaultTranslation = "Maximum Short Retries";
     public static final String maxLongRetries = "maxLongRetries";
     public static final String maxLongRetriesDefaultTranslation = "Maximum Long Retries";
+
 }

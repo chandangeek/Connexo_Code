@@ -11,16 +11,22 @@ import com.energyict.mdc.upl.CoapBasedInboundDeviceProtocol;
 import com.energyict.mdc.upl.InboundDAO;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.io.CoapBasedExchange;
+import com.energyict.mdc.upl.io.InboundUdpSession;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -37,6 +43,9 @@ import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
+import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,14 +57,23 @@ import org.apache.commons.codec.binary.Hex;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.PENDING_MESSAGES_FLAG;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 
 public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtocol, CrestSensorConst {
 
@@ -71,6 +89,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     private InboundDiscoveryContext context;
     private CrestObjectV2_1 crestObject;
     private LegacyMessageConverter messageConverter = null;
+    public static final Logger logger = Logger.getLogger(InboundUdpSession.class.getName());
 
     public CrestSensorInboundProtocol(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -125,9 +144,8 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
             }
             crestObject = new ObjectMapper().readValue(json, CrestObjectV2_1.class);
             handleData();
-            if (!sendNextMessages()) {
-                exchange.respond(RESPONSE_OK);
-            }
+            sendNextMessage();
+            exchange.respond(RESPONSE_OK);
         } catch (Exception e) {
             exchange.respond(RESPONSE_KO);
             getLogger().log(Level.SEVERE, "Payload error: " + e.getMessage(), e);
@@ -171,16 +189,77 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
         return messageConverter;
     }
 
-    private boolean sendNextMessages() {
-        int nrOfAcceptedMessages = 0;
-        List<OfflineDeviceMessage> pendingMessages = getContext().getInboundDAO().confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
-        for (OfflineDeviceMessage pendingMessage : pendingMessages) {
-            nrOfAcceptedMessages++;
-            exchange.respond(getMessageConverter().toMessageEntry(pendingMessage).getContent());
-            getContext().getInboundDAO().confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
-            return true;
+    private void sendNextMessage() {
+        final OfflineDevice offlineDevice = getContext().getInboundDAO().getOfflineDevice(this.getDeviceIdentifier(), new DeviceOfflineFlags(PENDING_MESSAGES_FLAG));
+        final Optional<OfflineDeviceMessage> nextPriorityPendingMessage = getNextPriorityPendingMessage(offlineDevice.getAllPendingDeviceMessages());
+
+        // only send the oldest pending message as per device requirements
+        if (nextPriorityPendingMessage.isPresent()) {
+            OfflineDeviceMessage priorityMessage = nextPriorityPendingMessage.get();
+            CollectedMessageList result = getContext().getCollectedDataFactory().createCollectedMessageList(Collections.singletonList(priorityMessage));
+            CollectedMessage collectedMessage = getContext().getCollectedDataFactory().createCollectedMessage(priorityMessage.getMessageIdentifier());
+            if (priorityMessage.getSpecification().equals(GeneralDeviceMessage.SEND_XML_MESSAGE)) {
+                collectedMessage = sendXMLAttribute(priorityMessage, collectedMessage);
+            } else if (priorityMessage.getSpecification().equals(GeneralDeviceMessage.SET_PSK)) {
+                collectedMessage = setPSKValue(priorityMessage, collectedMessage);
+            } else if (priorityMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE)) {
+                collectedMessage = upgradeFirmware(priorityMessage, collectedMessage);
+            } else if (priorityMessage.getSpecification().equals(GeneralDeviceMessage.RESET_FOTA)) {
+                collectedMessage = sendXMLAttribute(priorityMessage, collectedMessage);
+            } else if (priorityMessage.getSpecification().equals(GeneralDeviceMessage.SWITCH_BACK_PREVIOUS_FIRMWARE)) {
+                collectedMessage = sendXMLAttribute(priorityMessage, collectedMessage);
+            }
+            result.addCollectedMessage(collectedMessage);
+            this.collectedData.add(result);
         }
-        return false;
+    }
+
+    private Optional<OfflineDeviceMessage> getNextPriorityPendingMessage(List<OfflineDeviceMessage> pendingMessages) {
+        final Comparator<OfflineDeviceMessage> creationDateComparator = Comparator.comparing(OfflineDeviceMessage::getCreationDate);
+        List<OfflineDeviceMessage> priorityMessages = pendingMessages.stream().filter(m -> !m.isFirmwareMessage()).collect(Collectors.toList());
+        List<OfflineDeviceMessage> lowPriorityMessages = pendingMessages.stream().filter(m -> m.isFirmwareMessage()).collect(Collectors.toList());
+
+        if (!priorityMessages.isEmpty()) {
+            return priorityMessages.stream().min(creationDateComparator);
+        } else if (!lowPriorityMessages.isEmpty()) {
+            return lowPriorityMessages.stream().min(creationDateComparator);
+        }
+
+        return Optional.empty();
+    }
+
+    private CollectedMessage upgradeFirmware(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) {
+        final String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getValue();
+        final Integer firmwareFrameCounter = crestObject.getFmc();
+
+        try {
+            final List<String> firmwareFileLines = Files.readAllLines(Paths.get(filePath));
+            final String lineToSend = firmwareFileLines.get(firmwareFrameCounter);
+            exchange.respond(lineToSend);
+            getLogger().info("Message sent: " + lineToSend + " line: " + firmwareFrameCounter);
+            collectedMessage.setDeviceProtocolInformation("Sent package " + firmwareFrameCounter + "/" + firmwareFileLines.size());
+            if (firmwareFileLines.size() == firmwareFrameCounter + 1) {
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+            }
+        } catch (IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setDeviceProtocolInformation(e.toString());
+        }
+        return collectedMessage;
+    }
+
+    private CollectedMessage sendXMLAttribute(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) {
+        String message = getMessageConverter().toMessageEntry(pendingMessage).getContent();
+        exchange.respond(message);
+        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+        return collectedMessage;
+    }
+
+    private CollectedMessage setPSKValue(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) {
+        String message = getMessageConverter().toMessageEntry(pendingMessage).getContent();
+        exchange.respond(message);
+        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+        return collectedMessage;
     }
 
     private void handleData() {
@@ -191,18 +270,25 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
         collectedData.add(buildTextCollectedRegister(deviceIdentifier, OBIS_CODE_SERIAL_NUMBER, crestObject.getId()));
         collectedData.add(buildTextCollectedRegister(deviceIdentifier, OBIS_CODE_CONNECTION_METHOD, crestObject.getCon()));
         collectedData.add(buildTextCollectedRegister(deviceIdentifier, OBIS_CODE_CELL_ID, crestObject.getCID()));
-        collectedData.add(buildTextCollectedRegister(deviceIdentifier, OBIS_CODE_SIGNAL_QUALITY, crestObject.getCsq()));
         collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_NR_OF_TRIES, new Quantity(new BigDecimal(crestObject.getTries()), Unit.getUndefined())));
         collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_MEASUREMENT_SEND_INTERVAL, new Quantity(new BigDecimal(crestObject.getMsi()), Unit.getUndefined())));
         collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_FOTA_MESSAGE_COUNTER, new Quantity(new BigDecimal(crestObject.getFmc()), Unit.getUndefined())));
         collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_MEMORY_COUNTER, new Quantity(new BigDecimal(crestObject.getMem()), Unit.getUndefined())));
-        List<Integer> temperatures = crestObject.getT1();
-        if (!temperatures.isEmpty()) {
-            collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_AIR_TEMPERATURE, new Quantity(new BigDecimal(temperatures.get(temperatures.size() - 1) / (double) 10), Unit.get(BaseUnit.DEGREE_CELSIUS))));
+        if (crestObject.getT1() != null) {
+            List<Integer>  temperatures = crestObject.getT1();
+            if(!crestObject.getT1().isEmpty()){
+                collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_AIR_TEMPERATURE, new Quantity(new BigDecimal(temperatures.get(temperatures.size() - 1) / (double) 10), Unit.get(BaseUnit.PERCENT))));
+            }
         }
-        List<Integer> percents = crestObject.getH1();
-        if (!percents.isEmpty()) {
-            collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_AIR_HUMIDITY, new Quantity(new BigDecimal(percents.get(percents.size() - 1) / (double) 10), Unit.get(BaseUnit.PERCENT))));
+        if(crestObject.getH1() != null) {
+            List<Integer> percents = crestObject.getH1();
+            if (!percents.isEmpty()) {
+                collectedData.add(buildTextCollectedRegister(deviceIdentifier, OBIS_CODE_AIR_HUMIDITY, String.valueOf(percents.get(percents.size() - 1) / (double) 10) + "%"));
+            }
+        }
+        String signalQuality  = crestObject.getCsq();
+        if (!signalQuality.isEmpty()) {
+            collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_SIGNAL_QUALITY, new Quantity(new BigDecimal(Integer.parseInt(signalQuality) * 2 - 113),  Unit.get(BaseUnit.DECIBELMILLIWAT,-3))));
         }
         CollectedTopology collectedTopology = getContext().getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
         if (!Strings.isNullOrEmpty(this.crestObject.getV1m())) {
@@ -333,7 +419,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     private CollectedData buildTextCollectedRegister(DeviceIdentifier deviceIdentifier, ObisCode obisCode, String text) {
         RegisterIdentifier registerIdentifier = new RegisterDataIdentifierByObisCodeAndDevice(obisCode, deviceIdentifier);
         CollectedRegister register = getContext().getCollectedDataFactory().createTextCollectedRegister(registerIdentifier);
-        register.setReadTime(new Date());
+        register.setReadTime(new Date(Long.parseLong(crestObject.getTS()) * 1000 ));
         register.setCollectedData(text);
         return register;
     }
@@ -341,7 +427,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     private CollectedData buildQuantityCollectedRegister(DeviceIdentifier deviceIdentifier, ObisCode obisCode, Quantity value) {
         RegisterIdentifier registerIdentifier = new RegisterDataIdentifierByObisCodeAndDevice(obisCode, deviceIdentifier);
         CollectedRegister register = getContext().getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier);
-        register.setReadTime(new Date());
+        register.setReadTime(new Date(Long.parseLong(crestObject.getTS()) * 1000 ));
         register.setCollectedData(value);
         return register;
     }
