@@ -78,21 +78,5 @@ public interface WebServicesService {
      */
     List<PropertySpec> getWebServicePropertySpecs(String webServiceName);
 
-    WebServiceCallOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application);
-
-    WebServiceCallOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application, String payload);
-
-    WebServiceCallOccurrence passOccurrence(long id);
-
-    WebServiceCallOccurrence failOccurrence(long id, String message);
-
-    WebServiceCallOccurrence failOccurrence(long id, Exception exception);
-
-    WebServiceCallOccurrence failOccurrence(long id, String message, Exception exception);
-
-    WebServiceCallOccurrence cancelOccurrence(long id);
-
-    WebServiceCallOccurrence getOngoingOccurrence(long id);
-
     Optional<EndPointProvider> getProvider(String webServiceName);
 }

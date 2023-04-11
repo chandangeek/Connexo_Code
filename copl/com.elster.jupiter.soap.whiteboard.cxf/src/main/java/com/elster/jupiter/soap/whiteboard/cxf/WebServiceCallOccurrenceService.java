@@ -25,4 +25,20 @@ public interface WebServiceCallOccurrenceService {
     List<WebServiceCallRelatedAttribute> getRelatedAttributesByValue(String value);
 
     String translateAttributeType(String key);
+
+    WebServiceCallOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application);
+
+    WebServiceCallOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application, String payload);
+
+    WebServiceCallOccurrence passOccurrence(long id);
+
+    WebServiceCallOccurrence failOccurrence(long id, String message);
+
+    WebServiceCallOccurrence failOccurrence(long id, Exception exception);
+
+    WebServiceCallOccurrence failOccurrence(long id, String message, Exception exception);
+
+    WebServiceCallOccurrence cancelOccurrence(long id);
+
+    WebServiceCallOccurrence getOngoingOccurrence(long id);
 }

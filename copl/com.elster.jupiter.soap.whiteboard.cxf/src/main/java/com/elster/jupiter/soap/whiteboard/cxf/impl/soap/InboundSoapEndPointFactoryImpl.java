@@ -14,11 +14,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.impl.ManagedEndpoint;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-/**
- * Created by bvn on 5/11/16.
- */
 public class InboundSoapEndPointFactoryImpl extends EndPointFactoryImpl<InboundSoapEndPointProvider> {
-
     private final Provider<InboundSoapEndPoint> inboundSoapEndPointProvider;
 
     @Inject
@@ -41,5 +37,4 @@ public class InboundSoapEndPointFactoryImpl extends EndPointFactoryImpl<InboundS
     public WebServiceProtocol getProtocol() {
         return WebServiceProtocol.SOAP;
     }
-
 }

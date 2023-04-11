@@ -46,6 +46,7 @@ public abstract class AbstractInboundEndPoint {
     protected ThreadPrincipalService threadPrincipalService;
     protected UserService userService;
     protected WebServicesService webServicesService;
+    protected WebServiceCallOccurrenceService webServiceCallOccurrenceService;
     private InboundEndPointConfiguration endPointConfiguration;
 
     public AbstractInboundEndPoint() {
@@ -71,9 +72,10 @@ public abstract class AbstractInboundEndPoint {
     /**
      * Wraps the {@code supplier} into a try/catch block and creates a {@link WebServiceCallOccurrence} for this operation.
      * At the end of execution the occurrence is passed unless any exception is caught; otherwise the occurrence is failed, and all exceptions are rethrown.
+     *
      * @param supplier The operation to execute in scope of the web service call occurrence.
-     * @param <RES> The type of result returned by the {@code supplier}.
-     * @param <E> The type of {@link Fault} exception thrown from the {@code supplier}.
+     * @param <RES>    The type of result returned by the {@code supplier}.
+     * @param <E>      The type of {@link Fault} exception thrown from the {@code supplier}.
      * @return The result (response) object returned by the {@code supplier}.
      * @throws E The exception thrown from the {@code supplier}.
      */
@@ -82,19 +84,19 @@ public abstract class AbstractInboundEndPoint {
         try {
             saveRequestNameAndApplicationIfNeeded(id);
             RES result = supplier.get();
-            webServicesService.passOccurrence(id);
+            webServiceCallOccurrenceService.passOccurrence(id);
             return result;
         } catch (Fault fault) {
-            webServicesService.failOccurrence(id, new Exception(fault.getCause()));
+            webServiceCallOccurrenceService.failOccurrence(id, new Exception(fault.getCause()));
             throw fault;
         } catch (Exception exception) {
-            webServicesService.failOccurrence(id, exception);
+            webServiceCallOccurrenceService.failOccurrence(id, exception);
             throw exception;
         }
     }
 
     private void saveRequestNameAndApplicationIfNeeded(long id) {
-        WebServiceCallOccurrence occurrence = webServicesService.getOngoingOccurrence(id);
+        WebServiceCallOccurrence occurrence = webServiceCallOccurrenceService.getOngoingOccurrence(id);
         boolean needToSave = false;
         if (!occurrence.getApplicationName().isPresent()) {
             occurrence.setApplicationName(getApplicationName());
@@ -120,9 +122,10 @@ public abstract class AbstractInboundEndPoint {
      * Wraps the {@code supplier} into a transaction performed under user "batch executor" and creates a {@link WebServiceCallOccurrence} for this operation.
      * At the end of execution the occurrence is passed unless any exception is caught; otherwise the occurrence is failed, and all exceptions are rethrown.
      * The same as {@link #setSecurityContext()} and {@link #runWithOccurrence(ExceptionThrowingSupplier)} with supplier wrapped into a transaction.
+     *
      * @param supplier The operation to execute in scope of the web service call occurrence.
-     * @param <RES> The type of result returned by the {@code supplier}.
-     * @param <E> The type of {@link Fault} exception thrown from the {@code supplier}.
+     * @param <RES>    The type of result returned by the {@code supplier}.
+     * @param <E>      The type of {@link Fault} exception thrown from the {@code supplier}.
      * @return The result (response) object returned by the {@code supplier}.
      * @throws E The exception thrown from the {@code supplier}.
      */
@@ -136,21 +139,21 @@ public abstract class AbstractInboundEndPoint {
     }
 
     protected void log(LogLevel logLevel, String message) {
-        webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(logLevel, message);
+        webServiceCallOccurrenceService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(logLevel, message);
     }
 
     protected void log(String message, Exception exception) {
-        webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(message, exception);
+        webServiceCallOccurrenceService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(message, exception);
     }
 
-    protected void saveRelatedAttribute(String type, String value){
+    protected void saveRelatedAttribute(String type, String value) {
         if (value != null && !value.isEmpty()) {
-            webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).saveRelatedAttribute(type, value);
+            webServiceCallOccurrenceService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).saveRelatedAttribute(type, value);
         }
     }
 
-    protected void saveRelatedAttributes(SetMultimap<String, String> values){
-        webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).saveRelatedAttributes(values);
+    protected void saveRelatedAttributes(SetMultimap<String, String> values) {
+        webServiceCallOccurrenceService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).saveRelatedAttributes(values);
     }
 
     private String getApplicationName() {

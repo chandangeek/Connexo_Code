@@ -5,6 +5,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -22,11 +23,13 @@ public class AccessLogFeature extends AbstractFeature {
     private EndPointConfiguration endPointConfiguration;
     private final TransactionService transactionService;
     private final WebServicesService webServicesService;
+    private final WebServiceCallOccurrenceService webServiceCallOccurrenceService;
 
     @Inject
-    public AccessLogFeature(TransactionService transactionService, WebServicesService webServicesService) {
+    public AccessLogFeature(TransactionService transactionService, WebServicesService webServicesService, WebServiceCallOccurrenceService webServiceCallOccurrenceService) {
         this.transactionService = transactionService;
         this.webServicesService = webServicesService;
+        this.webServiceCallOccurrenceService = webServiceCallOccurrenceService;
     }
 
     AccessLogFeature init(EndPointConfiguration endPointConfiguration) {
@@ -37,7 +40,8 @@ public class AccessLogFeature extends AbstractFeature {
     @Override
     protected void initializeProvider(InterceptorProvider provider, Bus bus) {
         super.initializeProvider(provider, bus);
-        EndPointAccessRequestInterceptor endPointAccessRequestInterceptor = new EndPointAccessRequestInterceptor(endPointConfiguration, transactionService, webServicesService);
+        EndPointAccessRequestInterceptor endPointAccessRequestInterceptor
+                = new EndPointAccessRequestInterceptor(endPointConfiguration, transactionService, webServicesService, webServiceCallOccurrenceService);
         if (endPointConfiguration.isInbound()) {
             provider.getInInterceptors().add(endPointAccessRequestInterceptor);
             provider.getInFaultInterceptors().add(endPointAccessRequestInterceptor);

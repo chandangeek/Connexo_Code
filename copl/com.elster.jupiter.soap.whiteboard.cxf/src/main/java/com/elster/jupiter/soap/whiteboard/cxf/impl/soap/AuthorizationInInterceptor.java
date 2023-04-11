@@ -11,6 +11,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
@@ -27,7 +28,6 @@ import org.apache.cxf.phase.Phase;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.net.HttpURLConnection;
 import java.util.Optional;
 import java.util.Set;
@@ -47,25 +47,27 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
     private final UserService userService;
     private InboundEndPointConfiguration endPointConfiguration;
     private final WebServicesService webServicesService;
+    private final WebServiceCallOccurrenceService webServiceCallOccurrenceService;
     private final ThreadPrincipalService threadPrincipalService;
     private final EventService eventService;
 
     @Inject
     public AuthorizationInInterceptor(UserService userService,
                                       WebServicesService webServicesService,
+                                      WebServiceCallOccurrenceService webServiceCallOccurrenceService,
                                       ThreadPrincipalService threadPrincipalService,
                                       EventService eventService) {
         super(Phase.PRE_STREAM);
         this.userService = userService;
         this.webServicesService = webServicesService;
+        this.webServiceCallOccurrenceService = webServiceCallOccurrenceService;
         this.threadPrincipalService = threadPrincipalService;
         this.eventService = eventService;
     }
 
     public void handleMessage(Message message) throws Fault {
         HttpServletRequest request = (HttpServletRequest) message.get("HTTP.REQUEST");
-        HttpSession httpSession = request.getSession();
-        boolean newSession = false;
+        request.getSession();
 
         String userName = null;
         String password = null;
@@ -73,7 +75,6 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
         if (policy != null) {
             userName = policy.getUserName();
             password = policy.getPassword();
-            newSession = true;
         } else {
             fail(message, "Authentication required",
                     "Authentication required", HttpURLConnection.HTTP_UNAUTHORIZED);
@@ -111,7 +112,7 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
 
     private void fail(Message request, String message, String detailedMessage, int statusCode) {
         MessageUtils.findOccurrenceId(request).ifPresent(id -> {
-            WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, detailedMessage);
+            WebServiceCallOccurrence occurrence = webServiceCallOccurrenceService.failOccurrence(id, detailedMessage);
             eventService.postEvent(EventType.INBOUND_AUTH_FAILURE.topic(), occurrence);
         });
         doFail(message, statusCode);
@@ -128,7 +129,7 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
 
     private void fail(Message request, String message, String detailedMessage, Exception e, int statusCode) {
         MessageUtils.findOccurrenceId(request).ifPresent(id -> {
-            WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, new Exception(detailedMessage, e));
+            WebServiceCallOccurrence occurrence = webServiceCallOccurrenceService.failOccurrence(id, new Exception(detailedMessage, e));
             eventService.postEvent(EventType.INBOUND_AUTH_FAILURE.topic(), occurrence);
         });
         doFail(message, statusCode);
