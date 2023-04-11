@@ -1351,8 +1351,8 @@ public final class DeviceMessageConstants {
     public static final String configUserFileAttributeDefaultTranslation = "Configuration file";
     public static final String xmlMessageAttributeName = "GeneralDeviceMessage.xmlMessage";
     public static final String xmlMessageAttributeDefaultTranslation = "XML message";
-    public static final String setPSKValue = "GeneralDeviceMessage.setPSK";
-    public static final String setPSKDefaultTranslation = "Set PSK";
+    public static final String PSKValue = "GeneralDeviceMessage.PSK";
+    public static final String PSKDefaultTranslation = "PSK";
     public static final String transportTypeAttributeName = "AlarmConfigurationMessage.transportType";
     public static final String transportTypeAttributeDefaultTranslation = "Transport type";
     public static final String objectDefinitionsAttributeName = "AlarmConfigurationMessage.objectDefinitions";
@@ -2198,5 +2198,4 @@ public final class DeviceMessageConstants {
     public static final String maxShortRetriesDefaultTranslation = "Maximum Short Retries";
     public static final String maxLongRetries = "maxLongRetries";
     public static final String maxLongRetriesDefaultTranslation = "Maximum Long Retries";
-
 }

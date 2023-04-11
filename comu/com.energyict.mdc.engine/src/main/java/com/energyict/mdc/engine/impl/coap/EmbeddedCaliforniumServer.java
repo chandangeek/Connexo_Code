@@ -118,11 +118,9 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
 
     private Connector createConnector(InetAddress address, CoapBasedInboundComPort comPort) throws IOException, GeneralSecurityException {
         if (comPort.isDtls()) {
-            //log
             DtlsConnectorConfig.Builder builder = DtlsConnectorConfig.builder(coapConfig);
             builder.setAddress(new InetSocketAddress(address, comPort.getPortNumber()));
             if (comPort.isUsingSharedKeys()) {
-                //log
                 builder.setAdvancedPskStore(getPskStore(comPort));
                 return new DTLSConnector(builder.build());
             }
@@ -137,9 +135,7 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
         AdvancedMultiPskStore pskStore = new AdvancedMultiPskStore();
         if (comPort.isUsingSharedKeys()) {
             String keyStore = comPort.getKeyStoreSpecsFilePath();
-            // log
             if (keyStore != null && !keyStore.isEmpty()) {
-                //log
                 loadPskStore(pskStore, new File(keyStore));
             }
         }

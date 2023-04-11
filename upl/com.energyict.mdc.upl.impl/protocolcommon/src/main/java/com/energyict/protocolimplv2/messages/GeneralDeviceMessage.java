@@ -49,7 +49,7 @@ public enum GeneralDeviceMessage implements DeviceMessageSpecSupplier {
     SET_PSK(11004, "Set PSK") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.setPSKValue, DeviceMessageConstants.setPSKDefaultTranslation));
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.PSKValue, DeviceMessageConstants.PSKDefaultTranslation));
         }
     },
     RESET_FOTA(11005, "Reset FOTA") {

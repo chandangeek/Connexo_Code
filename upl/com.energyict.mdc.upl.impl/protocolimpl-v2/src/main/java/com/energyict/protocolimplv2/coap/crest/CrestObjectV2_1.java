@@ -232,11 +232,11 @@ public class CrestObjectV2_1 {
         this.fmc = fmc;
     }
 
-    public String getTS() {
+    public String getTs() {
         return ts;
     }
 
-    public void setTS(String ts) {
+    public void setTs(String ts) {
         this.ts = ts;
     }
 }

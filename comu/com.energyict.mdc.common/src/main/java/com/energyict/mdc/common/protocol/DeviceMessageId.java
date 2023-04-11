@@ -942,7 +942,6 @@ public enum DeviceMessageId {
     READ_UMIWAN_STD_STATUS(42004),
     READ_GSM_STD_STATUS(42005);
 
-
     private long dbId;
 
     DeviceMessageId(long dbId) {
