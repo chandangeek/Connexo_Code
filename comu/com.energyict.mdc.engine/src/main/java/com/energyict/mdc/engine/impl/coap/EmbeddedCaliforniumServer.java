@@ -245,7 +245,6 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
                 for (String key : properties.stringPropertyNames()) {
                     byte[] keyBytes = hexStringToByteArray(properties.getProperty(key));
                     pskStore.setKey(key, keyBytes);
-                    //log
                 }
             }
         }
