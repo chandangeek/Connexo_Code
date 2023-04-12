@@ -39,6 +39,7 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import ch.iec.tc57._2011.usagepointconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.usagepointconfig.Name;
+import ch.iec.tc57._2011.usagepointconfig.NameType;
 import ch.iec.tc57._2011.usagepointconfig.PhaseCode;
 import ch.iec.tc57._2011.usagepointconfig.ServiceKind;
 import ch.iec.tc57._2011.usagepointconfig.Status;
@@ -67,14 +68,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -158,18 +155,14 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         Field webServiceContextField = AbstractInboundEndPoint.class.getDeclaredField("webServiceContext");
         webServiceContextField.setAccessible(true);
         webServiceContextField.set(executeUsagePointConfigEndpoint, webServiceContext);
-        when(messageContext.get(anyString())).thenReturn(1l);
+        when(messageContext.get(anyString())).thenReturn(1L);
         when(webServiceContext.getMessageContext()).thenReturn(messageContext);
         inject(AbstractInboundEndPoint.class, executeUsagePointConfigEndpoint, "threadPrincipalService", threadPrincipalService);
         inject(AbstractInboundEndPoint.class, executeUsagePointConfigEndpoint, "webServicesService", webServicesService);
+        inject(AbstractInboundEndPoint.class, executeUsagePointConfigEndpoint, "webServiceCallOccurrenceService", webServiceCallOccurrenceService);
         inject(AbstractInboundEndPoint.class, executeUsagePointConfigEndpoint, "transactionService", transactionService);
-        when(transactionService.execute(any())).then(new Answer(){
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return ((ExceptionThrowingSupplier)invocationOnMock.getArguments()[0]).get();
-            }
-        });
-        when(webServicesService.getOngoingOccurrence(1l)).thenReturn(webServiceCallOccurrence);
+        when(transactionService.execute(any())).then(invocationOnMock -> invocationOnMock.getArgumentAt(0, ExceptionThrowingSupplier.class).get());
+        when(webServiceCallOccurrenceService.getOngoingOccurrence(1L)).thenReturn(webServiceCallOccurrence);
         when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.of("ApplicationName"));
         when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.of("Request"));
 
@@ -431,7 +424,6 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
     }
 
     @Test
-    @Ignore
     public void testSetSeveralNamesInUsagePointConfig() throws Exception {
         // Prepare request
         UsagePointConfig usagePointConfig = new UsagePointConfig();
@@ -442,9 +434,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> executeUsagePointConfigEndpoint.changeUsagePointConfig(usagePointConfigRequest),
-                MessageSeeds.UNSUPPORTED_LIST_SIZE.getErrorCode(),
-                "The list of 'UsagePointConfig.UsagePoint[0].Names' has unsupported size. Must be of size 1.");
+        executeUsagePointConfigEndpoint.changeUsagePointConfig(usagePointConfigRequest);
     }
 
     @Test
@@ -1001,7 +991,14 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
     private Name name(String value) {
         Name name = new Name();
         name.setName(value);
+        name.setNameType(nameType(UsagePointBuilder.USAGE_POINT_NAME));
         return name;
+    }
+
+    private NameType nameType(String value) {
+        NameType nameType = new NameType();
+        nameType.setName(value);
+        return nameType;
     }
 
     private void assertFaultMessage(RunnableWithFaultMessage action, String expectedCode, String expectedDetailedMessage) {
@@ -1029,7 +1026,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
             verifyNoMoreInteractions(transactionContext);
         } catch (Exception e) {
             e.printStackTrace();
-            fail("Expected FaultMessage but got: " + System.lineSeparator() + e.toString());
+            fail("Expected FaultMessage but got: " + System.lineSeparator() + e);
         }
     }
 

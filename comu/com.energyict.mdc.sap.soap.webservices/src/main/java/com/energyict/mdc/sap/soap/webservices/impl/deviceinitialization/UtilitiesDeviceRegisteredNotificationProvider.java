@@ -7,9 +7,9 @@ import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.BulkWebServiceCallResult;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -164,11 +164,10 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         SetMultimap<String, String> values = HashMultimap.create();
         values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
 
-        Set<WebServiceCallOccurrence> sentNotifications = using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
+        BulkWebServiceCallResult result = using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
                 .withRelatedAttributes(values)
-                .send(notificationMessage)
-                .keySet();
-        if (!sentNotifications.isEmpty()) {
+                .send(notificationMessage);
+        if (result.isAtLeastOneEndpointSuccessful()) {
             sapCustomPropertySets.setRegistered(sapDeviceId, true);
         }
     }
@@ -179,12 +178,11 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         SetMultimap<String, String> values = HashMultimap.create();
         values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
 
-        Set<WebServiceCallOccurrence> sentNotifications = using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
+        BulkWebServiceCallResult result = using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
                 .toEndpoints(endPointConfigurations)
                 .withRelatedAttributes(values)
-                .send(notificationMessage)
-                .keySet();
-        if (!sentNotifications.isEmpty()) {
+                .send(notificationMessage);
+        if (result.isAtLeastOneEndpointSuccessful()) {
             sapCustomPropertySets.setRegistered(sapDeviceId, true);
             return true;
         } else {

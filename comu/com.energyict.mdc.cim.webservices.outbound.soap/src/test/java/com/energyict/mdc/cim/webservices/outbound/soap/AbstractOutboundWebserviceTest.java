@@ -13,6 +13,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.AbstractEndPointInitializer;
 import com.elster.jupiter.transaction.TransactionService;
@@ -39,6 +40,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -53,6 +55,8 @@ public abstract class AbstractOutboundWebserviceTest<S> {
     protected UserService userService;
     @Mock
     protected WebServicesService webServicesService;
+    @Mock
+    protected WebServiceCallOccurrenceService webServiceCallOccurrenceService;
     @Mock
     protected EndPointConfigurationService endPointConfigurationService;
     @Mock
@@ -79,6 +83,7 @@ public abstract class AbstractOutboundWebserviceTest<S> {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
                 bind(WebServicesService.class).toInstance(webServicesService);
+                bind(WebServiceCallOccurrenceService.class).toInstance(webServiceCallOccurrenceService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
                 bind(EventService.class).toInstance(eventService);
             }
@@ -100,10 +105,15 @@ public abstract class AbstractOutboundWebserviceTest<S> {
         when(outboundEndPointConfiguration.isActive()).thenReturn(true);
         when(outboundEndPointConfiguration.getWebServiceName()).thenReturn(name);
         when(endPointConfigurationService.getEndPointConfigurationsForWebService(name)).thenReturn(Collections.singletonList(outboundEndPointConfiguration));
-        when(webServicesService.startOccurrence(eq(outboundEndPointConfiguration), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
-        when(webServicesService.startOccurrence(eq(outboundEndPointConfiguration), anyString(), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrenceService.startOccurrence(eq(outboundEndPointConfiguration), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrenceService.startOccurrence(eq(outboundEndPointConfiguration), anyString(), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
         long occurrenceId = webServiceCallOccurrence.getId();
-        when(webServicesService.getOngoingOccurrence(occurrenceId)).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrence.getEndPointConfiguration()).thenReturn(outboundEndPointConfiguration);
+        when(webServiceCallOccurrenceService.getOngoingOccurrence(occurrenceId)).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrenceService.passOccurrence(occurrenceId)).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrenceService.failOccurrence(eq(occurrenceId), anyString())).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrenceService.failOccurrence(eq(occurrenceId), any(Exception.class))).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrenceService.failOccurrence(eq(occurrenceId), anyString(), any(Exception.class))).thenReturn(webServiceCallOccurrence);
         return provider;
     }
 

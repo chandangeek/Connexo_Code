@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
-import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockMeterConfig;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.common.device.data.Device;
@@ -33,8 +32,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -65,18 +62,13 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         Field webServiceContextField = AbstractInboundEndPoint.class.getDeclaredField("webServiceContext");
         webServiceContextField.setAccessible(true);
         webServiceContextField.set(executeMeterConfigEndpoint, webServiceContext);
-        when(messageContext.get(anyString())).thenReturn(1l);
+        when(messageContext.get(anyString())).thenReturn(1L);
         when(webServiceContext.getMessageContext()).thenReturn(messageContext);
         inject(AbstractInboundEndPoint.class, executeMeterConfigEndpoint, "threadPrincipalService", threadPrincipalService);
         inject(AbstractInboundEndPoint.class, executeMeterConfigEndpoint, "webServicesService", webServicesService);
+        inject(AbstractInboundEndPoint.class, executeMeterConfigEndpoint, "webServiceCallOccurrenceService", webServiceCallOccurrenceService);
         inject(AbstractInboundEndPoint.class, executeMeterConfigEndpoint, "transactionService", transactionService);
-        when(transactionService.execute(any())).then(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return ((ExceptionThrowingSupplier) invocationOnMock.getArguments()[0]).get();
-            }
-        });
-        when(webServicesService.getOngoingOccurrence(1l)).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrenceService.getOngoingOccurrence(1L)).thenReturn(webServiceCallOccurrence);
         when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.of("ApplicationName"));
         when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.of("Request"));
         when(deviceService.findDeviceByMrid(DEVICE_MRID)).thenReturn(Optional.of(device));

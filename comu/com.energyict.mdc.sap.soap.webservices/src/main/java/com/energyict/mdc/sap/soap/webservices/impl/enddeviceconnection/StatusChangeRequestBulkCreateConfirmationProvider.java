@@ -7,6 +7,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.BulkWebServiceCallResult;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -21,6 +22,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscha
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.UtilitiesDeviceID;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
@@ -30,7 +32,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Singleton;
 import javax.xml.ws.Service;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -116,15 +117,16 @@ public class StatusChangeRequestBulkCreateConfirmationProvider extends AbstractO
                         .forEach(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value))
                 );
 
-        Set<EndPointConfiguration> successEndpoints = using("smartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateConfirmationCOut")
+        BulkWebServiceCallResult result = using("smartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateConfirmationCOut")
                 .toEndpoints(endpoints)
                 .withRelatedAttributes(values)
-                .send(message).keySet();
+                .send(message);
 
-        endpoints.removeAll(successEndpoints);
-        if (!endpoints.isEmpty()) {
+        Set<EndPointConfiguration> successEndpoints = result.getSuccessfulEndpoints();
+        Set<EndPointConfiguration> failedEndpoints = result.getFailedEndpoints();
+        if (!failedEndpoints.isEmpty()) {
             retValue = false;
-            parent.log(LogLevel.INFO, "Failed to send confirmation to the following endpoints: " + endpoints.stream()
+            parent.log(LogLevel.INFO, "Failed to send confirmation to the following endpoints: " + failedEndpoints.stream()
                     .map(EndPointConfiguration::getName)
                     .collect(Collectors.joining(", ")));
         }

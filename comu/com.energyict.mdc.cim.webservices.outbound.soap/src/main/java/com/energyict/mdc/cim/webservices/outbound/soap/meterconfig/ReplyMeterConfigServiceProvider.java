@@ -11,6 +11,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.BulkWebServiceCallResult;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
@@ -178,13 +179,13 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
                 CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getmRID(),
                 CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), device.getSerialNumber()
         );
-        Map<WebServiceCallOccurrence, ?> replyMap = using("changedMeterConfig")
+        BulkWebServiceCallResult result = using("changedMeterConfig")
                 .toEndpoints(endPointConfigurations)
                 .withRelatedAttributes(attributes)
                 .send(message);
         logger.info("Call was sent, checking reply message");
-        return replyMap.size() == endPointConfigurations.size() // make sure all the notifications are sent and answered
-                && replyMap.entrySet().stream()
+        return result.isSuccessful() // make sure all the notifications are sent and answered
+                && result.getOccurrencesWithResponses().entrySet().stream()
                 .map(callAndResponse -> checkReplyMessage(callAndResponse.getKey(), (MeterConfigResponseMessageType) callAndResponse.getValue()))
                 .reduce(Boolean::logicalAnd) // make sure all the notifications are successful
                 .orElse(true); // no endpoint to send the notification, so positively relax
