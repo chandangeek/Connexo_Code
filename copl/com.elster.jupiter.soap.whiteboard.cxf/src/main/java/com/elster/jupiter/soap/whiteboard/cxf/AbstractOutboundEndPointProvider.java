@@ -14,6 +14,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import org.apache.cxf.transport.http.HTTPException;
 import org.glassfish.jersey.message.internal.MessageBodyProviderNotFoundException;
@@ -38,13 +39,9 @@ import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -60,7 +57,6 @@ import java.util.stream.Collectors;
 public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEndPointProvider {
     public static final String URL_PROPERTY = "url";
     public static final String ENDPOINT_CONFIGURATION_ID_PROPERTY = "epcId";
-    private static final Logger LOGGER = Logger.getLogger(AbstractOutboundEndPointProvider.class.getName());
 
     /**
      * Attention: These fields are injectable by hardcoded names via {@link AbstractEndPointInitializer}.
@@ -136,9 +132,9 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
     private final class RequestSenderImpl implements RequestSender {
         private final String methodName;
         private String payload;
-        private Collection<EndPointConfiguration> endPointConfigurations;
+        private ImmutableSet<EndPointConfiguration> endPointConfigurations;
+        private BulkWebServiceCallResultImpl bulkWebServiceCallResult;
         private SetMultimap<String, String> values;
-
 
         private RequestSenderImpl(String methodName) {
             this.methodName = methodName;
@@ -151,7 +147,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
 
         @Override
         public RequestSenderImpl toEndpoints(Collection<EndPointConfiguration> endPointConfigurations) {
-            this.endPointConfigurations = endPointConfigurations;
+            this.endPointConfigurations = ImmutableSet.copyOf(endPointConfigurations);
             return this;
         }
 
@@ -188,6 +184,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
             long id = webServiceCallOccurrenceService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), payload).getId();
             String message = thesaurus.getSimpleFormat(messageSeed).format(args);
             WebServiceCallOccurrence occurrence = webServiceCallOccurrenceService.failOccurrence(id, message);
+            bulkWebServiceCallResult.addFailureResult(occurrence);
             eventService.postEvent(EventType.OUTBOUND_ENDPOINT_NOT_AVAILABLE.topic(), occurrence);
         }
 
@@ -195,11 +192,12 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
             if (endPointConfigurations == null) {
                 endPointConfigurations = getEndPointConfigurationsForWebService().stream()
                         .filter(EndPointConfiguration::isActive)
-                        .collect(Collectors.toSet());
+                        .collect(ImmutableSet.toImmutableSet());
                 if (endPointConfigurations.isEmpty()) {
                     throw new EndPointException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS, getName());
                 }
             }
+            bulkWebServiceCallResult = new BulkWebServiceCallResultImpl(endPointConfigurations);
             return endPointConfigurations.stream()
                     .map(epc -> Pair.of(epc, getEndpoint(epc)))
                     .filter(Pair::hasLast)
@@ -207,7 +205,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
         @Override
-        public Map<WebServiceCallOccurrence, ?> sendRawXml(String message) {
+        public BulkWebServiceCallResultImpl sendRawXml(String message) {
             payload = message;
             Method method = Arrays.stream(getService().getMethods())
                     .filter(meth -> meth.getName().equals(methodName))
@@ -227,16 +225,17 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
             } catch (JAXBException | SOAPException | IOException e) {
                 getEndpoints().keySet().forEach(endPointConfiguration -> {
                     long id = webServiceCallOccurrenceService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), message).getId();
-                    webServiceCallOccurrenceService.failOccurrence(id,
+                    WebServiceCallOccurrence occurrence = webServiceCallOccurrenceService.failOccurrence(id,
                             "The provided xml payload can't be sent by means of web service " + getName() + " using request " + methodName + '.',
                             e);
+                    bulkWebServiceCallResult.addFailureResult(occurrence);
                 });
-                return Collections.emptyMap();
+                return bulkWebServiceCallResult;
             }
         }
 
         @Override
-        public Map<WebServiceCallOccurrence, ?> send(Object request) {
+        public BulkWebServiceCallResultImpl send(Object request) {
             Method method = Arrays.stream(getService().getMethods())
                     .filter(meth -> meth.getName().equals(methodName))
                     .filter(meth -> meth.getParameterCount() == 1)
@@ -247,49 +246,47 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
             return doSend(method, request);
         }
 
-        private Map<WebServiceCallOccurrence, ?> doSend(Method method, Object request) {
-            return getEndpoints().entrySet().stream()
-                    .map(epcAndEP -> {
-                        Object port = epcAndEP.getValue();
-                        long id = webServiceCallOccurrenceService.startOccurrence(epcAndEP.getKey(), methodName, getApplicationName()).getId();
-                        try {
-                            MessageUtils.setOccurrenceId((BindingProvider) port, id);
-                            if (values != null) {
-                                webServiceCallOccurrenceService.getOngoingOccurrence(id).saveRelatedAttributes(values);
-                            }
-                            Object response = method.invoke(port, request);
-                            WebServiceCallOccurrence occurrence = webServiceCallOccurrenceService.passOccurrence(id);
-                            return Pair.of(occurrence, response);
-                        } catch (IllegalAccessException | IllegalArgumentException e) {
-                            throw new RuntimeException(e);
-                        } catch (InvocationTargetException e) {
-                            Throwable cause = e.getTargetException();
-                            WebServiceCallOccurrence occurrence = webServiceCallOccurrenceService.failOccurrence(id, cause instanceof Exception ? (Exception) cause : new Exception(cause));
-                            if (cause instanceof WebServiceException) { // SOAP endpoint
-                                cause = cause.getCause();
-                                if (cause instanceof HTTPException) {
-                                    HTTPException httpe = (HTTPException) cause;
-                                    if (httpe.getResponseCode() == 401) {
-                                        eventService.postEvent(EventType.OUTBOUND_AUTH_FAILURE.topic(), occurrence);
-                                        return null;
-                                    }
-                                } else if (cause instanceof SocketTimeoutException || cause instanceof ConnectException) {
-                                    eventService.postEvent(EventType.OUTBOUND_NO_ACKNOWLEDGEMENT.topic(), occurrence);
-                                    return null;
-                                }
-                            } else if (cause instanceof NotAuthorizedException) { // REST endpoint
+        private BulkWebServiceCallResultImpl doSend(Method method, Object request) {
+            getEndpoints().forEach((endPointConfiguration, endpoint) -> {
+                long id = webServiceCallOccurrenceService.startOccurrence(endPointConfiguration, methodName, getApplicationName()).getId();
+                try {
+                    MessageUtils.setOccurrenceId((BindingProvider) endpoint, id);
+                    if (values != null) {
+                        webServiceCallOccurrenceService.getOngoingOccurrence(id).saveRelatedAttributes(values);
+                    }
+                    Object response = method.invoke(endpoint, request);
+                    WebServiceCallOccurrence occurrence = webServiceCallOccurrenceService.passOccurrence(id);
+                    bulkWebServiceCallResult.addSuccessResult(occurrence, response);
+                } catch (IllegalAccessException | IllegalArgumentException e) {
+                    throw new RuntimeException(e);
+                } catch (InvocationTargetException e) {
+                    Throwable cause = e.getTargetException();
+                    WebServiceCallOccurrence occurrence = webServiceCallOccurrenceService.failOccurrence(id, cause instanceof Exception ? (Exception) cause : new Exception(cause));
+                    bulkWebServiceCallResult.addFailureResult(occurrence);
+                    if (cause instanceof WebServiceException) { // SOAP endpoint
+                        cause = cause.getCause();
+                        if (cause instanceof HTTPException) {
+                            HTTPException httpe = (HTTPException) cause;
+                            if (httpe.getResponseCode() == 401) {
                                 eventService.postEvent(EventType.OUTBOUND_AUTH_FAILURE.topic(), occurrence);
-                                return null;
-                            } else if (cause instanceof MessageBodyProviderNotFoundException) { // REST endpoint
-                                eventService.postEvent(EventType.OUTBOUND_NO_ACKNOWLEDGEMENT.topic(), occurrence);
-                                return null;
+                            } else {
+                                eventService.postEvent(EventType.OUTBOUND_BAD_ACKNOWLEDGEMENT.topic(), occurrence);
                             }
+                        } else if (cause instanceof SocketTimeoutException || cause instanceof ConnectException) {
+                            eventService.postEvent(EventType.OUTBOUND_NO_ACKNOWLEDGEMENT.topic(), occurrence);
+                        } else {
                             eventService.postEvent(EventType.OUTBOUND_BAD_ACKNOWLEDGEMENT.topic(), occurrence);
-                            return null;
                         }
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(HashMap::new, (map, pair) -> map.put(pair.getFirst(), pair.getLast()), Map::putAll); // to avoid NPE in case response is null
+                    } else if (cause instanceof NotAuthorizedException) { // REST endpoint
+                        eventService.postEvent(EventType.OUTBOUND_AUTH_FAILURE.topic(), occurrence);
+                    } else if (cause instanceof MessageBodyProviderNotFoundException) { // REST endpoint
+                        eventService.postEvent(EventType.OUTBOUND_NO_ACKNOWLEDGEMENT.topic(), occurrence);
+                    } else {
+                        eventService.postEvent(EventType.OUTBOUND_BAD_ACKNOWLEDGEMENT.topic(), occurrence);
+                    }
+                }
+            });
+            return bulkWebServiceCallResult;
         }
 
         private String getApplicationName() {

@@ -8,7 +8,6 @@ import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.SetMultimap;
 
 import java.util.Collection;
-import java.util.Map;
 
 @ProviderType
 public interface OutboundEndPointProvider extends EndPointProvider {
@@ -48,7 +47,7 @@ public interface OutboundEndPointProvider extends EndPointProvider {
          * and related endpoint configuration(s) is(are) NOT included into the result map.
          * @throws RuntimeException In case the request should have been sent to all available endpoint configurations, but no suitable one is found.
          */
-        Map<WebServiceCallOccurrence, ?> send(Object request);
+        BulkWebServiceCallResult send(Object request);
 
         /**
          * Terminal operation that sends the raw xml request.
@@ -59,7 +58,7 @@ public interface OutboundEndPointProvider extends EndPointProvider {
          * and related endpoint configuration(s) is(are) NOT included into the result map.
          * @throws RuntimeException In case the request should have been sent to all endpoint configurations, but no suitable one is found.
          */
-        Map<WebServiceCallOccurrence, ?> sendRawXml(String message);
+        BulkWebServiceCallResult sendRawXml(String message);
 
         RequestSender withRelatedAttributes(SetMultimap<String,String> values);
     }
