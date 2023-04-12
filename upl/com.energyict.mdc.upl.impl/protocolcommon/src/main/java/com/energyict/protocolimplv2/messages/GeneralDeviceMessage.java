@@ -49,19 +49,19 @@ public enum GeneralDeviceMessage implements DeviceMessageSpecSupplier {
     SET_PSK(11004, "Set PSK") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.PSKValue, DeviceMessageConstants.PSKDefaultTranslation));
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.pskValue, DeviceMessageConstants.pskDefaultTranslation));
         }
     },
     RESET_FOTA(11005, "Reset FOTA") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.setDownlink, DeviceMessageConstants.setDownlinkDefaultTranslation));
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.downlink, DeviceMessageConstants.downlinkDefaultTranslation));
         }
     },
     SWITCH_BACK_PREVIOUS_FIRMWARE(11006, "Switch back to previous firmware") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.setDownlink, DeviceMessageConstants.setDownlinkDefaultTranslation));
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.downlink, DeviceMessageConstants.downlinkDefaultTranslation));
         }
     };
 

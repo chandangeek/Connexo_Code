@@ -89,7 +89,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     private CrestObjectV2_1 crestObject;
     private LegacyMessageConverter messageConverter = null;
     public static final Logger logger = Logger.getLogger(CrestSensorInboundProtocol.class.getName());
-    private int miliSeconds = 1000;
+    private static final int MILLISECONDS_IN_SECOND = 1000;
 
     public CrestSensorInboundProtocol(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -277,7 +277,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
         if (crestObject.getT1() != null) {
             List<Integer>  temperatures = crestObject.getT1();
             if(!crestObject.getT1().isEmpty()){
-                collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_AIR_TEMPERATURE, new Quantity(new BigDecimal(temperatures.get(temperatures.size() - 1) / (double) 10), Unit.get(BaseUnit.DEGREE))));
+                collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_AIR_TEMPERATURE, new Quantity(new BigDecimal(temperatures.get(temperatures.size() - 1) / (double) 10), Unit.get(BaseUnit.DEGREE_CELSIUS))));
             }
         }
         if(crestObject.getH1() != null) {
@@ -419,7 +419,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     private CollectedData buildTextCollectedRegister(DeviceIdentifier deviceIdentifier, ObisCode obisCode, String text) {
         RegisterIdentifier registerIdentifier = new RegisterDataIdentifierByObisCodeAndDevice(obisCode, deviceIdentifier);
         CollectedRegister register = getContext().getCollectedDataFactory().createTextCollectedRegister(registerIdentifier);
-        register.setReadTime(new Date(Long.parseLong(crestObject.getTs()) * miliSeconds));
+        register.setReadTime(new Date(Long.parseLong(crestObject.getTs()) * MILLISECONDS_IN_SECOND));
         register.setCollectedData(text);
         return register;
     }
@@ -427,7 +427,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     private CollectedData buildQuantityCollectedRegister(DeviceIdentifier deviceIdentifier, ObisCode obisCode, Quantity value) {
         RegisterIdentifier registerIdentifier = new RegisterDataIdentifierByObisCodeAndDevice(obisCode, deviceIdentifier);
         CollectedRegister register = getContext().getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier);
-        register.setReadTime(new Date(Long.parseLong(crestObject.getTs()) * miliSeconds));
+        register.setReadTime(new Date(Long.parseLong(crestObject.getTs()) * MILLISECONDS_IN_SECOND));
         register.setCollectedData(value);
         return register;
     }
