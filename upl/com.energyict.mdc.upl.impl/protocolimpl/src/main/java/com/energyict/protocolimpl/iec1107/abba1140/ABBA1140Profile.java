@@ -154,10 +154,10 @@ public class ABBA1140Profile {
         byte[] data;
         if (meterProtocol.isIEC1107Compatible()) {
             long nrOfBlocks = ((Long)rFactory.getRegister("LoadProfile64Blocks")).longValue();
-            data = rFactory.getRegisterRawData("LoadProfile", (int)nrOfBlocks*64);
+            data = rFactory.getRegisterRawData(ABBA1140RegisterFactory.loadProfileKey, (int)nrOfBlocks*64);
         } else {
             long nrOfBlocks = ((Long)rFactory.getRegister("LoadProfile256Blocks")).longValue();
-            data = rFactory.getRegisterRawDataStream("LoadProfile",(int)nrOfBlocks);
+            data = rFactory.getRegisterRawDataStream(ABBA1140RegisterFactory.loadProfileKey, (int)nrOfBlocks);
         }
 
         ProfileData profileData = parse(new ByteArrayInputStream(data), meterProtocol.getNumberOfChannels());

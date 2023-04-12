@@ -78,11 +78,11 @@ public class ABBA1700Profile {
         byte[] data;
         if (protocolLink.isIEC1107Compatible()) {
             long nrOfBlocks = ((Long)getABBA1700RegisterFactory().getRegister("LoadProfile64Blocks")).longValue()+1; // KV_DEBUG 1 more block...
-            data = getABBA1700RegisterFactory().getRegisterRawData("LoadProfile", (int)nrOfBlocks*64);
+            data = getABBA1700RegisterFactory().getRegisterRawData(ABBA1700RegisterFactory.loadProfileKey, (int)nrOfBlocks*64);
         }
         else {
             long nrOfBlocks = ((Long)getABBA1700RegisterFactory().getRegister("LoadProfile256Blocks")).longValue();
-            data = getABBA1700RegisterFactory().getRegisterRawDataStream("LoadProfile",(int)nrOfBlocks);
+            data = getABBA1700RegisterFactory().getRegisterRawDataStream(ABBA1700RegisterFactory.loadProfileKey, (int)nrOfBlocks);
         }
 
        // KV_DEBUG
