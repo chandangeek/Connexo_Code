@@ -253,7 +253,6 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
 
         if (form.isValid()) {
             form.updateRecord();
-            form.clearInvalid();
             var record = form.getRecord();
             record.getId() ? action = 'update' : action = 'create';
             editPage.setLoading();
