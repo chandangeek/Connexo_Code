@@ -48,7 +48,10 @@ public class CrestSensorMessageConverter extends AbstractMessageConverter {
         return ImmutableMap
                 .<DeviceMessageSpec, MessageEntryCreator>builder()
                 // General Parameters
+                .put(messageSpec(GeneralDeviceMessage.RESET_FOTA), new XMLAttributeDeviceMessageEntry())
+                .put(messageSpec(GeneralDeviceMessage.SWITCH_BACK_PREVIOUS_FIRMWARE), new XMLAttributeDeviceMessageEntry())
                 .put(messageSpec(GeneralDeviceMessage.SEND_XML_MESSAGE), new XMLAttributeDeviceMessageEntry())
+                .put(messageSpec(GeneralDeviceMessage.SET_PSK), new XMLAttributeDeviceMessageEntry())
                 .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new MultipleAttributeMessageEntry(RtuMessageConstant.FIRMWARE_UPGRADE, RtuMessageConstant.FIRMWARE_PATH))
                 .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE), new MultipleAttributeMessageEntry(RtuMessageConstant.FIRMWARE_UPGRADE, RtuMessageConstant.FIRMWARE_PATH, RtuMessageConstant.ACTIVATE_DATE))
                 .build();

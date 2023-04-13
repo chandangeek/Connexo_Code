@@ -43,18 +43,23 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceFirmwareSupport;
 
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.security.NoSecuritySupport;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public class CrestSensor implements DeviceProtocol, SerialNumberSupport, DeviceFirmwareSupport {
 
@@ -66,6 +71,7 @@ public class CrestSensor implements DeviceProtocol, SerialNumberSupport, DeviceF
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
+    public static final Logger logger = Logger.getLogger(CrestSensor.class.getName());
 
     public CrestSensor(CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         this.collectedDataFactory = collectedDataFactory;

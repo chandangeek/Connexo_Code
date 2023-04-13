@@ -231,5 +231,13 @@ public class CrestObjectV2_1 {
     public void setFmc(Integer fmc) {
         this.fmc = fmc;
     }
+
+    public String getTs() {
+        return ts;
+    }
+
+    public void setTs(String ts) {
+        this.ts = ts;
+    }
 }
 
