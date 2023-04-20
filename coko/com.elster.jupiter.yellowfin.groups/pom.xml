@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>19.1.0-Kratos</version>
+        <version>19.1.1-Kratos-SNAPSHOT</version>
 
     </parent>
     <artifactId>yellowfin.groups</artifactId>
