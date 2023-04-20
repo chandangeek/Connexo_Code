@@ -348,7 +348,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                             List<Device> foundDevices = deviceFinder.findDevicesBySerialNumber(meterInfo.getSerialNumber());
                             if (foundDevices.size() > 1) {
                                 throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_DELETE_DEVICE,
-                                        MessageSeeds.NAME_MUST_BE_UNIQUE);
+                                        MessageSeeds.NAME_AND_SERIAL_MUST_BE_UNIQUE);
                             }
                         } catch (FaultMessage e) {
                             faultMessages.add(e);
@@ -378,7 +378,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     List<Device> foundDevices = deviceFinder.findDevicesBySerialNumber(meterInfo.getSerialNumber());
                     if (foundDevices.size() > 1) {
                         throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_DELETE_DEVICE,
-                                MessageSeeds.NAME_MUST_BE_UNIQUE);
+                                MessageSeeds.NAME_AND_SERIAL_MUST_BE_UNIQUE);
                     }
                     Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getSerialNumber(), meterInfo.getDeviceName());
                     deviceDeleter.delete(device);
@@ -408,8 +408,8 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                             deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getSerialNumber(), meterInfo.getDeviceName());
                             List<Device> foundDevices = deviceFinder.findDevicesBySerialNumber(meterInfo.getSerialNumber());
                             if (foundDevices.size() > 1) {
-                                throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG_EVENTS,
-                                        MessageSeeds.NAME_MUST_BE_UNIQUE);
+                                throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG,
+                                        MessageSeeds.NAME_AND_SERIAL_MUST_BE_UNIQUE);
                             }
                         } catch (FaultMessage e) {
                             faultMessages.add(e);
@@ -431,7 +431,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                         }
                     }
                 } else if (meterConfig.getMeter().size() > 1) {
-                    throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG_EVENTS,
+                    throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG,
                             MessageSeeds.SYNC_MODE_NOT_SUPPORTED);
                 } else {
                     // call synchronously
@@ -440,8 +440,8 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
                     List<Device> foundDevices = deviceFinder.findDevicesBySerialNumber(meterInfo.getSerialNumber());
                     if (foundDevices.size() > 1) {
-                        throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG_EVENTS,
-                                MessageSeeds.NAME_MUST_BE_UNIQUE);
+                        throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG,
+                                MessageSeeds.NAME_AND_SERIAL_MUST_BE_UNIQUE);
                     }
                     Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getSerialNumber(), meterInfo.getDeviceName());
                     checkMeterStatusSourceSync(meterConfig.getMeterStatusSource(), device.getName());

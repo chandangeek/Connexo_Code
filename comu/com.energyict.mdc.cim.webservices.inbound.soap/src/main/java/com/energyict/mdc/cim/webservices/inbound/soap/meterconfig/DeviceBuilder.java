@@ -111,7 +111,7 @@ public class DeviceBuilder {
                 if (optionalComSchedule.isPresent()) {
                     comSchedules.add(optionalComSchedule.get());
                 } else {
-                    throw getFaultMessage(meter.getDeviceName(), MessageSeeds.SCHEDULE_FOR_METER_NOT_FOUND, scheduleName).get();
+                    throw faultMessageSupplier(meter.getDeviceName(), MessageSeeds.SCHEDULE_FOR_METER_NOT_FOUND, scheduleName).get();
                 }
             }
             for (ComSchedule comSchedule : comSchedules) {
