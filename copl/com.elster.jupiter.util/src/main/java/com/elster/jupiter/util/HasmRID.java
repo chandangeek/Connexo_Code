@@ -4,9 +4,9 @@
 
 package com.elster.jupiter.util;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
-@ProviderType
+@ConsumerType
 public interface HasmRID {
 
     /**

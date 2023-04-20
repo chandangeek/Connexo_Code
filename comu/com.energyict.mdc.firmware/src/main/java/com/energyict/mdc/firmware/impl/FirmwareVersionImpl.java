@@ -57,12 +57,12 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH + "}")
     private String firmwareVersion;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<DeviceType> deviceType = ValueReference.absent();
+    private final Reference<DeviceType> deviceType = ValueReference.absent();
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private FirmwareType firmwareType;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private FirmwareStatus firmwareStatus;
-    private Blob firmwareFile = SimpleBlob.empty();
+    private final Blob firmwareFile = SimpleBlob.empty();
     @Max(value = FirmwareService.MAX_FIRMWARE_FILE_SIZE, message = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED + "}")
     private Long firmwareFileSize = null; // set this size for validation reason
     private boolean hasFirmwareFile = false; // boolean indicating whether or not the firmware file has been set/updated
@@ -79,9 +79,9 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     private long version;
     private FirmwareStatus oldFirmwareStatus;
 
-    private Reference<FirmwareVersion> meterFirmwareDependency = ValueReference.absent();
-    private Reference<FirmwareVersion> communicationFirmwareDependency = ValueReference.absent();
-    private Reference<FirmwareVersion> auxiliaryFirmwareDependency = ValueReference.absent();
+    private final Reference<FirmwareVersion> meterFirmwareDependency = ValueReference.absent();
+    private final Reference<FirmwareVersion> communicationFirmwareDependency = ValueReference.absent();
+    private final Reference<FirmwareVersion> auxiliaryFirmwareDependency = ValueReference.absent();
 
     @Inject
     public FirmwareVersionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {

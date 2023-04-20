@@ -44,9 +44,22 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
         }
     }
 
+    @Override
     public List<T> select(Condition condition, Hint[] hints, Order[] ordering, boolean eager, String[] exceptions, int from, int to) {
         try {
-            return new JoinExecutor<>(root.copy(), getEffectiveDate(), from, to).select(restriction.and(condition), ordering, eager, exceptions, hints);
+            return new JoinExecutor<>(root.copy(), getEffectiveDate(), from, to).select(restriction.and(condition), ordering, eager, exceptions, false, hints);
+        } catch (SQLException ex) {
+            throw new UnderlyingSQLFailedException(ex);
+        }
+    }
+
+    @Override
+    public List<T> lock(Condition condition, Order[] ordering, boolean eager, String[] exceptions, int from, int to) {
+        if (ordering == null || ordering.length == 0) {
+            throw new IllegalArgumentException("Ordering is required for selection with lock.");
+        }
+        try {
+            return new JoinExecutor<>(root.copy(), getEffectiveDate(), from, to).select(restriction.and(condition), ordering, eager, exceptions, true);
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
@@ -153,6 +166,11 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
     @Override
     public List<T> select(Condition condition, Order... orders) {
         return select(condition, orders, true, new String[0]);
+    }
+
+    @Override
+    public List<T> lock(Condition condition, Order... orders) {
+        return lock(condition, orders, true, new String[0], 0, 0);
     }
 
     @Override

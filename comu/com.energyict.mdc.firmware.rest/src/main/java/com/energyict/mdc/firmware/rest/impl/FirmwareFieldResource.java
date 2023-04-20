@@ -177,7 +177,7 @@ public class FirmwareFieldResource extends FieldResource {
     @Path("/firmwareuploadcomtasks")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
-    public Response getCalendarUploadComTasks(@QueryParam("type") long deviceTypeId) {
+    public Response getFirmwareUploadComTasks(@QueryParam("type") long deviceTypeId) {
 
         Set<IdWithNameInfo> comTasks = new TreeSet<>(Comparator.comparing(IdWithNameInfo::getName));
 

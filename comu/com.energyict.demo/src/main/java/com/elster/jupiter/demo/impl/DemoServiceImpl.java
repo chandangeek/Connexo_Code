@@ -19,6 +19,7 @@ import com.elster.jupiter.demo.impl.commands.CreateDeliverDataSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDemoDataCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDemoUserCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDeviceTypeCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.CreateEstimationSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateG3DemoBoardCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
@@ -34,7 +35,6 @@ import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
 import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
 import com.elster.jupiter.demo.impl.commands.FileImportCommand;
 import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateSPEDeviceCommand;
@@ -76,6 +76,8 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -113,6 +115,15 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.security.Principal;
 import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.demo", service = {DemoServiceImpl.class}, property = {
         "osgi.command.scope=demo",
@@ -152,7 +163,8 @@ import java.time.Clock;
         "osgi.command.function=createPowerUser",
         "osgi.command.function=createRegisterDevice",
         "osgi.command.function=createNetworkTopology",
-        "osgi.command.function=createNetworkManagement"
+        "osgi.command.function=createNetworkManagement",
+        "osgi.command.function=createDevices"
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -973,6 +985,59 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
+    public void createDevices() {
+        System.err.println("Usage: createDevices <number> <deviceType> <deviceConfig> [<-authenticationKey=\"\"> <-encryptionKey=\"\"> <-serialNumberPrefix=\"\"> <-activationDate=yyyy-mm-dd>]");
+        System.err.println("Timezone for activationDate is fetched from the provided configuration");
+    }
+
+    /**
+     * @param deviceNumber
+     * @param deviceTypeName
+     * @param deviceConfigName
+     */
+    @SuppressWarnings("unused")
+    public void createDevices(int deviceNumber, String deviceTypeName, String deviceConfigName, String... otherOptions) {
+        Map<String, String> optionalParametersMap = Arrays.stream(otherOptions).map(str -> str.split("=")).collect(Collectors.toMap(option -> option[0], option -> option[1]));
+
+        final String authenticationKey = optionalParametersMap.getOrDefault("-authenticationKey", "00000000000000000000000000000001");
+        final String encryptionKey = optionalParametersMap.getOrDefault("-encryptionKey", "00000000000000000000000000000001");
+        final String serialNumberPrefix = optionalParametersMap.getOrDefault("-serialNumberPrefix", "ELS301");
+
+        DeviceType deviceType = this.deviceConfigurationService
+                .findDeviceTypeByName(deviceTypeName)
+                .orElseThrow(() -> new UnableToCreate("Provided device type " + deviceTypeName + " is not defined"));
+
+        DeviceConfiguration deviceConfiguration = deviceType.getConfigurations()
+                .stream()
+                .filter(config -> config.getName().equals(deviceConfigName))
+                .findFirst()
+                .orElseThrow(() -> new UnableToCreate("Provided device configuration " + deviceConfigName + " is not defined on the device type " + deviceTypeName));
+
+        TimeZone timeZone = deviceConfiguration.getDeviceProtocolProperties().getTypedProperties().getTypedProperty("TimeZone");
+
+        String activationDateString = optionalParametersMap.getOrDefault("-activationDate", LocalDate.now(timeZone.toZoneId()).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        LocalDate activationDateLocalDate = null;
+        try {
+            activationDateLocalDate = LocalDate.parse(activationDateString);
+        } catch (Exception ex) {
+            throw new UnableToCreate("Please specify the activation date in yyyy-MM-dd format");
+        }
+        Instant activationDate = activationDateLocalDate.atStartOfDay(timeZone.toZoneId()).toInstant();
+
+        for (int i = 0; i < deviceNumber; i++) {
+            String serialNumber = serialNumberPrefix + String.format("%010d", i);
+            CreateDeviceCommand command = injector.getInstance(CreateDeviceCommand.class);
+
+            command.setDeviceConfiguration(deviceConfiguration);
+            command.setSerialNumber(serialNumber);
+            command.withAuthenticationKey(authenticationKey);
+            command.withEncryptionKey(encryptionKey);
+            command.withActivationDate(activationDate);
+            command.runInTransaction();
+        }
+    }
+
+    @SuppressWarnings("unused")
     public void createMetrologyConfigurations() {
         executeTransaction(() -> {
             CreateMetrologyConfigurationsCommand command = injector.getInstance(CreateMetrologyConfigurationsCommand.class);
@@ -1040,7 +1105,7 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public void createMockedDataDevice(String serialNumber) {
         executeTransaction(() -> {
-            CreateDeviceCommand command = injector.getInstance(CreateDeviceCommand.class);
+            com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand command = injector.getInstance(com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand.class);
             command.setSerialNumber(serialNumber);
             command.setDeviceNamePrefix(Constants.Device.MOCKED_REALISTIC_DEVICE);
             command.run();

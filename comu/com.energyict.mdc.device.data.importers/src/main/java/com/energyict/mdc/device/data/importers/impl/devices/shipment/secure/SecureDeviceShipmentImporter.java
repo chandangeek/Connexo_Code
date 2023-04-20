@@ -59,12 +59,12 @@ public class SecureDeviceShipmentImporter extends SecureDeviceImporterAbstract i
         System.arraycopy(encryptedDeviceKey, 16, cipher, 0, encryptedDeviceKey.length - 16);
         DeviceSecretImporter deviceSecretImporter = securityManagementService.getDeviceSecretImporter(securityAccessorType);
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(securityAccessorType);
-        if (securityAccessorOptional.flatMap(SecurityAccessor::getActualPassphraseWrapperReference).isPresent()) {
+        if (securityAccessorOptional.flatMap(SecurityAccessor::getActualValue).isPresent()) {
             log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
         } else {
             SecurityAccessor securityAccessor = securityAccessorOptional.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
             SecurityValueWrapper newWrapperValue = deviceSecretImporter.importSecret(encryptedDeviceKey, initializationVector, encryptedSymmetricKey, symmetricAlgorithm, asymmetricAlgorithm);
-            securityAccessor.setActualPassphraseWrapperReference(newWrapperValue);
+            securityAccessor.setActualValue(newWrapperValue);
             securityAccessor.save();
         }
     }

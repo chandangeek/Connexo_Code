@@ -17,7 +17,9 @@ import java.time.Instant;
 public interface DeviceFirmwareVersionHistoryRecord extends Effectivity {
 
     Device getDevice();
+
     FirmwareVersion getFirmwareVersion();
+
     Instant getLastChecked();
 
 }

@@ -139,14 +139,15 @@ public class ComServerDAOImplTest {
         when(this.serviceProvider.communicationTaskService()).thenReturn(this.communicationTaskService);
         when(this.serviceProvider.topologyService()).thenReturn(this.topologyService);
         when(this.serviceProvider.firmwareService()).thenReturn(this.firmwareService);
-        when(this.serviceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
         when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
         when(this.serviceProvider.deviceMessageService()).thenReturn(this.deviceMessageService);
+        when(serviceProvider.deviceConfigurationService()).thenReturn(deviceConfigurationService);
         when(this.serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
-        when(this.engineConfigurationService.findComServerBySystemName()).thenReturn(Optional.<ComServer>of(this.comServer));
-        when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>of(this.comServer));
+        when(this.engineConfigurationService.findComServerBySystemName()).thenReturn(Optional.of(this.comServer));
+        when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(this.comServer));
         doReturn(Optional.of(this.comPort)).when(this.engineConfigurationService).findComPort(COMPORT_ID);
         when(this.communicationTaskService.findComTaskExecution(SCHEDULED_COMTASK_ID)).thenReturn(Optional.of(this.scheduledComTask));
+        when(deviceConfigurationService.findAndLockDeviceType(anyLong())).thenReturn(Optional.of(deviceType));
         when(this.comServer.getId()).thenReturn(COMSERVER_ID);
         when(this.comPort.getId()).thenReturn(COMPORT_ID);
         when(this.scheduledComTask.getId()).thenReturn(SCHEDULED_COMTASK_ID);
@@ -228,7 +229,9 @@ public class ComServerDAOImplTest {
     public void testConnectionTaskExecutionCompleted() throws SQLException {
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(10L);
+        when(connectionTask.isObsolete()).thenReturn(false);
         when(connectionTaskService.findConnectionTask(anyLong())).thenReturn(Optional.of(connectionTask));
+        when(connectionTaskService.findAndLockConnectionTaskById(anyLong())).thenReturn(Optional.of(connectionTask));
 
         // Business method
         this.comServerDAO.executionCompleted(connectionTask);
@@ -261,8 +264,8 @@ public class ComServerDAOImplTest {
         comServerDAO.releaseTimedOutTasks(comPort);
 
         // Asserts
-        verify(connectionTaskService).findTimedOutConnectionTasksByComPort(comPort);
         verify(communicationTaskService).findTimedOutComTasksByComPort(comPort);
+        verify(connectionTaskService).findTimedOutConnectionTasksByComPort(comPort);
     }
 
     @Test
@@ -436,10 +439,6 @@ public class ComServerDAOImplTest {
         FirmwareVersionBuilder firmwareVersionBuilder = mock(FirmwareVersionBuilder.class);
         FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
         when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);
-
-
-
-
         when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
         when(this.firmwareService.getFirmwareVersionByVersionAndType(myActiveCommunicationFirmwareVersion, FirmwareType.COMMUNICATION, deviceType)).thenReturn(Optional.empty());

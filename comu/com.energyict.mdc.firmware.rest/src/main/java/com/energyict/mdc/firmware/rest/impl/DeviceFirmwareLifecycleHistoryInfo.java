@@ -11,6 +11,7 @@ import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import java.time.Instant;
 
@@ -18,8 +19,9 @@ public class DeviceFirmwareLifecycleHistoryInfo {
 
     private String firmwareVersion;
     private String imageIdentifier;
-    private String triggerdBy;
-    private Instant uploadedOn;
+    private String triggeredBy;
+    private Instant uploadDate;
+    private Instant plannedDate;
     private Instant activationDate;
     private String result;
     private Long firmwareTaskId;
@@ -45,20 +47,28 @@ public class DeviceFirmwareLifecycleHistoryInfo {
         this.imageIdentifier = imageIdentifier;
     }
 
-    public String getTriggerdBy() {
-        return triggerdBy;
+    public String getTriggeredBy() {
+        return triggeredBy;
     }
 
-    public void setTriggerdBy(String triggerdBy) {
-        this.triggerdBy = triggerdBy;
+    public void setTriggeredBy(String triggeredBy) {
+        this.triggeredBy = triggeredBy;
     }
 
-    public Instant getUploadedOn() {
-        return uploadedOn;
+    public Instant getUploadDate() {
+        return uploadDate;
     }
 
-    public void setUploadedOn(Instant uploadedOn) {
-        this.uploadedOn = uploadedOn;
+    public void setUploadDate(Instant uploadDate) {
+        this.uploadDate = uploadDate;
+    }
+
+    public Instant getPlannedDate() {
+        return plannedDate;
+    }
+
+    public void setPlannedDate(Instant plannedDate) {
+        this.plannedDate = plannedDate;
     }
 
     public Instant getActivationDate() {
@@ -86,12 +96,19 @@ public class DeviceFirmwareLifecycleHistoryInfo {
     }
 
     private void buildDeviceFirmwareHistoryInfosFrom(DeviceMessage deviceMessage, FirmwareManagementDeviceUtils versionUtils, Thesaurus thesaurus) {
-        this.setUploadedOn(deviceMessage.getReleaseDate());
+        this.setPlannedDate(deviceMessage.getReleaseDate());
+        if (deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING) ||
+                deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING) ||
+                deviceMessage.getStatus().equals(DeviceMessageStatus.CANCELED)) {
+            this.setUploadDate(null);
+        } else {
+            this.setUploadDate(deviceMessage.getModTime());
+        }
         this.setResult(DeviceMessageStatusTranslationKeys.translationFor(deviceMessage.getStatus(), thesaurus));
-        this.setTriggerdBy(deviceMessage.getUser());
+        this.setTriggeredBy(deviceMessage.getUser());
         this.setFirmwareVersion(versionUtils.getFirmwareVersionFromMessage(deviceMessage).map(FirmwareVersion::getFirmwareVersion).orElse(null));
         this.setImageIdentifier(versionUtils.getFirmwareVersionFromMessage(deviceMessage).map(FirmwareVersion::getImageIdentifier).orElse(null));
-        this.setActivationDate(versionUtils.getActivationDateFromMessage(deviceMessage).orElse(deviceMessage.getReleaseDate()));
+        this.setActivationDate(versionUtils.getActivationDateFromMessage(deviceMessage).orElse(getUploadDate()));
         this.setFirmwareTaskId(versionUtils.getFirmwareTask().get().getId());
     }
 }

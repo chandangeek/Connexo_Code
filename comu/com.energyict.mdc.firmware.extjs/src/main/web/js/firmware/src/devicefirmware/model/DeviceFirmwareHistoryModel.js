@@ -8,8 +8,9 @@ Ext.define('Fwc.devicefirmware.model.DeviceFirmwareHistoryModel', {
     fields: [
         {name: 'firmwareVersion', type: 'string'},
         {name: 'imageIdentifier', type: 'string'},
-        {name: 'triggerdBy', type: 'string'},
-        {name: 'uploadedOn'},
+        {name: 'triggeredBy', type: 'string'},
+        {name: 'plannedDate'},
+        {name: 'uploadDate'},
         {name: 'activationDate'},
         {name: 'result'},
         'firmwareTaskId'

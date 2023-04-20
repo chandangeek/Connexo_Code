@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mail.impl;
 
+import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.mail.MailAddress;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -51,6 +52,9 @@ public class MailServiceImplTest {
     @Mock
     private Thesaurus thesaurus;
 
+    @Mock
+    private PasswordDecryptService passwordDecryptService;
+
     @Before
     public void setUp() {
         when(bundleContext.getProperty("mail.smtp.host")).thenReturn("localhost");
@@ -61,7 +65,7 @@ public class MailServiceImplTest {
 
         when(nlsService.getThesaurus(anyString(), anyObject())).thenReturn(thesaurus);
         when(thesaurus.getString(anyString(), anyString()))
-                .thenAnswer(invocation->this.getTranslationByKey((String)invocation.getArguments()[0], (String)invocation.getArguments()[1]));
+                .thenAnswer(invocation -> this.getTranslationByKey((String) invocation.getArguments()[0], (String) invocation.getArguments()[1]));
         when(thesaurus.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
     }
@@ -112,7 +116,7 @@ public class MailServiceImplTest {
     }
 
     private MailServiceImpl getMailService() {
-        MailServiceImpl mailService = new MailServiceImpl();
+        MailServiceImpl mailService = new MailServiceImpl(passwordDecryptService);
         mailService.setNlsService(nlsService);
         mailService.activate(bundleContext);
         return mailService;

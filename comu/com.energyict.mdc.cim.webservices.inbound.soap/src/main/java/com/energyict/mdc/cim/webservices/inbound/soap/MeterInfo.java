@@ -43,6 +43,7 @@ public class MeterInfo {
     private SecurityInfo securityInfo;
     private List<ConnectionAttributes> connectionAttributes;
     private List<SharedCommunicationSchedule> sharedCommunicationSchedules;
+    private boolean failOnExistentDevice;
 
     public MeterInfo() {
     }
@@ -254,5 +255,13 @@ public class MeterInfo {
 
     public void setConnectionAttributes(List<ConnectionAttributes> connectionAttributes) {
         this.connectionAttributes = connectionAttributes;
+    }
+
+    public boolean isFailOnExistentDevice() {
+        return failOnExistentDevice;
+    }
+
+    public void setFailOnExistentDevice(boolean failOnExistentDevice) {
+        this.failOnExistentDevice = failOnExistentDevice;
     }
 }

@@ -13,10 +13,13 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
+import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLInboundDeviceProtocolAdapter;
 import com.energyict.mdc.upl.CoapBasedInboundDeviceProtocol;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.io.CoapBasedExchange;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.server.resources.CoapExchange;
@@ -30,9 +33,9 @@ public class BaseCoapResource extends CoapResource {
     private static final Logger LOGGER = Logger.getLogger(BaseCoapResource.class.getName());
     private final InboundCommunicationHandler.ServiceProvider serviceProvider;
 
-    private DeviceCommandExecutor deviceCommandExecutor;
-    private CoapBasedInboundComPort comPort;
-    private ComServerDAO comServerDAO;
+    private final DeviceCommandExecutor deviceCommandExecutor;
+    private final CoapBasedInboundComPort comPort;
+    private final ComServerDAO comServerDAO;
 
     public BaseCoapResource(CoapBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super(normalizedContextPath(comPort.getContextPath()));
@@ -108,10 +111,16 @@ public class BaseCoapResource extends CoapResource {
             uplInboundDeviceProtocol = inboundDeviceProtocol;
         }
 
-        if (uplInboundDeviceProtocol instanceof CoapBasedInboundDeviceProtocol) {
-            return ((CoapBasedInboundDeviceProtocol) uplInboundDeviceProtocol);
-        } else {
+        try {
+            inboundDeviceProtocol.setUPLProperties(TypedPropertiesValueAdapter.adaptToUPLValues(comPort.getComPortPool().getTypedProperties()));
+        } catch (PropertyValidationException e) {
+            throw new NestedPropertyValidationException(e);
+        }
+
+        if (!(uplInboundDeviceProtocol instanceof CoapBasedInboundDeviceProtocol)) {
             throw new IllegalStateException(serviceProvider.thesaurus().getFormat(MessageSeeds.INVALID_INBOUND_SERVLET_PROTOCOL).format(discoveryProtocolPluggableClass.getJavaClassName()));
         }
+
+        return (CoapBasedInboundDeviceProtocol) uplInboundDeviceProtocol;
     }
 }

@@ -6,9 +6,9 @@ package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.QueryStream;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 import aQute.bnd.annotation.ProviderType;
@@ -34,7 +34,9 @@ public interface FirmwareCampaignService {
 
     Optional<FirmwareCampaign> getCampaignOn(ComTaskExecution comTaskExecution);
 
-    Optional<DeviceInFirmwareCampaign> findActiveFirmwareItemByDevice(Device device);
+    Optional<? extends DeviceInFirmwareCampaign> findActiveFirmwareItemByDevice(Device device);
+
+    Optional<? extends DeviceInFirmwareCampaign> findFirmwareItem(long campaignId, Device device);
 
     QueryStream<? extends DeviceInFirmwareCampaign> streamDevicesInCampaigns();
 
@@ -45,7 +47,4 @@ public interface FirmwareCampaignService {
     List<DeviceInFirmwareCampaign> findFirmwareCampaignItems(Device device);
 
     FirmwareVersion getFirmwareVersion(Map<String, Object> properties);
-
-    ComTask getComTaskById(long id);
-
 }

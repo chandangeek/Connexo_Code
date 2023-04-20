@@ -9,7 +9,7 @@
 	<parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>copa</artifactId>
-        <version>18.0.0-Kratos-SNAPSHOT</version>
+        <version>19.1.0-Kratos</version>
     </parent>
 
     <groupId>com.energyict</groupId>

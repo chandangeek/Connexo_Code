@@ -41,9 +41,9 @@ public class SecurityAccessorOnDeviceTypeImpl implements SecurityAccessorOnDevic
     }
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<DeviceType> deviceType = Reference.empty();
+    private final Reference<DeviceType> deviceType = Reference.empty();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<SecurityAccessor> securityAccessor = Reference.empty();
+    private final Reference<SecurityAccessor> securityAccessor = Reference.empty();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -59,14 +59,17 @@ public class SecurityAccessorOnDeviceTypeImpl implements SecurityAccessorOnDevic
         this.securityAccessor.set(securityAccessor);
         return this;
     }
+
     @Override
     public void delete() {
         dataModel.remove(this);
     }
+
     @Override
     public void save() {
         Save.CREATE.save(dataModel, this, Save.Create.class);
     }
+
     @Override
     public void update() {
         Save.UPDATE.save(dataModel, this, Save.Create.class);

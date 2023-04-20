@@ -359,6 +359,10 @@ public class ResourceHelper {
         return connectionTaskService.findAndLockConnectionTaskByIdAndVersion(id, version);
     }
 
+    public Optional<ConnectionTask> getLockedConnectionTask(long id) {
+        return connectionTaskService.findAndLockConnectionTaskById(id);
+    }
+
     public ConnectionTask lockConnectionTaskOrThrowException(ConnectionTaskVersionInfo info) {
         Optional<Device> device = getLockedDevice(info.parent.id, info.parent.version);
         if (device.isPresent()) {
@@ -1344,7 +1348,7 @@ public class ResourceHelper {
         return input;
     }
 
-    public PriorityComTaskExecutionLink getLockedPriorityComTaskExecution(ComTaskExecution cte) {
+    public PriorityComTaskExecutionLink getPriorityComTaskExecution(ComTaskExecution cte) {
         Optional<PriorityComTaskExecutionLink> priorityComTaskExecutionLink = priorityComTaskService.findByComTaskExecution(cte);
         return priorityComTaskExecutionLink.orElseGet(() -> priorityComTaskService.from(cte));
     }

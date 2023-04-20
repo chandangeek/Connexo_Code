@@ -8,6 +8,8 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.MacException;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.SecurityPropertySet;
@@ -20,6 +22,7 @@ import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
@@ -61,9 +64,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -223,7 +228,15 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         setAllKeyAccessors(convertToOfflineKeyAccessors(allSecurityAccessors));
         setSecurityPropertySetAttributeToKeyAccessorType(device);
         if (context.needsPendingMessages()) {
-            setAllPendingMessages(deviceTopologies);
+            if (!serviceProvider.transactionService().isInTransaction()) {
+                try (TransactionContext ctx = serviceProvider.transactionService().getContext()) {
+                    setAllPendingMessages(deviceTopologies);
+                    ctx.commit();
+                }
+            } else {
+                // already in transaction
+                setAllPendingMessages(deviceTopologies);
+            }
         }
         if (context.needsSentMessages()) {
             setAllSentMessages(createOfflineMessageList(getAllSentMessagesIncludingSlaves(device, deviceTopologies)));
@@ -253,8 +266,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     private void fillReallyPendingAndInvalidMessagesLists(Map<Device, List<Device>> deviceTopologies, List<DeviceMessage> reallyPending, List<DeviceMessage> invalidSinceCreation) {
         serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
         PendingMessagesValidator validator = new PendingMessagesValidator(device);
-        List<DeviceMessage> pendingMessages = getAllPendingMessagesIncludingSlaves(device, deviceTopologies);
-        pendingMessages
+        serviceProvider.deviceMessageService().findAndLockPendingMessagesForDevices(getAllPhysicalConnectedDevices(device, deviceTopologies))
                 .forEach(deviceMessage -> {
                     if (validator.isStillValid(deviceMessage)) {
                         reallyPending.add(deviceMessage);
@@ -582,12 +594,20 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      * @return a List of pending DeviceMessages
      */
     private List<DeviceMessage> getAllPendingMessagesIncludingSlaves(Device device, Map<Device, List<Device>> deviceTopologies) {
-        List<DeviceMessage> allDeviceMessages = new ArrayList<>();
-        allDeviceMessages.addAll(device.getMessagesByState(DeviceMessageStatus.PENDING));
+        List<DeviceMessage> allDeviceMessages = new ArrayList<>(device.getMessagesByState(DeviceMessageStatus.PENDING));
         getPhysicalConnectedDevices(device, deviceTopologies).stream().
                 filter(this::checkTheNeedToGoOffline).
                 forEach(slave -> allDeviceMessages.addAll(getAllPendingMessagesIncludingSlaves(slave, deviceTopologies)));
         return allDeviceMessages;
+    }
+
+    private Set<Device> getAllPhysicalConnectedDevices(Device device, Map<Device, List<Device>> deviceTopologies) {
+        Set<Device> allDevices = new HashSet<>();
+        allDevices.add(device);
+        getPhysicalConnectedDevices(device, deviceTopologies).stream()
+                .filter(this::checkTheNeedToGoOffline)
+                .forEach(slave -> allDevices.addAll(getAllPhysicalConnectedDevices(slave, deviceTopologies)));
+        return allDevices;
     }
 
     /**
@@ -775,5 +795,9 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         FirmwareService firmwareService();
 
         EventService eventService();
+
+        DeviceMessageService deviceMessageService();
+
+        TransactionService transactionService();
     }
 }

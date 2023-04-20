@@ -98,6 +98,7 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -586,5 +587,10 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+
+    @Override
+    public Set<String> getIssueTypeIdentifiers() {
+        return Collections.singleton(DeviceAlarmService.DEVICE_ALARM);
     }
 }

@@ -181,7 +181,7 @@ public interface ConnectionTaskService {
      * for the Device against which the ConnectionTask was created. If present, the old ConnectionFunction
      * is first cleared.
      *
-     * @param connectionTask The ConnectionTask that will become the one having a certain {@link ConnectionFunction}
+     * @param connectionTask        The ConnectionTask that will become the one having a certain {@link ConnectionFunction}
      * @param oldConnectionFunction An optional containing the old ConnectionFunction (which should be cleared first), or else an empty optional.
      */
     void setConnectionTaskHavingConnectionFunction(ConnectionTask<?, ?> connectionTask, Optional<ConnectionFunction> oldConnectionFunction);
@@ -189,7 +189,7 @@ public interface ConnectionTaskService {
     /**
      * Clears the {@link ConnectionFunction} for the specified Device.
      *
-     * @param connectionTask the ConnectionTask
+     * @param connectionTask        the ConnectionTask
      * @param oldConnectionFunction An optional containing the old ConnectionFunction (which should be cleared), or else an empty optional
      */
     void clearConnectionTaskConnectionFunction(ConnectionTask<?, ?> connectionTask, Optional<ConnectionFunction> oldConnectionFunction);
@@ -206,6 +206,10 @@ public interface ConnectionTaskService {
      */
     <T extends ConnectionTask> T attemptLockConnectionTask(T connectionTask, ComPort comPort);
 
+    /**
+     * @deprecated Pls use {@link #findAndLockConnectionTaskById(long)} instead.
+     */
+    @Deprecated
     <T extends ConnectionTask> T attemptLockConnectionTask(long id);
 
     /**
@@ -231,7 +235,7 @@ public interface ConnectionTaskService {
      * Update the given connectionTask with given ProtocolDialectConfigurationProperties
      *
      * @param connectionTask ConnectionTask to update
-     * @param properties to update the ConnectionTask with
+     * @param properties     to update the ConnectionTask with
      * @return the updated ConnectionTask
      */
     ConnectionTask updateProtocolDialectConfigurationProperties(ConnectionTask connectionTask, ProtocolDialectConfigurationProperties properties);
@@ -263,6 +267,8 @@ public interface ConnectionTaskService {
      * Finds all ConnectionTasks locked by a specific ComPort
      */
     List<ConnectionTask> findLockedByComPort(ComPort comPort);
+
+    Optional<ConnectionTask> findAndLockConnectionTaskById(long id);
 
     /**
      * Finds all ConnectionTasks that are running on {@link OutboundComPort}s of the {@link ComPort}

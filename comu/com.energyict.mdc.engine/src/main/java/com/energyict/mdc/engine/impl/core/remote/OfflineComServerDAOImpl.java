@@ -21,6 +21,7 @@ import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.SecurityPropertySet;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
@@ -42,6 +43,7 @@ import com.energyict.mdc.engine.impl.core.offline.ComJobResult;
 import com.energyict.mdc.engine.impl.core.offline.OfflineActionExecuter;
 import com.energyict.mdc.engine.impl.core.offline.OfflineActions;
 import com.energyict.mdc.engine.users.OfflineUserInfo;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
@@ -595,6 +597,12 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void updateDeviceMessageInformation(DeviceMessage deviceMessage, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
+        updateDeviceMessageInformation(new DeviceMessageIdentifierById(deviceMessage.getId(), deviceMessage.getDeviceIdentifier()),
+                newDeviceMessageStatus, sentDate, protocolInformation);
+    }
+
+    @Override
     public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
         getComJobExecutionModel().addCollectedDeviceMessageInformation(messageIdentifier, newDeviceMessageStatus, sentDate, protocolInformation);
     }
@@ -694,6 +702,7 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
         return comServerUser;
     }
 
+    @Override
     public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
         return null;    // Not used in mobile DAO, as only used for scheduling of high priority tasks
     }

@@ -145,7 +145,6 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 
     public static final String COMPONENT_NAME = "SIM";
 
-    private static final String CIM_METER_CONFIG = "CIM MeterConfig";
     private static final String CIM_GET_END_DEVICE_EVENTS = "CIM GetEndDeviceEvents";
     private static final String CIM_END_DEVICE_EVENTS = "CIM EndDeviceEvents";
     private static final String CIM_METER_READINGS = "CIM MeterReadings";
@@ -503,7 +502,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     }
 
     private void registerServices(BundleContext bundleContext) {
-        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterConfigEndpoint.class), ExecuteMeterConfigEndpoint.CIM_MERER_CONFIG);
+        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterConfigEndpoint.class), ExecuteMeterConfigEndpoint.CIM_METER_CONFIG);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(GetEndDeviceEventsEndpoint.class), CIM_GET_END_DEVICE_EVENTS);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteEndDeviceEventsEndpoint.class), CIM_END_DEVICE_EVENTS);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterReadingsEndpoint.class), CIM_METER_READINGS);

@@ -13,6 +13,8 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import com.google.inject.AbstractModule;
@@ -23,8 +25,8 @@ import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.mdc.device.devicemessage.message.handler.factory",
         service = MessageHandlerFactory.class,
-        property = {"subscriber="+ DeviceMessageService.DEVICE_MESSAGE_QUEUE_SUBSCRIBER,
-                "destination="+DeviceMessageService.DEVICE_MESSAGE_QUEUE_DESTINATION},
+        property = {"subscriber=" + DeviceMessageService.DEVICE_MESSAGE_QUEUE_SUBSCRIBER,
+                "destination=" + DeviceMessageService.DEVICE_MESSAGE_QUEUE_DESTINATION},
         immediate = true)
 public class CreateDeviceMessageMessageHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
@@ -33,12 +35,14 @@ public class CreateDeviceMessageMessageHandlerFactory implements MessageHandlerF
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile SecurityManagementService securityManagementService;
+    private volatile CommunicationTaskService communicationTaskService;
+    private volatile ConnectionTaskService connectionTaskService;
 
     @Override
     public MessageHandler newMessageHandler() {
         return dataModel.
                 getInstance(CreateDeviceMessageMessageHandler.class).
-                init(jsonService, deviceService, deviceMessageSpecificationService, threadPrincipalService, securityManagementService);
+                init(jsonService, deviceService, deviceMessageSpecificationService, threadPrincipalService, securityManagementService, communicationTaskService, connectionTaskService);
     }
 
     @Reference
@@ -69,6 +73,16 @@ public class CreateDeviceMessageMessageHandlerFactory implements MessageHandlerF
     @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
     }
 
     @Activate

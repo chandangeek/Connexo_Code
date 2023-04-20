@@ -35,6 +35,7 @@ public class ComWindowTest {
     private static final int END_SECONDS = 7500;    // Two hours and 5 minutes
     private static final int TEN_PM = DateTimeConstants.SECONDS_PER_HOUR * 22;
     private static final int TWO_AM = DateTimeConstants.SECONDS_PER_HOUR * 2;
+    public static final String TIME_ZONE = "Europe/Athens";
 
     @Test
     public void testConstructorWithSeconds() {
@@ -174,7 +175,7 @@ public class ComWindowTest {
     }
 
     private Calendar getCalendar () {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(TIME_ZONE));
         calendar.set(Calendar.YEAR, 2013);
         calendar.set(Calendar.MONTH, Calendar.JANUARY);
         calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -209,4 +210,84 @@ public class ComWindowTest {
         assertThat(comWindow.isEmpty()).isTrue();
     }
 
+
+    @Test
+    public void testIncludesAcrossDaysAfterMidnight () {
+        ComWindow comWindow = new ComWindow(PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 20),
+                                            PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 3));
+        Calendar calendar = getCalendar();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 1);
+        assertTrue(comWindow.includes(calendar));
+    }
+
+    @Test
+    public void testIncludesAcrossDaysAfterMidnightOutside () {
+        ComWindow comWindow = new ComWindow(PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 20),
+                                            PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 3));
+        Calendar calendar = getCalendar();
+        calendar.set(Calendar.HOUR_OF_DAY, 7);
+        assertFalse(comWindow.includes(calendar));
+    }
+
+    @Test
+    public void testIncludesAcrossDaysBeforeMidnight () {
+        ComWindow comWindow = new ComWindow(PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 20),
+                                            PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 3));
+        Calendar calendar = getCalendar();
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 30);
+        assertTrue(comWindow.includes(calendar));
+    }
+
+    @Test
+    public void testIncludesAcrossDaysBeforeMidnightOutside () {
+        ComWindow comWindow = new ComWindow(PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 23),
+                                            PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 3));
+        Calendar calendar = getCalendar();
+        calendar.set(Calendar.HOUR_OF_DAY, 22);
+        assertFalse(comWindow.includes(calendar));
+    }
+
+
+    @Test
+    public void testNormalCaseForFirmwareCampaign() {
+        ComWindow comWindow = new ComWindow(PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 13),
+                                            PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 22));
+        Calendar calendar = getCalendar();
+        calendar.set(Calendar.HOUR_OF_DAY, 15);
+        calendar.set(Calendar.MINUTE, 30);
+        assertTrue(comWindow.includes(calendar));
+    }
+
+    @Test
+    public void testNormalCaseForFirmwareCampaignOutsideLow() {
+        ComWindow comWindow = new ComWindow(PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 13),
+                PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 22));
+        Calendar calendar = getCalendar();
+        calendar.set(Calendar.HOUR_OF_DAY, 10);
+        assertFalse(comWindow.includes(calendar));
+    }
+
+    @Test
+    public void testNormalCaseForFirmwareCampaignOutsideHigh() {
+        ComWindow comWindow = new ComWindow(PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 13), // UTC
+                                            PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 15));
+        Calendar calendar = getCalendar();
+        calendar.set(Calendar.HOUR_OF_DAY, 23); // TimeZone = Europe/Athens
+        assertFalse(comWindow.includes(calendar));
+    }
+
+
+    @Test
+    public void testNormalCaseForFirmwareCampaignUTC() {
+        int hoursOffset = TimeZone.getTimeZone(TIME_ZONE).getRawOffset() / (1000 * 60 * 60);
+
+        ComWindow comWindow = new ComWindow(    PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 10), //UTC
+                                                PartialTime.fromSeconds(DateTimeConstants.SECONDS_PER_HOUR * 12));
+        Calendar calendar = getCalendar();
+
+        calendar.set(Calendar.HOUR_OF_DAY, 11 + hoursOffset); // 13 - 2 = 11 -> in window
+        assertTrue(comWindow.includes(calendar));
+    }
 }

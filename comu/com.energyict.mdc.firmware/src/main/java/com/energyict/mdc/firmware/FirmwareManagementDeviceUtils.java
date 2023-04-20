@@ -33,17 +33,19 @@ public interface FirmwareManagementDeviceUtils {
 
     boolean messageContainsActiveFirmwareVersion(DeviceMessage message);
 
-    boolean firmwareUploadTaskIsBusy();
+    boolean isFirmwareUploadTaskBusy();
 
     boolean verifyFirmwareVersionTaskIsBusy();
 
-    boolean firmwareUploadTaskIsFailed();
+    boolean isFirmwareUploadTaskFailed();
 
     boolean verifyFirmwareVersionTaskIsFailed();
 
     String translate(String key);
 
     Optional<ComTaskExecution> getFirmwareComTaskExecution();
+
+    Optional<ComTaskExecution> lockFirmwareComTaskExecution();
 
     Optional<ComTask> getFirmwareTask();
 

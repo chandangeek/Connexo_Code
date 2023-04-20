@@ -32,7 +32,7 @@ public class PlainTextSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl 
     }
 
     private void doRenewValue() {
-        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) securityManagementService.newSymmetricKeyWrapper(getKeyAccessorTypeReference());
+        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) securityManagementService.newSymmetricKeyWrapper(getSecurityAccessorType());
         symmetricKeyWrapper.generateValue();
         tempSymmetricKeyWrapperReference = dataModel.asRefAny(symmetricKeyWrapper);
         this.save();

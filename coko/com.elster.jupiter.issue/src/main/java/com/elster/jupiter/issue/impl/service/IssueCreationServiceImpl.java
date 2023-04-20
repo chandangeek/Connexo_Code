@@ -38,7 +38,6 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.users.FoundUserIsNotActiveException;
@@ -168,15 +167,13 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         final List<CreationRuleAction> actionsList;
         if (issueTypes != null && !issueTypes.isEmpty()) {
             final Condition condition = Where.where("type.issueType.key")
-                    .in(issueTypes.stream().map(type -> type.getName()).collect(Collectors.toList()));
+                    .in(issueTypes.stream().map(IssueTypes::getName).collect(Collectors.toList()));
             actionsList = dataModel.query(CreationRuleAction.class, IssueActionType.class, IssueType.class)
                     .select(condition);
         } else {
-            try (QueryStream<CreationRuleAction> actionList = dataModel.stream(CreationRuleAction.class)) {
-                actionsList = actionList.select();
-            }
+            actionsList = dataModel.stream(CreationRuleAction.class).select();
         }
-        final List<CreationRuleAction> filteredActions = actionsList.stream().filter(action -> {
+        return actionsList.stream().filter(action -> {
             if (action.getProperties().containsKey(propertyKey)) {
                 if (groupIdsList != null) {
                     List<HasId> value = (List<HasId>) action.getProperties().get(propertyKey);
@@ -186,15 +183,12 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                                 .map(object -> String.valueOf(object.getId()))
                                 .collect(Collectors.toList());
                         valuesList.retainAll(groupIdsList);
-                        if (!valuesList.isEmpty()) {
-                            return true;
-                        }
+                        return !valuesList.isEmpty();
                     }
                 }
             }
             return false;
         }).collect(Collectors.toList());
-        return filteredActions;
     }
 
     @Override

@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
+Ext.define('Fwc.firmwarecampaigns.view.FirmwareVersionsOptions', {
     extend: 'Ext.form.FieldContainer',
     alias: 'widget.firmware-version-options',
     required: true,
@@ -10,7 +10,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
         type: 'vbox',
         align: 'left'
     },
-    store: 'Fwc.firmwarecampaigns.store.FirmvareVersionsOptions',
+    store: 'Fwc.firmwarecampaigns.store.FirmwareVersionsOptions',
     isDependenciesSetted: false,
 
     initComponent: function () {
@@ -52,7 +52,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 inputValue: 'FINAL',
                                 margin: '10 0',
                                 listeners: {
-                                    change: function(checkBox, value) {
+                                    change: function (checkBox, value) {
                                         if (this.originalValue !== value) {
                                             me.down('#targetFirmwareCheckFinalReset').enable();
                                         } else me.down('#targetFirmwareCheckFinalReset').disable();
@@ -65,9 +65,9 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 inputValue: 'TEST',
                                 margin: '10 0',
                                 listeners: {
-                                    change: function(checkBox, value) {
+                                    change: function (checkBox, value) {
                                         if (this.originalValue !== value) {
-                                             me.down('#targetFirmwareCheckTestReset').enable();
+                                            me.down('#targetFirmwareCheckTestReset').enable();
                                         } else me.down('#targetFirmwareCheckTestReset').disable();
                                     }
                                 }
@@ -88,15 +88,15 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 itemId: 'targetFirmwareCheckFinalReset',
                                 hidden: false,
                                 disabled: true,
-                                handler: function(){
+                                handler: function () {
                                     me.down('#targetFirmwareCheckFinal').reset();
                                     this.disable();
                                 },
                                 listeners: {
-                                    afterrender: function(){
-                                        me.on('dependenciesSetted', function(){
-                                           var targetFirmwareCheckFinalValue = me.down('#targetFirmwareCheckFinal') && me.down('#targetFirmwareCheckFinal').originalValue;
-                                           me.down('#targetFirmwareCheckFinalReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'FWC', 'Restore to default value') + ' "' + Boolean(targetFirmwareCheckFinalValue) + '"');
+                                    afterrender: function () {
+                                        me.on('dependenciesSetted', function () {
+                                            var targetFirmwareCheckFinalValue = me.down('#targetFirmwareCheckFinal') && me.down('#targetFirmwareCheckFinal').originalValue;
+                                            me.down('#targetFirmwareCheckFinalReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'FWC', 'Restore to default value') + ' "' + Boolean(targetFirmwareCheckFinalValue) + '"');
 
                                         })
                                     }
@@ -107,15 +107,15 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 itemId: 'targetFirmwareCheckTestReset',
                                 hidden: false,
                                 disabled: true,
-                                handler: function(){
+                                handler: function () {
                                     me.down('#targetFirmwareCheckTest').reset();
                                     this.disable();
                                 },
                                 listeners: {
-                                    afterrender: function(){
-                                        me.on('dependenciesSetted', function(){
-                                           var targetFirmwareCheckTestValue = me.down('#targetFirmwareCheckTest') && me.down('#targetFirmwareCheckTest').originalValue;
-                                           me.down('#targetFirmwareCheckTestReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'FWC', 'Restore to default value') + ' "' + Boolean(targetFirmwareCheckTestValue) + '"');
+                                    afterrender: function () {
+                                        me.on('dependenciesSetted', function () {
+                                            var targetFirmwareCheckTestValue = me.down('#targetFirmwareCheckTest') && me.down('#targetFirmwareCheckTest').originalValue;
+                                            me.down('#targetFirmwareCheckTestReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'FWC', 'Restore to default value') + ' "' + Boolean(targetFirmwareCheckTestValue) + '"');
 
                                         })
                                     }
@@ -144,14 +144,14 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                 width: 750,
                 fieldLabel: Uni.I18n.translate('general.rankManagementOptions', 'FWC', 'Dependencies check'),
                 items: [
-                     {
+                    {
                         xtype: 'checkboxgroup',
                         required: false,
                         itemId: 'dependenciesCheckTargetOption',
                         columns: 1,
                         vertical: true,
                         name: 'curFirmwareCheck',
-                        fieldLabel:'',
+                        fieldLabel: '',
                         width: 400,
                         items: [
                             {
@@ -160,9 +160,9 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 inputValue: 'COMMON',
                                 margin: '10 0',
                                 listeners: {
-                                    change: function(checkBox, value) {
+                                    change: function (checkBox, value) {
                                         if (this.originalValue !== value) {
-                                             me.down('#curFirmwareCheckReset').enable();
+                                            me.down('#curFirmwareCheckReset').enable();
                                         } else me.down('#curFirmwareCheckReset').disable();
                                     }
                                 }
@@ -183,15 +183,15 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 itemId: 'curFirmwareCheckReset',
                                 hidden: false,
                                 disabled: true,
-                                handler: function(){
-                                     me.down('#curFirmwareCheck').reset();
-                                     this.disable();
+                                handler: function () {
+                                    me.down('#curFirmwareCheck').reset();
+                                    this.disable();
                                 },
                                 listeners: {
-                                    afterrender: function(){
-                                        me.on('dependenciesSetted', function(){
-                                           var curFirmwareCheckValue = me.down('#curFirmwareCheck') && me.down('#curFirmwareCheck').originalValue;
-                                           me.down('#curFirmwareCheckReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'FWC', 'Restore to default value') + ' "' + Boolean(curFirmwareCheckValue) + '"');
+                                    afterrender: function () {
+                                        me.on('dependenciesSetted', function () {
+                                            var curFirmwareCheckValue = me.down('#curFirmwareCheck') && me.down('#curFirmwareCheck').originalValue;
+                                            me.down('#curFirmwareCheckReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'FWC', 'Restore to default value') + ' "' + Boolean(curFirmwareCheckValue) + '"');
 
                                         })
                                     }
@@ -244,7 +244,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 inputValue: 'FINAL',
                                 margin: '10 0',
                                 listeners: {
-                                    change: function(checkBox, value) {
+                                    change: function (checkBox, value) {
                                         if (this.originalValue !== value) {
                                             me.down('#masterFirmwareCheckFinalReset').enable();
                                         } else {
@@ -252,7 +252,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
 
                                             if (!me.down('#masterFirmwareCheckTest').getValue()) {
                                                 me.down('#masterFirmwareMainOption').setValue(false);
-                                             }
+                                            }
                                         }
                                     }
                                 }
@@ -263,7 +263,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 inputValue: 'TEST',
                                 margin: '10 0',
                                 listeners: {
-                                    change: function(checkBox, value) {
+                                    change: function (checkBox, value) {
                                         if (this.originalValue !== value) {
                                             me.down('#masterFirmwareCheckTestReset').enable();
                                         } else {
@@ -292,16 +292,16 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 itemId: 'masterFirmwareCheckFinalReset',
                                 hidden: false,
                                 disabled: true,
-                                handler: function(){
+                                handler: function () {
                                     me.down('#masterFirmwareCheckFinal').reset();
                                     this.disable();
                                     if (!me.down('#masterFirmwareCheckFinal').getValue() && !me.down('#masterFirmwareCheckTest').getValue()) me.down('#masterFirmwareMainOption').setValue(false);
                                 },
                                 listeners: {
-                                    afterrender: function(){
-                                        me.on('dependenciesSetted', function(){
-                                           var masterFirmwareCheckFinalValue = me.down('#masterFirmwareCheckFinal') && me.down('#masterFirmwareCheckFinal').originalValue;
-                                           me.down('#masterFirmwareCheckFinalReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'FWC', 'Restore to default value') + ' "' + Boolean(masterFirmwareCheckFinalValue) + '"');
+                                    afterrender: function () {
+                                        me.on('dependenciesSetted', function () {
+                                            var masterFirmwareCheckFinalValue = me.down('#masterFirmwareCheckFinal') && me.down('#masterFirmwareCheckFinal').originalValue;
+                                            me.down('#masterFirmwareCheckFinalReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'FWC', 'Restore to default value') + ' "' + Boolean(masterFirmwareCheckFinalValue) + '"');
 
                                         })
                                     }
@@ -312,25 +312,24 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 itemId: 'masterFirmwareCheckTestReset',
                                 hidden: false,
                                 disabled: true,
-                                handler: function(){
+                                handler: function () {
                                     me.down('#masterFirmwareCheckTest').reset();
                                     this.disable();
-                                    if (!me.down('#masterFirmwareCheckTest').getValue()){
-                                         if (!me.down('#masterFirmwareCheckFinal').getValue()){
-                                             me.down('#masterFirmwareMainOption').setValue(false);
-                                         }
-                                    }
-                                    else{
-                                         var masterFirmwareCheckFinal = me.down('#masterFirmwareCheckFinal').getValue();
-                                         me.down('#masterFirmwareCheck').setValue(true);
-                                         me.down('#masterFirmwareCheckFinal').setValue(masterFirmwareCheckFinal);
+                                    if (!me.down('#masterFirmwareCheckTest').getValue()) {
+                                        if (!me.down('#masterFirmwareCheckFinal').getValue()) {
+                                            me.down('#masterFirmwareMainOption').setValue(false);
+                                        }
+                                    } else {
+                                        var masterFirmwareCheckFinal = me.down('#masterFirmwareCheckFinal').getValue();
+                                        me.down('#masterFirmwareCheck').setValue(true);
+                                        me.down('#masterFirmwareCheckFinal').setValue(masterFirmwareCheckFinal);
                                     }
                                 },
                                 listeners: {
-                                    afterrender: function(){
-                                        me.on('dependenciesSetted', function(){
-                                           var masterFirmwareCheckTestValue = me.down('#masterFirmwareCheckTest') && me.down('#masterFirmwareCheckTest').originalValue;
-                                           me.down('#masterFirmwareCheckTestReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'FWC', 'Restore to default value') + ' "' + Boolean(masterFirmwareCheckTestValue) + '"');
+                                    afterrender: function () {
+                                        me.on('dependenciesSetted', function () {
+                                            var masterFirmwareCheckTestValue = me.down('#masterFirmwareCheckTest') && me.down('#masterFirmwareCheckTest').originalValue;
+                                            me.down('#masterFirmwareCheckTestReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'FWC', 'Restore to default value') + ' "' + Boolean(masterFirmwareCheckTestValue) + '"');
 
                                         })
                                     }
@@ -350,138 +349,146 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                 }
             }]
 
-            me.callParent(arguments);
-        },
-        fillChecksAccordingStore : function(){
-            var me = this,
-                store = me.store;
-                store.each(function(record){
+        me.callParent(arguments);
+    },
+    fillChecksAccordingStore: function () {
+        var me = this,
+            store = me.store;
+        store.each(function (record) {
 
-                    var data = record.getData();
-                    for (var key in data){
-                        var checkgroup;
-                        var hasEnabledOption = false;
-                        if ( key !== 'id' && ( checkgroup = me.down('[name=' + key + ']') )){
-                             checkgroup.items.each(function(item){
-                                 if ( data[key].indexOf(item.inputValue) !== -1 ){
-                                    item.originalValue = true;
-                                    item.setValue(true);
-                                    hasEnabledOption = true;
-                                 }else{
-                                    item.originalValue = false;
-                                    item.setValue(false);
-                                 }
-                             });
-                             if ( key === 'masterFirmwareCheck' && !hasEnabledOption ) me.down('#masterFirmwareCheck').setValue(false);
+            var data = record.getData();
+            for (var key in data) {
+                var checkgroup;
+                var hasEnabledOption = false;
+                if (key !== 'id' && (checkgroup = me.down('[name=' + key + ']'))) {
+                    checkgroup.items.each(function (item) {
+                        if (data[key].indexOf(item.inputValue) !== -1) {
+                            item.originalValue = true;
+                            item.setValue(true);
+                            hasEnabledOption = true;
+                        } else {
+                            item.originalValue = false;
+                            item.setValue(false);
                         }
-                    }
-                    if (!me.isDependenciesSetted){
-                        me.setChecksDependencies('masterFirmwareCheck', 'masterFirmwareCheckFinal', 'masterFirmwareCheckTest', record.get('masterFirmwareCheck'));
-                    }
-                    me.fireEvent('dependenciesSetted');
-                })
-
-        },
-        validateData: function(versionOptions){
-
-            var me = this;
-            var result = versionOptions;
-            var masterOptions = versionOptions && versionOptions['MASTER_FIRMWARE_CHECK'] && versionOptions['MASTER_FIRMWARE_CHECK'].statuses;
-            var targetOptions = versionOptions && versionOptions['TARGET_FIRMWARE_STATUS_CHECK'] && versionOptions['TARGET_FIRMWARE_STATUS_CHECK'].statuses;
-
-            if (!targetOptions.length){
-                me.down('#firmwareTargetOptionsError').show();
-                result = undefined;
-            }else{
-                me.down('#firmwareTargetOptionsError').hide();
-            }
-
-            if (me.down('#masterFirmwareCheck').getValue() && (!masterOptions || !masterOptions.length)){
-                  me.down('#masterOptionsError').show();
-                  result = undefined;
-            }else{
-                  me.down('#masterOptionsError').hide();
-            }
-
-            return result;
-        },
-        getDataFromChecks : function(needDataValidation){
-            var me = this,
-                store = me.store;
-                var record = store.getAt(0);
-
-                var checkgroups = Ext.ComponentQuery.query('firmware-version-options checkboxgroup');
-                var versionOptions = {};
-
-                Ext.Array.each( checkgroups, function(checkgroup){
-                    var values = checkgroup.getValues();
-                    switch (checkgroup.getName()){
-                        case 'targetFirmwareCheck':
-                           var statuses = Ext.Object.getValues(values);
-                           versionOptions['TARGET_FIRMWARE_STATUS_CHECK'] = {
-                                'statuses' : statuses,
-                                'activated' : Boolean(statuses && statuses.length)
-                           }
-                        break;
-                        case 'masterFirmwareCheck':
-                           var statuses = Ext.Object.getValues(values);
-                           versionOptions['MASTER_FIRMWARE_CHECK'] = {
-                                'statuses' : statuses,
-                                'activated' : Boolean(statuses && statuses.length)
-                           }
-                        break;
-                        case 'curFirmwareCheck':
-                           var statuses = Ext.Object.getValues(values);
-                           versionOptions['CURRENT_FIRMWARE_CHECK'] = {
-                                'activated' : Boolean(statuses && statuses.length)
-                           }
-                        break;
-
-                    }
-                });
-                if (needDataValidation){
-                    return me.validateData(versionOptions);
-                } else {
-                    return versionOptions;
+                    });
+                    if (key === 'masterFirmwareCheck' && !hasEnabledOption) me.down('#masterFirmwareCheck').setValue(false);
                 }
-        },
-        setChecksDependencies: function (mainOptionId, finalOptionId, testOptionId, modelData){
-            var me = this;
-             var mainOption =  me.down('#' + mainOptionId);
-             var finalOption =  me.down('#' + finalOptionId);
-             var testOption =  me.down('#' + testOptionId);
+            }
+            if (!me.isDependenciesSetted) {
+                me.setChecksDependencies('masterFirmwareCheck', 'masterFirmwareCheckFinal', 'masterFirmwareCheckTest', record.get('masterFirmwareCheck'));
+            }
+            me.fireEvent('dependenciesSetted');
+        })
 
-             if (modelData){
-                  mainOption.show();
+    },
+    validateData: function (versionOptions) {
 
-                 if ( modelData && (modelData instanceof Array) ){
+        var me = this;
+        var result = versionOptions;
+        var masterOptions = versionOptions && versionOptions['MASTER_FIRMWARE_CHECK'] && versionOptions['MASTER_FIRMWARE_CHECK'].statuses;
+        var targetOptions = versionOptions && versionOptions['TARGET_FIRMWARE_STATUS_CHECK'] && versionOptions['TARGET_FIRMWARE_STATUS_CHECK'].statuses;
 
-                      finalOptionVal = modelData.indexOf('FINAL') !==-1;
-                      testOptionVal = modelData.indexOf('TEST') !==-1;
-                      if (finalOptionVal || testOptionVal){
-                            mainOption.setValue(true);
-                      }else{
-                            finalOption.disable();
-                            testOption.disable();
-                      }
-                      finalOption.setValue(finalOptionVal);
-                      testOption.setValue(testOptionVal);
-
-                 }
-
-                 finalOption.on('change', function(checkBox, newVal, oldVal){
-                      if (newVal === oldVal) return;
-                      if (newVal) mainOption.setValue(newVal);
-                 });
-
-                 mainOption.on('change', function(checkBox, newVal, oldVal){
-                      if (newVal === oldVal) return;
-                      if (newVal) {  finalOption.enable(); finalOption.setValue(true); testOption.enable(); }
-                      else { finalOption.setValue(false); finalOption.disable(); testOption.setValue(false); testOption.disable();}
-                 });
-                 me.isDependenciesSetted = true;
-
-             }
+        if (!targetOptions.length) {
+            me.down('#firmwareTargetOptionsError').show();
+            result = undefined;
+        } else {
+            me.down('#firmwareTargetOptionsError').hide();
         }
 
-    });
+        if (me.down('#masterFirmwareCheck').getValue() && (!masterOptions || !masterOptions.length)) {
+            me.down('#masterOptionsError').show();
+            result = undefined;
+        } else {
+            me.down('#masterOptionsError').hide();
+        }
+
+        return result;
+    },
+    getDataFromChecks: function (needDataValidation) {
+        var me = this,
+            store = me.store;
+        var record = store.getAt(0);
+
+        var checkgroups = Ext.ComponentQuery.query('firmware-version-options checkboxgroup');
+        var versionOptions = {};
+
+        Ext.Array.each(checkgroups, function (checkgroup) {
+            var values = checkgroup.getValues();
+            switch (checkgroup.getName()) {
+                case 'targetFirmwareCheck':
+                    var statuses = Ext.Object.getValues(values);
+                    versionOptions['TARGET_FIRMWARE_STATUS_CHECK'] = {
+                        'statuses': statuses,
+                        'activated': Boolean(statuses && statuses.length)
+                    }
+                    break;
+                case 'masterFirmwareCheck':
+                    var statuses = Ext.Object.getValues(values);
+                    versionOptions['MASTER_FIRMWARE_CHECK'] = {
+                        'statuses': statuses,
+                        'activated': Boolean(statuses && statuses.length)
+                    }
+                    break;
+                case 'curFirmwareCheck':
+                    var statuses = Ext.Object.getValues(values);
+                    versionOptions['CURRENT_FIRMWARE_CHECK'] = {
+                        'activated': Boolean(statuses && statuses.length)
+                    }
+                    break;
+
+            }
+        });
+        if (needDataValidation) {
+            return me.validateData(versionOptions);
+        } else {
+            return versionOptions;
+        }
+    },
+    setChecksDependencies: function (mainOptionId, finalOptionId, testOptionId, modelData) {
+        var me = this;
+        var mainOption = me.down('#' + mainOptionId);
+        var finalOption = me.down('#' + finalOptionId);
+        var testOption = me.down('#' + testOptionId);
+
+        if (modelData) {
+            mainOption.show();
+
+            if (modelData && (modelData instanceof Array)) {
+
+                finalOptionVal = modelData.indexOf('FINAL') !== -1;
+                testOptionVal = modelData.indexOf('TEST') !== -1;
+                if (finalOptionVal || testOptionVal) {
+                    mainOption.setValue(true);
+                } else {
+                    finalOption.disable();
+                    testOption.disable();
+                }
+                finalOption.setValue(finalOptionVal);
+                testOption.setValue(testOptionVal);
+
+            }
+
+            finalOption.on('change', function (checkBox, newVal, oldVal) {
+                if (newVal === oldVal) return;
+                if (newVal) mainOption.setValue(newVal);
+            });
+
+            mainOption.on('change', function (checkBox, newVal, oldVal) {
+                if (newVal === oldVal) return;
+                if (newVal) {
+                    finalOption.enable();
+                    finalOption.setValue(true);
+                    testOption.enable();
+                } else {
+                    finalOption.setValue(false);
+                    finalOption.disable();
+                    testOption.setValue(false);
+                    testOption.disable();
+                }
+            });
+            me.isDependenciesSetted = true;
+
+        }
+    }
+
+});

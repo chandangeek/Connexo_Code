@@ -58,7 +58,7 @@ public class FirmwareFieldResourceTest extends BaseFirmwareTest {
     }
 
     @Test
-    public void testGetCalendarUploadComTasks() {
+    public void testGetFirmwareUploadComTasks() {
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         ComTaskEnablement cte = mock(ComTaskEnablement.class);
 

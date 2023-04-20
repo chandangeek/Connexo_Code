@@ -36,7 +36,7 @@ class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements Re
                         getComServerDAO().executionCompleted(comTaskExecutionComCommand.getComTaskExecution());
                         break;
                     case NOT_EXECUTED: // intentional fallthrough
-                    case FAILED: {
+                    case FAILED:
                         if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)) {
                             if (comTaskExecutionComCommand.getCommands().size() == 0)  //there were no commands to execute
                             {
@@ -51,8 +51,7 @@ class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements Re
                             getComServerDAO().executionFailed(comTaskExecutionComCommand.getComTaskExecution());
                             nextConnectionExecutionDate = comTaskExecutionComCommand.getComTaskExecution().getNextExecutionTimestamp();
                         }
-                    }
-                    break;
+                        break;
                 }
             }
             for (ComTaskExecution notExecutedComTask : notExecutedComTasks) {
@@ -89,15 +88,14 @@ class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements Re
                         getComServerDAO().executionCompleted(comTaskExecutionComCommand.getComTaskExecution());
                         break;
                     case NOT_EXECUTED: // intentional fallthrough
-                    case FAILED: {
+                    case FAILED:
                         if (commandRoot.hasConnectionNotExecuted() && commandRoot.getCommands().size() == 0) { //there were no commands to execute
                             getComServerDAO().executionCompleted(comTaskExecutionComCommand.getComTaskExecution());
                         } else {
                             connectionTaskRetryNextExecution = calculateNextRetryExecutionTimestamp((OutboundConnectionTask) getConnectionTask());
                             rescheduleComTaskExecutionAccordingToConnectionRetry(connectionTaskRetryNextExecution, comTaskExecutionComCommand.getComTaskExecution());
                         }
-                    }
-                    break;
+                        break;
                 }
             }
         }

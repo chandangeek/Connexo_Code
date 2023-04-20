@@ -4,15 +4,7 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
 
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
-import ch.iec.tc57._2011.getmeterreadings.Reading;
-import ch.iec.tc57._2011.meterconfig.Meter;
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
-import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
-import ch.iec.tc57._2011.schema.message.ErrorType;
-import ch.iec.tc57._2011.schema.message.HeaderType;
-
+import com.elster.jupiter.domain.util.FieldMaxLengthException;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -31,14 +23,15 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddevicecontrols.EndDeviceControlMessage;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.CIMWebservicesException;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddevicecontrols.EndDeviceControlsRequestMessage;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddevicecontrols.EndDeviceMessage;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.EndDeviceEventsBuilder;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.CIMWebservicesException;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.HeadEndController;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ScheduleStrategy;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
 import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageFaultMessageFactory;
@@ -46,7 +39,6 @@ import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFau
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigParser;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReadingFaultMessageFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ReadingSourceEnum;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ScheduleStrategy;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.SyncReplyIssue;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.CancellationReason;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.EndDeviceControlsDomainExtension;
@@ -105,10 +97,18 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.masterdata.MasterDataService;
 
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
+import ch.iec.tc57._2011.getmeterreadings.Reading;
 import ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.masterdatalinkageconfig.EndDevice;
 import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
+import ch.iec.tc57._2011.meterconfig.Meter;
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
+import ch.iec.tc57._2011.schema.message.ErrorType;
+import ch.iec.tc57._2011.schema.message.HeaderType;
 import com.google.common.collect.Range;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -247,7 +247,7 @@ public class ServiceCallCommands {
 
     @TransactionRequired
     public ServiceCall createMeterConfigMasterServiceCall(MeterConfig meterConfig, EndPointConfiguration outboundEndPointConfiguration,
-                                                          OperationEnum operation, String correlationId) throws FaultMessage {
+                                                          OperationEnum operation, String correlationId, boolean failOnExistentDevice) throws FaultMessage, FieldMaxLengthException {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.MASTER_METER_CONFIG);
 
         MeterConfigMasterDomainExtension meterConfigMasterDomainExtension = new MeterConfigMasterDomainExtension();
@@ -262,7 +262,7 @@ public class ServiceCallCommands {
         ServiceCall parentServiceCall = serviceCallBuilder.create();
 
         for (Meter meter : meterConfig.getMeter()) {
-            createMeterConfigChildCall(parentServiceCall, operation, meter, meterConfig.getSimpleEndDeviceFunction());
+            createMeterConfigChildCall(parentServiceCall, operation, meter, meterConfig.getSimpleEndDeviceFunction(), failOnExistentDevice);
         }
 
         return parentServiceCall;
@@ -276,17 +276,17 @@ public class ServiceCallCommands {
     }
 
     private ServiceCall createMeterConfigChildCall(ServiceCall parent, OperationEnum operation,
-                                                   Meter meter, List<SimpleEndDeviceFunction> simpleEndDeviceFunction) throws FaultMessage {
+                                                   Meter meter, List<SimpleEndDeviceFunction> simpleEndDeviceFunction,
+                                                   boolean failOnExistentDevice) throws FaultMessage, FieldMaxLengthException {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.METER_CONFIG);
 
         MeterConfigDomainExtension meterConfigDomainExtension = new MeterConfigDomainExtension();
         meterConfigDomainExtension.setParentServiceCallId(BigDecimal.valueOf(parent.getId()));
-        MeterInfo meterInfo;
         if (OperationEnum.GET.equals(operation) || OperationEnum.DELETE.equals(operation)) {
-            meterInfo = meterConfigParser.asMeterInfo(meter);
+            meterConfigParser.asMeterInfo(meter);
             meterConfigDomainExtension.setMeter(null);
         } else {
-            meterInfo = meterConfigParser.asMeterInfo(meter, simpleEndDeviceFunction, operation);
+            MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, simpleEndDeviceFunction, operation, failOnExistentDevice);
             meterConfigDomainExtension.setMeter(jsonService.serialize(meterInfo));
         }
         meterConfigDomainExtension.setMeterMrid(meter.getMRID());

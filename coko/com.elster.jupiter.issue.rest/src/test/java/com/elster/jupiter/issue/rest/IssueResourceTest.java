@@ -108,7 +108,7 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         doReturn(issues).when(issueFinder).find();
 
         List<IssueProvider> issueProviders = Arrays.asList(issueProvider);
-        doReturn(issueProviders).when(issueService).getIssueProviders();
+        doReturn(issueProviders).when(issueService).getIssueProviders("datacollection");
         Optional<? extends Issue> issueRef = Optional.of(issues.get(0));
         when(issueRef.get().getSnoozeDateTime()).thenReturn(Optional.empty());
         doReturn(issueRef).when(issueProvider).findIssue(1L);
@@ -143,7 +143,7 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         doReturn(issues).when(issueFinder).find();
 
         List<IssueProvider> issueProviders = Arrays.asList(issueProvider);
-        doReturn(issueProviders).when(issueService).getIssueProviders();
+        doReturn(issueProviders).when(issueService).getIssueProviders("datacollection");
         Optional<? extends Issue> issueRef = Optional.of(issues.get(0));
         when(issueRef.get().getSnoozeDateTime()).thenReturn(Optional.empty());
         doReturn(issueRef).when(issueProvider).findIssue(1L);

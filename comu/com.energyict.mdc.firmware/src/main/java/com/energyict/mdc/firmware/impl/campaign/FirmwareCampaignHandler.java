@@ -13,48 +13,64 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.concurrent.LockUtils;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
 import com.energyict.mdc.firmware.impl.TranslationKeys;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.upl.messages.DeviceMessageAttribute;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
 
-    private final static String MANUAL_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/manualcomtaskexecution/COMPLETED";
-    private final static String MANUAL_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/manualcomtaskexecution/FAILED";
-    private final static String SCHEDULED_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/COMPLETED";
-    private final static String SCHEDULED_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/FAILED";
-    private final static String FIRMWARE_COMTASKEXECUTION_STARTED = "com/energyict/mdc/device/data/firmwarecomtaskexecution/STARTED";
-    private final static String FIRMWARE_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/firmwarecomtaskexecution/COMPLETED";
-    private final static String FIRMWARE_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/firmwarecomtaskexecution/FAILED";
-    private final static String FIRMWARE_CAMPAIGN_EDITED = "com/energyict/mdc/firmware/firmwarecampaign/EDITED";
-    private final static String DEVICE_BEFORE_DELETE = "com/energyict/mdc/device/data/device/BEFORE_DELETE";
-    private FirmwareCampaignServiceImpl firmwareCampaignService;
-    private Clock clock;
-    private ServiceCallService serviceCallService;
-    private Thesaurus thesaurus;
-    private ThreadPrincipalService threadPrincipalService;
-    private TransactionService transactionService;
+    private static final String MANUAL_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/manualcomtaskexecution/COMPLETED";
+    private static final String MANUAL_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/manualcomtaskexecution/FAILED";
+    private static final String SCHEDULED_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/COMPLETED";
+    private static final String SCHEDULED_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/FAILED";
+    private static final String FIRMWARE_COMTASKEXECUTION_STARTED = "com/energyict/mdc/device/data/firmwarecomtaskexecution/STARTED";
+    private static final String FIRMWARE_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/firmwarecomtaskexecution/COMPLETED";
+    private static final String FIRMWARE_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/firmwarecomtaskexecution/FAILED";
+    private static final String FIRMWARE_CAMPAIGN_EDITED = "com/energyict/mdc/firmware/firmwarecampaign/EDITED";
+    private static final String DEVICE_BEFORE_DELETE = "com/energyict/mdc/device/data/device/BEFORE_DELETE";
+    private final FirmwareCampaignServiceImpl firmwareCampaignService;
+    private final Clock clock;
+    private final ServiceCallService serviceCallService;
+    private final Thesaurus thesaurus;
+    private final ThreadPrincipalService threadPrincipalService;
+    private final TransactionService transactionService;
+    private final DeviceMessageService deviceMessageService;
+    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final FirmwareServiceImpl firmwareService;
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Inject
     public FirmwareCampaignHandler(FirmwareServiceImpl firmwareService, Clock clock, ServiceCallService serviceCallService,
-                                   Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, TransactionService transactionService) {
+                                   Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, TransactionService transactionService,
+                                   DeviceMessageService deviceMessageService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         super(LocalEvent.class);
         this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
         this.serviceCallService = serviceCallService;
@@ -62,6 +78,9 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
         this.thesaurus = thesaurus;
         this.threadPrincipalService = threadPrincipalService;
         this.transactionService = transactionService;
+        this.deviceMessageService = deviceMessageService;
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.firmwareService = firmwareService;
     }
 
     @Override
@@ -89,7 +108,10 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 break;
             case DEVICE_BEFORE_DELETE:
                 Device device = (Device) event.getSource();
-                firmwareCampaignService.findActiveFirmwareItemByDevice(device).ifPresent(item -> item.cancel(true));
+                firmwareCampaignService.findActiveFirmwareItemByDevice(device).ifPresent(item -> {
+                    item.getParent().log(LogLevel.WARNING, "Device '" + device.getName() + "' is being removed. Cancelling the firmware campaign item...");
+                    item.cancel();
+                });
                 firmwareCampaignService.findFirmwareCampaignItems(device).forEach(DeviceInFirmwareCampaign::delete);
                 break;
             default:
@@ -99,7 +121,11 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
 
     private void onComTaskFailed(ComTaskExecution comTaskExecution) {
         Device device = comTaskExecution.getDevice();
-        Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaignOptional = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
+
+        logger.info("[FWC] onComTaskFailed " + device.getName() + " / "
+                + comTaskExecution.getComTask().getName() + " -> " + comTaskExecution.getStatusDisplayName());
+
+        Optional<? extends DeviceInFirmwareCampaign> deviceInFirmwareCampaignOptional = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
         if (deviceInFirmwareCampaignOptional.isPresent()) {
             DeviceInFirmwareCampaign deviceInFirmwareCampaign = deviceInFirmwareCampaignOptional.get();
             ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
@@ -108,32 +134,49 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 if (comTaskExecution.isFirmware()) {
                     Optional<DeviceMessage> deviceMessageOptional = deviceInFirmwareCampaign.getDeviceMessage();
                     if (deviceMessageOptional.isPresent() && deviceMessageOptional.get().getReleaseDate().isBefore(clock.instant())) {
-                        DeviceMessage deviceMessage = deviceMessageOptional.get();
-                        if (deviceMessage.getStatus().isPredecessorOf(DeviceMessageStatus.FAILED)) {
-                            deviceMessage.updateDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                        if (serviceCall.transitionWithLockIfPossible(DefaultState.FAILED)) {
+                            LockUtils.lockWithDoubleCheck(deviceMessageOptional.get(),
+                                            deviceMessageService::findAndLockDeviceMessageById,
+                                            message -> message.getStatus().isPredecessorOf(DeviceMessageStatus.FAILED))
+                                    .ifPresent(message -> message.updateDeviceMessageStatus(DeviceMessageStatus.FAILED));
+                            serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_FAILED).format());
                         }
-                        serviceCallService.lockServiceCall(serviceCall.getId());
-                        serviceCall.requestTransition(DefaultState.FAILED);
-                        serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_FAILED).format());
                     }
                 } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
                         .anyMatch(StatusInformationTask.class::isInstance)) {
                     if (firmwareCampaign.isWithVerification()) {
-                        Instant firmwareTimeUpload = deviceInFirmwareCampaign.getServiceCall().getLastModificationTime();
-                        if (firmwareTimeUpload.plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()).isBefore(clock.instant())) {
-                            if (deviceInFirmwareCampaign.getDeviceMessage().isPresent() && deviceInFirmwareCampaign.getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.CONFIRMED)) {
-                                serviceCallService.lockServiceCall(serviceCall.getId());
-                                serviceCall.requestTransition(DefaultState.FAILED);
-                                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.VERIFICATION_FAILED).format());
+                        Optional<Instant> activationDate = getActivationTime(deviceInFirmwareCampaign);
+                        if (activationDate.isPresent()) { // means the message is present and sent
+                            if (activationDate.get().plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()).isBefore(clock.instant())) {
+                                MessageSeed message;
+                                switch (deviceInFirmwareCampaign.getDeviceMessage().get().getStatus()) {
+                                    case CONFIRMED:
+                                        message = MessageSeeds.VERIFICATION_FAILED;
+                                        break;
+                                    case FAILED:
+                                    case INDOUBT:
+                                        message = MessageSeeds.FIRMWARE_INSTALLATION_FAILED;
+                                        break;
+                                    case CANCELED:
+                                        message = MessageSeeds.FIRMWARE_INSTALLATION_HAS_BEEN_CANCELLED;
+                                        break;
+                                    default:
+                                        // nothing to do, wait for final state
+                                        return;
+                                }
+                                if (serviceCall.transitionWithLockIfPossible(DefaultState.FAILED)) {
+                                    serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(message).format());
+                                }
+                            } else {
+                                // the time is not out yet before verification
+                                scheduleVerification(deviceInFirmwareCampaign, activationDate.get().plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()));
                             }
-                        } else {
-                            scheduleVerification(deviceInFirmwareCampaign, firmwareTimeUpload.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
                         }
                     }
                 } else if (comTaskExecution.getComTask().getId() == firmwareCampaign.getValidationComTaskId()) {
-                    serviceCallService.lockServiceCall(serviceCall.getId());
-                    serviceCall.requestTransition(DefaultState.FAILED);
-                    serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_LOST_ACTION).format());
+                    if (serviceCall.transitionWithLockIfPossible(DefaultState.FAILED)) {
+                        serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_LOST_ACTION).format());
+                    }
                 }
             }
         }
@@ -141,49 +184,93 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
 
     private void onComTaskCompleted(ComTaskExecution comTaskExecution) {
         Device device = comTaskExecution.getDevice();
-        Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaignOptional = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
+
+        logger.info("[FWC] onComTaskCompleted " + device.getName() + " / "
+                + comTaskExecution.getComTask().getName() + " -> " + comTaskExecution.getStatusDisplayName());
+
+        Optional<? extends DeviceInFirmwareCampaign> deviceInFirmwareCampaignOptional = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
         if (deviceInFirmwareCampaignOptional.isPresent()) {
             DeviceInFirmwareCampaign deviceInFirmwareCampaign = deviceInFirmwareCampaignOptional.get();
             ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
             if (serviceCall.getState().equals(DefaultState.ONGOING)) {
                 FirmwareCampaign firmwareCampaign = serviceCall.getParent().get().getExtension(FirmwareCampaignDomainExtension.class).get();
                 if (comTaskExecution.isFirmware()) {
-                    if (deviceInFirmwareCampaign.getDeviceMessage().isPresent() && deviceInFirmwareCampaign.getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.CONFIRMED)) {
-                        serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_COMPLETED).format());
-                        if (!firmwareCampaign.isWithVerification()) {
-                            serviceCallService.lockServiceCall(serviceCall.getId());
-                            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-                        } else {
-                            scheduleVerification(deviceInFirmwareCampaign, clock.instant().plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
-                            serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.VERIFICATION_SCHEDULED).format());
+                    if (deviceInFirmwareCampaign.getDeviceMessage().isPresent()) {
+                        switch (deviceInFirmwareCampaign.getDeviceMessage().get().getStatus()) {
+                            case CONFIRMED:
+                                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_COMPLETED).format());
+                                if (firmwareCampaign.isWithVerification()) {
+                                    Instant activationTime = getActivationTime(deviceInFirmwareCampaign).orElseGet(clock::instant);
+                                    scheduleVerification(deviceInFirmwareCampaign, activationTime.plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()));
+                                    serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.VERIFICATION_SCHEDULED).format());
+                                } else {
+                                    serviceCall.transitionWithLockIfPossible(DefaultState.SUCCESSFUL);
+                                }
+                                break;
+                            case CANCELED:
+                                if (serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED)) {
+                                    serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_HAS_BEEN_CANCELLED).format());
+                                }
+                                break;
+                            case FAILED:
+                            case INDOUBT:
+                                if (serviceCall.transitionWithLockIfPossible(DefaultState.FAILED)) {
+                                    serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_FAILED).format());
+                                }
+                                break;
+                            default:
+                                // nothing to do, wait for final state
                         }
                     }
                 } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
                         .anyMatch(StatusInformationTask.class::isInstance)) {
                     if (firmwareCampaign.isWithVerification()) {
-                        Instant firmwareTimeUpload = deviceInFirmwareCampaign
-                                .getServiceCall().getLastModificationTime();
-                        if (firmwareTimeUpload.plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()).isBefore(clock.instant())) {
-                            if (deviceInFirmwareCampaign.getDeviceMessage().isPresent() && deviceInFirmwareCampaign.getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.CONFIRMED)) {
-                                if (deviceInFirmwareCampaign.doesDeviceAlreadyHaveTheSameVersion()) {
-                                    serviceCallService.lockServiceCall(serviceCall.getId());
-                                    serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-                                    serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.VERIFICATION_COMPLETED).format());
-                                    firmwareCampaignService.getFirmwareService().cancelFirmwareUploadForDevice(deviceInFirmwareCampaign.getDevice());
-                                } else {
-                                    serviceCallService.lockServiceCall(serviceCall.getId());
-                                    serviceCall.requestTransition(DefaultState.FAILED);
-                                    serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.VERIFICATION_FAILED_WRONG_FIRMWAREVERSION).format());
+                        Optional<Instant> activationDate = getActivationTime(deviceInFirmwareCampaign);
+                        if (activationDate.isPresent()) { // means the message is present and sent
+                            if (activationDate.get().plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()).isBefore(clock.instant())) {
+                                switch (deviceInFirmwareCampaign.getDeviceMessage().get().getStatus()) {
+                                    case CONFIRMED:
+                                        if (deviceInFirmwareCampaign.doesDeviceAlreadyHaveTheSameVersion()) {
+                                            if (serviceCall.transitionWithLockIfPossible(DefaultState.SUCCESSFUL)) {
+                                                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.VERIFICATION_COMPLETED).format());
+                                                firmwareCampaignService.getFirmwareService().cancelFirmwareUploadForDevice(deviceInFirmwareCampaign.getDevice()); // TODO: why here?
+                                            }
+                                        } else {
+                                            if (serviceCall.transitionWithLockIfPossible(DefaultState.FAILED)) {
+                                                String currentFirmware = firmwareService.getActiveFirmwareVersion(device, firmwareCampaign.getFirmwareType())
+                                                        .map(ActivatedFirmwareVersion::getFirmwareVersion)
+                                                        .map(FirmwareVersion::getFirmwareVersion)
+                                                        .orElse("n/a");
+                                                String warningText = thesaurus.getFormat(MessageSeeds.VERIFICATION_FAILED_WRONG_FIRMWAREVERSION)
+                                                        .format(firmwareCampaign.getFirmwareVersion().getFirmwareVersion(), currentFirmware);
+                                                serviceCall.log(LogLevel.WARNING, warningText);
+                                            }
+                                        }
+                                        break;
+                                    case CANCELED:
+                                        if (serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED)) {
+                                            serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_HAS_BEEN_CANCELLED).format());
+                                        }
+                                        break;
+                                    case FAILED:
+                                    case INDOUBT:
+                                        if (serviceCall.transitionWithLockIfPossible(DefaultState.FAILED)) {
+                                            serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_FAILED).format());
+                                        }
+                                        break;
+                                    default:
+                                        // nothing to do, wait for final state
                                 }
+                            } else {
+                                // the time is not out yet before verification
+                                scheduleVerification(deviceInFirmwareCampaign, activationDate.get().plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()));
                             }
-                        } else {
-                            scheduleVerification(deviceInFirmwareCampaign, firmwareTimeUpload.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
                         }
                     }
                 } else if (comTaskExecution.getComTask().getId() == firmwareCampaign.getValidationComTaskId()) {
-                    serviceCallService.lockServiceCall(serviceCall.getId());
-                    serviceCall.requestTransition(DefaultState.FAILED);
-                    serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_LOST_ACTION).format());
+                    if (serviceCall.transitionWithLockIfPossible(DefaultState.FAILED)) {
+                        serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_LOST_ACTION).format());
+                    }
                 }
             }
         }
@@ -191,25 +278,58 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
 
     private void onComTaskStarted(ComTaskExecution comTaskExecution) {
         if (comTaskExecution.isFirmware()) {
-            Optional<FirmwareCampaign> firmwareCampaignOptional = firmwareCampaignService.getCampaignOn(comTaskExecution);
-            if (firmwareCampaignOptional.isPresent()) {
-                Device device = comTaskExecution.getDevice();
-                DeviceInFirmwareCampaign firmwareItem = firmwareCampaignService.findActiveFirmwareItemByDevice(device).get();
+            Device device = comTaskExecution.getDevice();
+            logger.info("[FWC] onComTaskStarted " + device.getName() + " / "
+                    + comTaskExecution.getComTask().getName() + " -> " + comTaskExecution.getStatusDisplayName());
+            firmwareCampaignService.findActiveFirmwareItemByDevice(device).ifPresent(firmwareItem -> {
+                FirmwareVersion firmwareVersion = firmwareItem.getFirmwareCampaign().getFirmwareVersion();
                 ServiceCall serviceCall = firmwareItem.getServiceCall();
-                if (device.getMessages().stream().filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 9)
-                        .filter(deviceMessage -> deviceMessage.getAttributes().stream().anyMatch(attr -> attr.getValue().equals(firmwareCampaignOptional.get().getFirmwareVersion())))
-                        .anyMatch(deviceMessage -> deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING)
-                                || deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING))) {
-                    serviceCallService.lockServiceCall(serviceCall.getId());
-                    if (serviceCall.canTransitionTo(DefaultState.ONGOING)) {
-                        serviceCall.requestTransition(DefaultState.ONGOING);
+                if (device.getMessages().stream()
+                        .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 9)
+                        .filter(deviceMessage -> deviceMessage.getAttributes().stream()
+                                .map(DeviceMessageAttribute::getValue)
+                                .filter(Objects::nonNull)
+                                .anyMatch(val -> val.equals(firmwareVersion)))
+                        .anyMatch(deviceMessage -> deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING))) {
+                    if (serviceCall.transitionWithLockIfPossible(DefaultState.ONGOING)) {
+                        serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_STARTED).format());
                     }
-                    serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_STARTED).format());
-                } else {
-                    firmwareItem.cancel(false);
                 }
-            }
+            });
         }
+    }
+
+    private Optional<Instant> getActivationTime(DeviceInFirmwareCampaign deviceInFirmwareCampaign) {
+        return deviceInFirmwareCampaign.getDeviceMessage()
+                .filter(message -> message.getSentDate().isPresent())
+                .map(message -> {
+                    Instant messageExecutionTime = message.getModTime();
+                    Optional<ProtocolSupportedFirmwareOptions> uploadOption = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(message.getDeviceMessageId());
+                    if (uploadOption.isPresent()
+                            && uploadOption.get() == ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE) {
+                        return retrieveDate(message)
+                                .map(activationTime -> max(activationTime, messageExecutionTime))
+                                .orElse(messageExecutionTime);
+                    }
+                    return messageExecutionTime;
+                });
+    }
+
+    private static Instant max(Instant one, Instant two) {
+        return one.isAfter(two) ? one : two;
+    }
+
+    private Optional<Instant> retrieveDate(DeviceMessage deviceMessage) {
+        return deviceMessage.getSpecification().getPropertySpecs().stream()
+                .filter(propertySpec -> Date.class == propertySpec.getValueFactory().getValueType())
+                .findAny()
+                .flatMap(propertySpec -> deviceMessage.getAttributes().stream()
+                        .filter(attribute -> attribute.getName().equals(propertySpec.getName()))
+                        .findAny())
+                .map(DeviceMessageAttribute::getValue)
+                .filter(Date.class::isInstance)
+                .map(Date.class::cast)
+                .map(Date::toInstant);
     }
 
     private interface EventProcessor {
@@ -234,24 +354,27 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 ComTaskExecution comTaskExecution = comTaskExecutionOptional.get();
                 if (comTaskExecution.getConnectionTask().isPresent()) {
                     ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
-                    if (comTaskExecution.getConnectionTask().get().isActive() && (!campaign.getValidationConnectionStrategy()
-                            .isPresent() || connectionStrategy == campaign.getValidationConnectionStrategy().get())) {
+                    if (comTaskExecution.getConnectionTask().get().isActive()
+                            && !campaign.getValidationConnectionStrategy().filter(cs -> cs != connectionStrategy).isPresent()) {
                         comTaskExecution.schedule(when);
                     } else {
-                        serviceCallService.lockServiceCall(serviceCall.getId());
-                        serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
-                                .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getValidationConnectionStrategy().get().name())).format(), comTaskExecution.getComTask().getName()));
-                        serviceCall.requestTransition(DefaultState.FAILED);
+                        if (serviceCall.transitionWithLockIfPossible(DefaultState.FAILED)) {
+                            String strategyName = thesaurus.getFormat(TranslationKeys.valueOf(campaign.getValidationConnectionStrategy().get().name())).format();
+                            String warningText = thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
+                                    .format(strategyName, comTaskExecution.getComTask().getName());
+                            serviceCall.log(LogLevel.WARNING, warningText);
+                        }
                     }
                 } else {
-                    serviceCallService.lockServiceCall(serviceCall.getId());
-                    serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK).format(comTaskExecution.getComTask().getName()));
-                    serviceCall.requestTransition(DefaultState.FAILED);
+                    if (serviceCall.transitionWithLockIfPossible(DefaultState.FAILED)) {
+                        serviceCall.log(LogLevel.WARNING,
+                                thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK).format(comTaskExecution.getComTask().getName()));
+                    }
                 }
             } else {
-                serviceCallService.lockServiceCall(serviceCall.getId());
-                serviceCall.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
-                serviceCall.requestTransition(DefaultState.FAILED);
+                if (serviceCall.transitionWithLockIfPossible(DefaultState.FAILED)) {
+                    serviceCall.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
+                }
             }
         }
     }

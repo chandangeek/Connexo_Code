@@ -65,6 +65,7 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -323,5 +324,10 @@ public class TaskIssueServiceImpl implements TranslationKeyProvider, MessageSeed
     @Override
     public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
         return issue instanceof HistoricalTaskIssue ? Optional.of(issue) : findHistoricalIssue(issue.getId());
+    }
+
+    @Override
+    public Set<String> getIssueTypeIdentifiers() {
+        return Collections.singleton(TaskIssueService.TASK_ISSUE);
     }
 }

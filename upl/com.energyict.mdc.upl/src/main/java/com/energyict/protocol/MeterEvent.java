@@ -1131,6 +1131,43 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int HEART_BEAT                         = 100130;
     public static final int CLEAR_NODE_LIST                    = 100131;
 
+    /** Water meter status events */
+    public static final int WATER_APPLICATION_OK               = 200001;
+    public static final int WATER_APPLICATION_BUSY             = 200002;
+    public static final int WATER_APPLICATION_ERROR            = 200003;
+    public static final int WATER_ABNORMAL_SITUATION           = 200004;
+    public static final int WATER_POWER_OK                     = 200005;
+    public static final int WATER_POWER_LOW                    = 200006;
+    public static final int WATER_PERMANENT_ERROR_NO           = 200007;
+    public static final int WATER_PERMANENT_ERROR              = 200008;
+    public static final int WATER_TEMPORARY_ERROR_NO           = 200009;
+    public static final int WATER_TEMPORARY_ERROR              = 200010;
+    public static final int WATER_LEAKAGE_ALARM_CLEARED        = 200011;
+    public static final int WATER_LEAKAGE_ALARM                = 200012;
+    public static final int WATER_OVERCONSUMPTION_CLEARED      = 200013;
+    public static final int WATER_OVERCONSUMPTION              = 200014;
+    public static final int WATER_DEVICE_PAIRED                = 200015;
+    public static final int WATER_DEVICE_REMOVAL               = 200016;
+
+    /** Water meter error events */
+    public static final int WATER_MEMORIZED_BACKFLOW           = 200101;
+    public static final int WATER_LEAKAGE                      = 200102;
+    public static final int WATER_STUCK_METER                  = 200103;
+    public static final int WATER_UNDERFLOW                    = 200104;
+    public static final int WATER_OVERFLOW                     = 200105;
+    public static final int WATER_MAGNETIC_FRAUD               = 200106;
+    public static final int WATER_UNCLIPPING                   = 200107;
+    public static final int WATER_FROST_RISK                   = 200108;
+
+    public static final int WATER_ACTUAL_REMOVAL               = 200109;
+    public static final int WATER_HIGH_TEMP                    = 200110;
+    public static final int WATER_CLOCK_SYNC                   = 200111;
+    public static final int WATER_MAGNETIC_FIELD_FLAG          = 200112;
+    public static final int WATER_BATTERY_USAGE_INDICATOR      = 200113;
+    public static final int WATER_ACTUAL_BURST                 = 200114;
+    public static final int WATER_REVERSED_METER               = 200115;
+    public static final int WATER_ACTUAL_BACKFLOW              = 200116;
+
 
     // Used by EIServer UI:
     // !!! Keep this one in sync with the above !!!
@@ -1910,6 +1947,71 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return "Heart-beat";
             case CLEAR_NODE_LIST:
                 return "Clear node list";
+            case WATER_APPLICATION_OK:
+                return "Application OK";
+            case WATER_APPLICATION_BUSY:
+                return "Application busy";
+            case WATER_APPLICATION_ERROR:
+                return "Application error";
+            case WATER_ABNORMAL_SITUATION:
+                return "Abnormal situation";
+            case WATER_POWER_OK:
+                return "Power OK";
+            case WATER_POWER_LOW:
+                return "Power low";
+            case WATER_PERMANENT_ERROR_NO:
+                return "No permanent error";
+            case WATER_PERMANENT_ERROR:
+                return "Permanent error";
+            case WATER_TEMPORARY_ERROR_NO:
+                return "No temporary error";
+            case WATER_TEMPORARY_ERROR:
+                return "Temporary error";
+            case WATER_LEAKAGE_ALARM_CLEARED:
+                return "Leakage alarm cleared";
+            case WATER_LEAKAGE_ALARM:
+                return "Leakage alarm MLF";
+            case WATER_OVERCONSUMPTION_CLEARED:
+                return "Overconsumption alarm cleared";
+            case WATER_OVERCONSUMPTION:
+                return "Actual alarm burst (MBA)";
+            case WATER_DEVICE_PAIRED:
+                return "Device paired";
+            case WATER_DEVICE_REMOVAL:
+                return "Removal or cable cut detected";
+            case WATER_MEMORIZED_BACKFLOW:
+                return "Memorized back-flow";
+            case WATER_LEAKAGE:
+                return "Leakage";
+            case WATER_STUCK_METER:
+                return "Stuck meter (no consumption)";
+            case WATER_UNDERFLOW:
+                return "Underflow";
+            case WATER_OVERFLOW:
+                return "Overflow";
+            case WATER_MAGNETIC_FRAUD:
+                return "Magnetic fraud";
+            case WATER_UNCLIPPING:
+                return "Unclipping";
+            case WATER_FROST_RISK:
+                return "Frost risk";
+            case WATER_ACTUAL_REMOVAL:
+                return "Actual removal";
+            case WATER_HIGH_TEMP:
+                return "High temp";
+            case WATER_CLOCK_SYNC:
+                return "Clock sync";
+            case WATER_MAGNETIC_FIELD_FLAG:
+                return "Actual magnetic field flag";
+            case WATER_BATTERY_USAGE_INDICATOR:
+                return "Battery usage indicator above or critical";
+            case WATER_ACTUAL_BURST:
+                return "Actual burst";
+            case WATER_REVERSED_METER:
+                return "Reversed meter";
+            case WATER_ACTUAL_BACKFLOW:
+                return "Actual back-flow";
+
             default:
                 return ("Unknown event." + code);
 

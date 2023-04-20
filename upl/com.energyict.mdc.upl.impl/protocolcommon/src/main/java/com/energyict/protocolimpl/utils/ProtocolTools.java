@@ -933,6 +933,27 @@ public final class ProtocolTools {
     }
 
     /**
+     * This method trims a String removing characters with a code greater than '\u007E' (non-ASCII characters)
+     * and characters with a code less than '\u0021' (spaces)
+     *
+     * @param input string
+     * @return String
+     */
+    public static String trimToAscii(String input) {
+        char[] value = input.toCharArray();
+        int len = value.length;
+        int st = 0;
+
+        while ((st < len) && ((value[st] <= ' ') || (value[st] > '~'))) {
+            st++;
+        }
+        while ((st < len) && ((value[len - 1] <= ' ') || (value[len - 1] > '~'))) {
+            len--;
+        }
+        return ((st > 0) || (len < value.length)) ? input.substring(st, len) : input;
+    }
+
+    /**
      * @param obis    The obiscode to change the given field value
      * @param fieldNr The 0-based field number of the obisCode (0 = A, 1 = B, 2 = C, 3 = D, 4 = E, 5 = F)
      * @param value   The new value of the given field

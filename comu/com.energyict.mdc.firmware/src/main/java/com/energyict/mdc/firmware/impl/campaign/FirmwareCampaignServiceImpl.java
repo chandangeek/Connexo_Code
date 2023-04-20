@@ -25,12 +25,13 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
-import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
@@ -58,6 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     private final FirmwareServiceImpl firmwareService;
@@ -67,10 +69,11 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     private final OrmService ormService;
     private final Thesaurus thesaurus;
     private final MeteringGroupsService meteringGroupsService;
-    private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+    private final List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private final RegisteredCustomPropertySet registeredCustomPropertySet;
     private final EventService eventService;
     private final TaskService taskService;
+    private final DeviceMessageService deviceMessageService;
 
     @Inject
     public FirmwareCampaignServiceImpl(FirmwareServiceImpl firmwareService, DeviceService deviceService,
@@ -87,11 +90,13 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
         this.meteringGroupsService = meteringGroupsService;
         this.eventService = eventService;
         this.taskService = taskService;
+        this.deviceMessageService = dataModel.getInstance(DeviceMessageService.class);
     }
 
     public ServiceCall createServiceCallAndTransition(FirmwareCampaignDomainExtension campaign) {
         return getServiceCallType(ServiceCallTypes.FIRMWARE_CAMPAIGN)
-                .map(serviceCallType -> createServiceCall(serviceCallType, campaign)).orElseThrow(() -> new IllegalStateException("Service call type TIME_OF_USE_CAMPAIGN not found"));
+                .map(serviceCallType -> createServiceCall(serviceCallType, campaign))
+                .orElseThrow(() -> new IllegalStateException("Service call type FIRMWARE_CAMPAIGN not found."));
     }
 
     private ServiceCall createServiceCall(ServiceCallType serviceCallType, FirmwareCampaignDomainExtension campaign) {
@@ -109,14 +114,11 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     }
 
     @Override
-    public ComTask getComTaskById(long id) {
-        return taskService.findComTask(id).get();
-    }
-
-    @Override
     public Optional<FirmwareCampaign> getFirmwareCampaignById(long id) {
-        return streamAllCampaigns().join(ServiceCall.class)
-                .filter(Where.where("serviceCall.id").isEqualTo(id)).findAny().map(FirmwareCampaign.class::cast);
+        return ormService.getDataModel(FirmwareCampaignPersistenceSupport.COMPONENT_NAME).get()
+                .mapper(FirmwareCampaignDomainExtension.class)
+                .getOptional(id, registeredCustomPropertySet.getId())
+                .map(FirmwareCampaign.class::cast);
     }
 
     @Override
@@ -127,7 +129,9 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     @Override
     public Optional<FirmwareCampaign> findAndLockFirmwareCampaignByIdAndVersion(long id, long version) {
         return ormService.getDataModel(FirmwareCampaignPersistenceSupport.COMPONENT_NAME).get()
-                .mapper(FirmwareCampaignDomainExtension.class).lockObjectIfVersion(version, id, registeredCustomPropertySet.getId()).map(FirmwareCampaign.class::cast);
+                .mapper(FirmwareCampaignDomainExtension.class)
+                .lockObjectIfVersion(version, id, registeredCustomPropertySet.getId())
+                .map(FirmwareCampaign.class::cast);
     }
 
     @Override
@@ -153,9 +157,8 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
                     numberOfDevices.compute(messageSeeds, (key, value) -> value == null ? 1 : value + 1);
                 });
             } else {
-                serviceCallService.lockServiceCall(serviceCall.getId());
-                serviceCall.requestTransition(DefaultState.CANCELLED);
-                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WITH_GROUP_AND_TYPE_NOT_FOUND).format(campaign.getDeviceGroup(), campaign.getDeviceType().getName()));
+                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WITH_GROUP_AND_TYPE_NOT_FOUND)
+                        .format(campaign.getDeviceGroup(), campaign.getDeviceType().getName()));
             }
             int notAddedDevicesBecauseDifferentType = devicesByGroup.size() - devicesByGroupAndType.size();
             if (notAddedDevicesBecauseDifferentType == 1) {
@@ -180,10 +183,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
                 }
             }
             if (numberOfDevices.get(MessageSeeds.DEVICE_WAS_ADDED) == null) {
-                serviceCallService.lockServiceCall(serviceCall.getId());
-                if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
-                    serviceCall.requestTransition(DefaultState.CANCELLED);
-                }
+                serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
                 serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CAMPAIGN_WAS_CANCELED_BECAUSE_DIDNT_RECEIVE_DEVICES).format());
             }
         });
@@ -221,13 +221,6 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
                         .format(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())));
     }
 
-    public void handleFirmwareUploadCancellation(ServiceCall serviceCall) {
-        FirmwareCampaignItemDomainExtension firmwareCampaignItemDomainExtension = serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get();
-        Device device = firmwareCampaignItemDomainExtension.getDevice();
-        firmwareService.cancelFirmwareUploadForDevice(device);
-        postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_CANCEL, firmwareCampaignItemDomainExtension);
-    }
-
     @Override
     public FirmwareCampaignBuilder newFirmwareCampaign(String name) {
         return new FirmwareCampaignBuilderImpl(this, dataModel)
@@ -251,27 +244,39 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
 
     @Override
     public Optional<FirmwareCampaign> getCampaignOn(ComTaskExecution comTaskExecution) {
-        Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = findActiveFirmwareItemByDevice(comTaskExecution.getDevice());
-        return deviceInFirmwareCampaign.map(deviceInFirmwareCampaign1 -> deviceInFirmwareCampaign1.getParent().getExtension(FirmwareCampaignDomainExtension.class).get());
+        return findActiveFirmwareItemByDevice(comTaskExecution.getDevice())
+                .map(deviceInFirmwareCampaign -> deviceInFirmwareCampaign.getParent().getExtension(FirmwareCampaignDomainExtension.class).get());
     }
 
     @Override
-    public Optional<DeviceInFirmwareCampaign> findActiveFirmwareItemByDevice(Device device) {
-        List<String> states = new ArrayList<>();
-        states.add(DefaultState.ONGOING.getKey());
-        states.add(DefaultState.PENDING.getKey());
-        return streamDevicesInCampaigns().join(ServiceCall.class).join(ServiceCall.class).join(State.class)
+    public Optional<FirmwareCampaignItemDomainExtension> findActiveFirmwareItemByDevice(Device device) {
+        return streamDevicesInCampaigns().join(ServiceCall.class).join(State.class)
                 .filter(Where.where("device").isEqualTo(device))
-                .filter(Where.where("serviceCall.parent.state.name").in(states)).findAny().map(DeviceInFirmwareCampaign.class::cast);
+                .filter(Where.where("serviceCall.state.name").in(DefaultState.openStateKeys()))
+                .findAny();
     }
 
     @Override
-    public QueryStream<? extends DeviceInFirmwareCampaign> streamDevicesInCampaigns() {
+    public Optional<FirmwareCampaignItemDomainExtension> findFirmwareItem(long campaignId, Device device) {
+        // TODO refactor campaign item to keep the link to parent campaign, not parent service call, in order to make it possible filtering the required items on query level
+        return getFirmwareCampaignById(campaignId)
+                .map(FirmwareCampaign::getServiceCall)
+                .map(ServiceCall::findChildren)
+                .map(Finder::stream)
+                .orElseGet(Stream::empty)
+                .map(sc -> sc.getExtension(FirmwareCampaignItemDomainExtension.class))
+                .flatMap(Functions.asStream())
+                .filter(item -> item.getDevice().equals(device))
+                .findAny();
+    }
+
+    @Override
+    public QueryStream<FirmwareCampaignItemDomainExtension> streamDevicesInCampaigns() {
         return ormService.getDataModel(FirmwareCampaignItemPersistenceSupport.COMPONENT_NAME).get().stream(FirmwareCampaignItemDomainExtension.class);
     }
 
     @Override
-    public QueryStream<? extends FirmwareCampaign> streamAllCampaigns() {
+    public QueryStream<FirmwareCampaignDomainExtension> streamAllCampaigns() {
         return ormService.getDataModel(FirmwareCampaignPersistenceSupport.COMPONENT_NAME).get().stream(FirmwareCampaignDomainExtension.class);
     }
 

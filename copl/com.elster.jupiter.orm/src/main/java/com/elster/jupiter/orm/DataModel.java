@@ -5,6 +5,7 @@
 package com.elster.jupiter.orm;
 
 import com.elster.jupiter.orm.associations.RefAny;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import aQute.bnd.annotation.ConsumerType;
 import aQute.bnd.annotation.ProviderType;
@@ -13,6 +14,7 @@ import com.google.inject.Module;
 import javax.validation.ValidatorFactory;
 import java.security.Principal;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -190,6 +192,20 @@ public interface DataModel {
     default boolean doesColumnExist(String table, String name) {
         try (Connection connection = getConnection(false);
              ResultSet resultSet = connection.getMetaData().getColumns(connection.getCatalog(), connection.getSchema(), table, name)) {
+            return resultSet.next();
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    default boolean wasUpgradedTo(Version version) {
+        SqlBuilder builder = new SqlBuilder("select * from \"FLYWAYMETA.");
+        builder.append(getName());
+        builder.append("\" where \"version\" = ");
+        builder.addObject(version.toString());
+        try (Connection connection = getConnection(false);
+             PreparedStatement statement = builder.prepare(connection);
+             ResultSet resultSet = statement.executeQuery()) {
             return resultSet.next();
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);

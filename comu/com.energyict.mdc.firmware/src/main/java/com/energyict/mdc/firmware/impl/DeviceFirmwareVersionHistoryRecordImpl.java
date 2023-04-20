@@ -14,12 +14,12 @@ import java.time.Instant;
 
 public class DeviceFirmwareVersionHistoryRecordImpl implements DeviceFirmwareVersionHistoryRecord {
 
-    private Device device;
-    private FirmwareVersion firmwareVersion;
-    private Instant lastChecked;
-    private Interval effectivityInterval;
+    private final Device device;
+    private final FirmwareVersion firmwareVersion;
+    private final Instant lastChecked;
+    private final Interval effectivityInterval;
 
-    public DeviceFirmwareVersionHistoryRecordImpl(ActivatedFirmwareVersion activatedFirmwareVersion){
+    public DeviceFirmwareVersionHistoryRecordImpl(ActivatedFirmwareVersion activatedFirmwareVersion) {
         this.device = activatedFirmwareVersion.getDevice();
         this.firmwareVersion = activatedFirmwareVersion.getFirmwareVersion();
         this.lastChecked = activatedFirmwareVersion.getLastChecked();

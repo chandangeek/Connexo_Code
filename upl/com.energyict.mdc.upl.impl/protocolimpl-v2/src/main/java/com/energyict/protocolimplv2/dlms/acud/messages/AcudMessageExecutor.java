@@ -63,6 +63,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import static com.energyict.cbo.BaseUnit.COUNT;
 import static com.energyict.cbo.BaseUnit.UNITLESS;
@@ -537,15 +539,30 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
 
     private CollectedMessage remoteDisconnect(OfflineDeviceMessage pendingMessage) throws IOException {
         getProtocol().getDlmsSession().getCosemObjectFactory().getDisconnector().remoteDisconnect();
+        getProtocol().journal(Level.FINEST, "Breaker disconnect issued");
+        addDelay();
         return getRemoteBreakerStatus(pendingMessage);
     }
 
     private CollectedMessage remoteReconnect(OfflineDeviceMessage pendingMessage) throws IOException {
         getProtocol().getDlmsSession().getCosemObjectFactory().getDisconnector().remoteReconnect();
+        getProtocol().journal(Level.FINEST, "Breaker reconnect issued");
+        addDelay();
         return getRemoteBreakerStatus(pendingMessage);
     }
 
+    private void addDelay() {
+        try {
+            getProtocol().journal(Level.FINEST, "Wait for the change in breaker status to be applied");
+            TimeUnit.MILLISECONDS.sleep(1500);
+        } catch (InterruptedException e) {
+            getProtocol().journal(Level.WARNING, "Thread was interrupted", e);
+            Thread.currentThread().interrupt();
+        }
+    }
+
     private CollectedMessage getRemoteBreakerStatus(OfflineDeviceMessage pendingMessage) throws IOException {
+        getProtocol().journal(Level.FINEST, "Reading the breaker status");
         CollectedBreakerStatus colBreakStatus = getProtocol().getBreakerStatus();
         Register register = new Register(-1, BREAKER_STATUS, pendingMessage.getDeviceSerialNumber());
         List<CollectedRegister> collectedRegisters = new ArrayList<>();

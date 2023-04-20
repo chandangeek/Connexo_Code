@@ -40,14 +40,13 @@ public class RescheduleBehaviorForInbound extends AbstractRescheduleBehavior imp
                         getComServerDAO().executionCompleted(comTaskExecutionComCommand.getComTaskExecution());
                         break;
                     case NOT_EXECUTED: // intentional fallthrough
-                    case FAILED: {
+                    case FAILED:
                         if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)) {
                             notExecutedComTasks.add(comTaskExecutionComCommand.getComTaskExecution());
                         } else {
                             failedComTasks.add(comTaskExecutionComCommand.getComTaskExecution());
                         }
-                    }
-                    break;
+                        break;
                 }
             }
         }
@@ -73,14 +72,13 @@ public class RescheduleBehaviorForInbound extends AbstractRescheduleBehavior imp
                         getComServerDAO().executionCompleted(comTaskExecutionComCommand.getComTaskExecution());
                         break;
                     case NOT_EXECUTED: // intentional fallthrough
-                    case FAILED: {
+                    case FAILED:
                         if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)) {
                             getComServerDAO().executionRescheduled(comTaskExecutionComCommand.getComTaskExecution(), clock.instant());
                         } else {
                             getComServerDAO().executionFailed(comTaskExecutionComCommand.getComTaskExecution());
                         }
-                    }
-                    break;
+                        break;
                 }
             }
         }

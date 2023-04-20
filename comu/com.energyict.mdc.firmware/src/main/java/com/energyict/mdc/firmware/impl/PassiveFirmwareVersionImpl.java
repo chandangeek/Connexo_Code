@@ -22,9 +22,9 @@ public class PassiveFirmwareVersionImpl implements PassiveFirmwareVersion {
 
     private long id;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<FirmwareVersion> firmwareVersion = ValueReference.absent();
+    private final Reference<FirmwareVersion> firmwareVersion = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<Device> device = ValueReference.absent();
+    private final Reference<Device> device = ValueReference.absent();
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Interval interval;
     private Instant lastChecked;

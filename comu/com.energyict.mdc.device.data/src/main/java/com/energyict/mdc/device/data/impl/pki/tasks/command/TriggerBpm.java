@@ -34,11 +34,11 @@ public class TriggerBpm implements Command {
             if (this.bpmProcessResolver.canBeStarted(securityAccessor, keyRenewalBpmProcessDefinitionId)) {
                 Map<String, Object> expectedParams = new HashMap<>();
                 expectedParams.put("deviceId", securityAccessor.getDevice().getmRID());
-                expectedParams.put("accessorType", securityAccessor.getKeyAccessorTypeReference().getName());
+                expectedParams.put("accessorType", securityAccessor.getSecurityAccessorType().getName());
                 print(securityAccessor);
                 bpmService.startProcess(bpmProcessDefinition.get(), expectedParams);
                 logger.log(Level.INFO, "BPM process has been triggered on device " + securityAccessor.getDevice().getName()
-                        + " mrid = " + securityAccessor.getDevice().getmRID() + " for " + securityAccessor.getKeyAccessorTypeReference().getName());
+                        + " mrid = " + securityAccessor.getDevice().getmRID() + " for " + securityAccessor.getSecurityAccessorType().getName());
                 triggeredBpmProcessCounter++;
             } else {
                 throw new CommandAbortException("Process already started");
@@ -55,7 +55,7 @@ public class TriggerBpm implements Command {
 
     private void print(SecurityAccessor securityAccessor) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Type=" + securityAccessor.getKeyAccessorTypeReference().getName());
+        sb.append("Type=" + securityAccessor.getSecurityAccessorType().getName());
         sb.append(" Device=" + securityAccessor.getDevice().getName());
         sb.append('\n');
         logger.log(Level.INFO, sb.toString());

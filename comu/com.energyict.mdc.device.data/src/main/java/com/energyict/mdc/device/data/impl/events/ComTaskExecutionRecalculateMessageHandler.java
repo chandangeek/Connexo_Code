@@ -10,12 +10,14 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventConstants;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +30,7 @@ public class ComTaskExecutionRecalculateMessageHandler implements MessageHandler
     private volatile JsonService jsonService;
     private volatile ServerCommunicationTaskService communicationTaskService;
     private volatile SchedulingService schedulingService;
+    private volatile ConnectionTaskService connectionTaskService;
 
     public ComTaskExecutionRecalculateMessageHandler() {
         super();
@@ -56,6 +59,11 @@ public class ComTaskExecutionRecalculateMessageHandler implements MessageHandler
         this.communicationTaskService = communicationTaskService;
     }
 
+    @Reference
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public void process(Message message) {
@@ -67,7 +75,12 @@ public class ComTaskExecutionRecalculateMessageHandler implements MessageHandler
             long maxId = this.getLong("maxId", messageProperties);
             Optional<ComSchedule> comSchedule = this.schedulingService.findSchedule(comScheduleId);
             List<ComTaskExecution> comTaskExecutions = this.communicationTaskService.findComTaskExecutionsByComScheduleWithinRange(comSchedule.get(), minId, maxId);
+            comTaskExecutions.sort(Comparator.comparingLong(ComTaskExecution::getId));
             for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+                connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
+                long comTaskExecutionId = comTaskExecution.getId();
+                comTaskExecution = communicationTaskService.findAndLockComTaskExecutionById(comTaskExecutionId)
+                        .orElseThrow(() -> new IllegalStateException("Com task execution " + comTaskExecutionId + " doesn't exist anymore."));
                 comTaskExecution.updateNextExecutionTimestamp();
                 comTaskExecution.getDevice().save();
             }

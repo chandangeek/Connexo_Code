@@ -1,14 +1,15 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
+import com.elster.jupiter.domain.util.FieldMaxLengthException;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -47,9 +48,9 @@ import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.HeaderType.Verb;
+import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
-import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
 
@@ -61,10 +62,10 @@ import java.util.Map;
 import java.util.Optional;
 
 public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implements MeterConfigPort, ApplicationSpecific, EndPointProp {
+    public static final String CIM_METER_CONFIG = "CIM MeterConfig";
     private static final String NOUN = "MeterConfig";
     private static final String METER_ITEM = NOUN + ".Meter";
     private static final String METER_STATUS_SOURCE_ELEMENT = "MeterStatusSource";
-    public static final String CIM_MERER_CONFIG = "CIM MeterConfig";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
@@ -77,8 +78,8 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
     private final DeviceBuilder deviceBuilder;
     private final DeviceFinder deviceFinder;
     private final DeviceDeleter deviceDeleter;
-    private volatile PropertySpecService propertySpecService;
-    private volatile Thesaurus thesaurus;
+    private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
     private final ServiceCallCommands serviceCallCommands;
     private final EndPointConfigurationService endPointConfigurationService;
@@ -94,7 +95,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                                       EndPointConfigurationService endPointConfigurationService, MeterConfigParser meterConfigParser,
                                       WebServicesService webServicesService, InboundCIMWebServiceExtensionFactory webServiceExtensionFactory,
                                       CasHandler casHandler, SecurityHelper securityHelper, DeviceFinder deviceFinder, DeviceDeleter deviceDeleter,
-                                      MeterConfigPingUtils meterConfigPingUtils,PropertySpecService propertySpecService,
+                                      MeterConfigPingUtils meterConfigPingUtils, PropertySpecService propertySpecService,
                                       Thesaurus thesaurus) {
         this.meterConfigFactory = meterConfigFactory;
         this.meterConfigParser = meterConfigParser;
@@ -121,25 +122,14 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
             String meterName = null;
             try {
                 MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
-                SetMultimap<String, String> values = HashMultimap.create();
-                meterConfig.getMeter().stream().forEach(meter -> {
-                    if (!meter.getNames().isEmpty()) {
-                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
-                    }
-                    if (meter.getMRID() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
-                    }
-                    if (meter.getSerialNumber() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
-                    }
-                });
-                saveRelatedAttributes(values);
+                saveRelatedAttributesFromRequest(meterConfig);
 
+                boolean failOnExistentDevice = !shouldReturnDeviceIfExists();
                 if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
                     createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
-                            OperationEnum.CREATE, requestMessage.getHeader().getCorrelationID());
+                            OperationEnum.CREATE, requestMessage.getHeader().getCorrelationID(), failOnExistentDevice);
 
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, requestMessage.getHeader().getCorrelationID());
                 } else if (meterConfig.getMeter().size() > 1) {
@@ -152,29 +142,12 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
 
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(),
-                            OperationEnum.CREATE);
+                            OperationEnum.CREATE, failOnExistentDevice);
 
-                    boolean respondSuccessForExisting = returnDeviceIfExists(true);
-                    MeterInfo parsedMeterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(), OperationEnum.CREATE);
-                    List<Device> existingDevices = deviceBuilder.getExistingDevices(parsedMeterInfo.getDeviceName(), parsedMeterInfo.getSerialNumber());
-                    if (existingDevices.size() == 1) {
-                        // only one device exists
-                        if (respondSuccessForExisting) {
-                            Device existingDevice = existingDevices.get(0);
-                            if (existingDevice.getName().equals(parsedMeterInfo.getDeviceName())
-                                    && existingDevice.getSerialNumber().equals(parsedMeterInfo.getSerialNumber())
-                                    && existingDevice.getDeviceType().getName().equals(parsedMeterInfo.getDeviceType())) {
-                                // respond as it was created
-                                return createResponseMessage(existingDevice, HeaderType.Verb.CREATED,requestMessage.getHeader().getCorrelationID());
-                            }
-                        }
-                    }
-
-                    // standard functionality
-                    Device createdDevice = deviceBuilder.prepareCreateFrom(parsedMeterInfo).build();
+                    Device createdDevice = deviceBuilder.prepareCreateFrom(meterInfo).build();
                     return processDevice(createdDevice, meterInfo, HeaderType.Verb.CREATED, requestMessage.getHeader().getCorrelationID());
                 }
-            } catch (VerboseConstraintViolationException e) {
+            } catch (VerboseConstraintViolationException | FieldMaxLengthException e) {
                 throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CREATE_DEVICE,
                         e.getLocalizedMessage());
             } catch (LocalizedException e) {
@@ -210,26 +183,13 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
             String meterName = null;
             try {
                 MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
-
-                SetMultimap<String, String> values = HashMultimap.create();
-                meterConfig.getMeter().stream().forEach(meter -> {
-                    if (!meter.getNames().isEmpty()) {
-                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
-                    }
-                    if (meter.getMRID() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
-                    }
-                    if (meter.getSerialNumber() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
-                    }
-                });
-                saveRelatedAttributes(values);
+                saveRelatedAttributesFromRequest(meterConfig);
 
                 if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
                     createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
-                            OperationEnum.UPDATE, requestMessage.getHeader().getCorrelationID());
+                            OperationEnum.UPDATE, requestMessage.getHeader().getCorrelationID(), false);
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, requestMessage.getHeader().getCorrelationID());
                 } else if (meterConfig.getMeter().size() > 1) {
                     throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CHANGE_DEVICE,
@@ -240,13 +200,13 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                             .meterConfigFaultMessageSupplier(meterName, MessageSeeds.EMPTY_LIST, METER_ITEM));
                     meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(),
-                            OperationEnum.UPDATE);
+                            OperationEnum.UPDATE, false);
 
                     Device changedDevice = deviceBuilder.prepareChangeFrom(meterInfo).build();
                     return processDevice(changedDevice, meterInfo, HeaderType.Verb.CHANGED, requestMessage.getHeader().getCorrelationID());
                 }
             } catch (VerboseConstraintViolationException | SecurityException | InvalidLastCheckedException
-                    | DeviceLifeCycleActionViolationException e) {
+                    | DeviceLifeCycleActionViolationException | FieldMaxLengthException e) {
                 throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CHANGE_DEVICE,
                         e.getLocalizedMessage());
             } catch (LocalizedException e) {
@@ -278,9 +238,12 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
     }
 
     private ServiceCall createMeterConfigServiceCallAndTransition(MeterConfig meterConfig,
-                                                                  EndPointConfiguration endPointConfiguration, OperationEnum operation, String correlationId) throws FaultMessage {
+                                                                  EndPointConfiguration endPointConfiguration,
+                                                                  OperationEnum operation,
+                                                                  String correlationId,
+                                                                  boolean failOnExistentDevice) throws FaultMessage, FieldMaxLengthException {
         ServiceCall serviceCall = serviceCallCommands.createMeterConfigMasterServiceCall(meterConfig,
-                endPointConfiguration, operation, correlationId);
+                endPointConfiguration, operation, correlationId, failOnExistentDevice);
         serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
         return serviceCall;
     }
@@ -373,20 +336,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         return runInTransactionWithOccurrence(() -> {
             try {
                 MeterConfig meterConfig = deleteMeterConfigRequestMessageType.getPayload().getMeterConfig();
-                SetMultimap<String, String> values = HashMultimap.create();
-
-                meterConfig.getMeter().stream().forEach(meter -> {
-                    if (!meter.getNames().isEmpty()) {
-                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
-                    }
-                    if (meter.getMRID() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
-                    }
-                    if (meter.getSerialNumber() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
-                    }
-                });
-                saveRelatedAttributes(values);
+                saveRelatedAttributesFromRequest(meterConfig);
 
                 //get mrid or name of device
                 if (Boolean.TRUE.equals(deleteMeterConfigRequestMessageType.getHeader().isAsyncReplyFlag())) {
@@ -408,7 +358,8 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                         throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.NO_DEVICE, faultMessages, ReplyType.Result.FAILED);
                     } else {
                         EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(deleteMeterConfigRequestMessageType.getHeader().getReplyAddress());
-                        createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.DELETE, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID());
+                        createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
+                                OperationEnum.DELETE, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID(), false);
                         if (faultMessages.isEmpty()) {
                             return createQuickResponseMessage(Verb.REPLY, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID());
                         } else {
@@ -433,8 +384,10 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     deviceDeleter.delete(device);
                     return createResponseMessage(null, Verb.DELETED, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID());
                 }
-            } catch (LocalizedException e) {
+            } catch (FieldMaxLengthException e) {
                 throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_DELETE_DEVICE, e.getLocalizedMessage());
+            } catch (LocalizedException e) {
+                throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_DELETE_DEVICE, e.getLocalizedMessage(), e.getErrorCode());
             }
         });
     }
@@ -444,20 +397,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         return runInTransactionWithOccurrence(() -> {
             try {
                 MeterConfig meterConfig = meterConfigRequestMessageType.getPayload().getMeterConfig();
-                SetMultimap<String, String> values = HashMultimap.create();
-
-                meterConfig.getMeter().stream().forEach(meter -> {
-                    if (!meter.getNames().isEmpty()) {
-                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
-                    }
-                    if (meter.getMRID() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
-                    }
-                    if (meter.getSerialNumber() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
-                    }
-                });
-                saveRelatedAttributes(values);
+                saveRelatedAttributesFromRequest(meterConfig);
 
                 //get mrid or name of device
                 if (Boolean.TRUE.equals(meterConfigRequestMessageType.getHeader().isAsyncReplyFlag())) {
@@ -481,7 +421,8 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                         checkMeterStatusSourceAsync(meterConfig.getMeterStatusSource());
                         isPingRequested(meterConfig.getPing(), null);
                         EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(meterConfigRequestMessageType.getHeader().getReplyAddress());
-                        createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET, meterConfigRequestMessageType.getHeader().getCorrelationID());
+                        createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
+                                OperationEnum.GET, meterConfigRequestMessageType.getHeader().getCorrelationID(), false);
                         if (faultMessages.isEmpty()) {
                             return createQuickResponseMessage(HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
                         } else {
@@ -518,8 +459,10 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     return createGetResponseMessage(device, pingResult, meterStatusRequired, errorMessageOptional.orElse(null),
                             meterConfigRequestMessageType.getHeader().getCorrelationID());
                 }
-            } catch (VerboseConstraintViolationException e) {
-                throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG_EVENTS, e.getLocalizedMessage());
+            } catch (VerboseConstraintViolationException | FieldMaxLengthException e) {
+                throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG, e.getLocalizedMessage());
+            } catch (LocalizedException e) {
+                throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG, e.getLocalizedMessage(), e.getErrorCode());
             }
         });
     }
@@ -536,11 +479,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                 && !MeterStatusSource.SYSTEM.getSource().equalsIgnoreCase(meterStatusSource)
                 && !MeterStatusSource.METER.getSource().equalsIgnoreCase(meterStatusSource)) {
             throw faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.METER_STATUS_NOT_SUPPORTED, METER_STATUS_SOURCE_ELEMENT, meterStatusSource,
-                    new StringBuilder().append('\'')
-                            .append(MeterStatusSource.SYSTEM.getSource())
-                            .append("\', \'")
-                            .append(MeterStatusSource.METER.getSource())
-                            .append('\'').toString()).get();
+                    "'" + MeterStatusSource.SYSTEM.getSource() + "', '" + MeterStatusSource.METER.getSource() + "'").get();
         }
     }
 
@@ -559,42 +498,38 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         }
     }
 
-    private boolean returnDeviceIfExists(boolean defaultValue){
-        Optional<EndPointConfiguration> outboundEndPointConfiguration = getEndPointConfigurations();
-        if (outboundEndPointConfiguration.isPresent()) {
-            Map<String, Object> properties = outboundEndPointConfiguration.get().getPropertiesWithValue();
-            Object value = properties.getOrDefault(TranslationKeys.RETURN_DEVICE_IF_EXISTS.getKey(), defaultValue);
-            return (boolean) value;
-        }
-
-        return defaultValue;
+    private boolean shouldReturnDeviceIfExists() {
+        Map<String, Object> properties = getEndPointConfiguration().getPropertiesWithValue();
+        return (boolean) properties.getOrDefault(TranslationKeys.RETURN_DEVICE_IF_EXISTS.getKey(), true);
     }
 
-    private Optional<EndPointConfiguration> getEndPointConfigurations() {
-        return endPointConfigurationService.findEndPointConfigurations()
-                .stream()
-                .filter(EndPointConfiguration::isActive)
-                .filter(endPointConfiguration -> endPointConfiguration.isInbound())
-                .filter(ws -> ws.getWebServiceName().equalsIgnoreCase(CIM_MERER_CONFIG))
-                //.filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url))
-                .findFirst();
+    private void saveRelatedAttributesFromRequest(MeterConfig meterConfig) throws FieldMaxLengthException {
+        SetMultimap<String, String> values = HashMultimap.create();
 
+        for (Meter meter : meterConfig.getMeter()) {
+            if (!meter.getNames().isEmpty()) {
+                values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+            }
+            if (meter.getMRID() != null) {
+                values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+            }
+            if (meter.getSerialNumber() != null) {
+                values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
+            }
+        }
+        saveRelatedAttributes(values);
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-
-        builder.add(propertySpecService
-                .specForValuesOf(new BooleanFactory())
+        return ImmutableList.of(propertySpecService
+                .booleanSpec()
                 .named(TranslationKeys.RETURN_DEVICE_IF_EXISTS)
                 .describedAs(TranslationKeys.RETURN_DEVICE_IF_EXISTS_DESCRIPTION)
                 .fromThesaurus(thesaurus)
                 .setDefaultValue(true)
                 .markEditable()
                 .finish());
-
-        return builder.build();
     }
 
     @Override

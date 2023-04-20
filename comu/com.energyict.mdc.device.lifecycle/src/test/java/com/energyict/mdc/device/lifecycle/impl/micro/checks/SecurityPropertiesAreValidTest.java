@@ -77,10 +77,10 @@ public class SecurityPropertiesAreValidTest {
         when(usedSecurityPropertySet.getConfigurationSecurityProperties()).thenReturn(Arrays.asList(akKeySecurityProperty, ekKeySecurityProperty));
 
         SecurityAccessor akSecurityAccessor = mock(SecurityAccessor.class);
-        when(akSecurityAccessor.getKeyAccessorTypeReference()).thenReturn(akSecurityAccessorType);
+        when(akSecurityAccessor.getSecurityAccessorType()).thenReturn(akSecurityAccessorType);
         when(akSecurityAccessor.getStatus()).thenReturn(KeyAccessorStatus.COMPLETE);
         SecurityAccessor ekSecurityAccessor = mock(SecurityAccessor.class);
-        when(ekSecurityAccessor.getKeyAccessorTypeReference()).thenReturn(ekSecurityAccessorType);
+        when(ekSecurityAccessor.getSecurityAccessorType()).thenReturn(ekSecurityAccessorType);
         when(ekSecurityAccessor.getStatus()).thenReturn(KeyAccessorStatus.COMPLETE);
 
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -123,7 +123,7 @@ public class SecurityPropertiesAreValidTest {
         when(usedSecurityPropertySet.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(akKeySecurityProperty));
 
         SecurityAccessor akSecurityAccessor = mock(SecurityAccessor.class);
-        when(akSecurityAccessor.getKeyAccessorTypeReference()).thenReturn(akSecurityAccessorType);
+        when(akSecurityAccessor.getSecurityAccessorType()).thenReturn(akSecurityAccessorType);
         when(akSecurityAccessor.getStatus()).thenReturn(KeyAccessorStatus.COMPLETE);
 
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -171,7 +171,7 @@ public class SecurityPropertiesAreValidTest {
         when(usedSecurityPropertySet.getConfigurationSecurityProperties()).thenReturn(Arrays.asList(akKeySecurityProperty, ekKeySecurityProperty));
 
         SecurityAccessor akSecurityAccessor = mock(SecurityAccessor.class);
-        when(akSecurityAccessor.getKeyAccessorTypeReference()).thenReturn(akSecurityAccessorType);
+        when(akSecurityAccessor.getSecurityAccessorType()).thenReturn(akSecurityAccessorType);
         when(akSecurityAccessor.getStatus()).thenReturn(KeyAccessorStatus.COMPLETE);
 
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -219,7 +219,7 @@ public class SecurityPropertiesAreValidTest {
         when(usedSecurityPropertySet.getConfigurationSecurityProperties()).thenReturn(Arrays.asList(akKeySecurityProperty, ekKeySecurityProperty));
 
         SecurityAccessor akSecurityAccessor = mock(SecurityAccessor.class);
-        when(akSecurityAccessor.getKeyAccessorTypeReference()).thenReturn(akSecurityAccessorType);
+        when(akSecurityAccessor.getSecurityAccessorType()).thenReturn(akSecurityAccessorType);
         when(akSecurityAccessor.getStatus()).thenReturn(KeyAccessorStatus.COMPLETE);
 
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -262,7 +262,7 @@ public class SecurityPropertiesAreValidTest {
         when(usedSecurityPropertySet.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(akKeySecurityProperty));
 
         SecurityAccessor akSecurityAccessor = mock(SecurityAccessor.class);
-        when(akSecurityAccessor.getKeyAccessorTypeReference()).thenReturn(akSecurityAccessorType);
+        when(akSecurityAccessor.getSecurityAccessorType()).thenReturn(akSecurityAccessorType);
         when(akSecurityAccessor.getStatus()).thenReturn(KeyAccessorStatus.COMPLETE);
 
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -311,10 +311,10 @@ public class SecurityPropertiesAreValidTest {
         when(usedSecurityPropertySet.getConfigurationSecurityProperties()).thenReturn(Arrays.asList(akKeySecurityProperty, ekKeySecurityProperty));
 
         SecurityAccessor akSecurityAccessor = mock(SecurityAccessor.class);
-        when(akSecurityAccessor.getKeyAccessorTypeReference()).thenReturn(akSecurityAccessorType);
+        when(akSecurityAccessor.getSecurityAccessorType()).thenReturn(akSecurityAccessorType);
         when(akSecurityAccessor.getStatus()).thenReturn(KeyAccessorStatus.COMPLETE);
         SecurityAccessor ekSecurityAccessor = mock(SecurityAccessor.class);
-        when(ekSecurityAccessor.getKeyAccessorTypeReference()).thenReturn(ekSecurityAccessorType);
+        when(ekSecurityAccessor.getSecurityAccessorType()).thenReturn(ekSecurityAccessorType);
         when(ekSecurityAccessor.getStatus()).thenReturn(KeyAccessorStatus.INCOMPLETE);
 
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);

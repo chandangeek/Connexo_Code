@@ -124,9 +124,8 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
             issues.add(getIssueService().newProblem(
                     loadProfileConfigurationObisCode,
                     MessageSeeds.LOAD_PROFILE_CHANNEL_MISSING,
-                    loadProfileConfigurationObisCode,
-                    localChannelInfo.getName(),
-                    localChannelInfo.getMeterIdentifier()
+                    localChannelInfo.getChannelObisCode(),
+                    loadProfileConfigurationObisCode
             ));
         }
         return issues;

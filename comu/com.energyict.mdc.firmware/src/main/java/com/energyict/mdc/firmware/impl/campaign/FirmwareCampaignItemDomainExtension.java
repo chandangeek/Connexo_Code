@@ -14,6 +14,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.util.concurrent.LockUtils;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
@@ -26,6 +27,9 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -38,6 +42,7 @@ import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
 import com.energyict.mdc.firmware.impl.TranslationKeys;
 import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
@@ -49,10 +54,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 
 public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, DeviceInFirmwareCampaign {
-
     private static final String PROPERTY_NAME_RESUME = "FirmwareDeviceMessage.upgrade.resume";
+    private static final Logger logger = Logger.getLogger(FirmwareCampaignItemDomainExtension.class.getName());
 
     public enum FieldNames {
         DOMAIN("serviceCall", "service_call"),
@@ -85,14 +91,16 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     private final Clock clock;
     private final FirmwareCampaignServiceImpl firmwareCampaignService;
     private final DataModel ddcDataModel;
+    private final DeviceMessageService deviceMessageService;
+    private final ConnectionTaskService connectionTaskService;
+    private final CommunicationTaskService communicationTaskService;
 
-    private Reference<ServiceCall> serviceCall = Reference.empty();
+    private final Reference<ServiceCall> serviceCall = Reference.empty();
 
     @IsPresent
-    private Reference<Device> device = Reference.empty();
-    private Reference<ServiceCall> parent = Reference.empty();
-    private Reference<DeviceMessage> deviceMessage = Reference.empty();
-
+    private final Reference<Device> device = Reference.empty();
+    private final Reference<ServiceCall> parent = Reference.empty();
+    private final Reference<DeviceMessage> deviceMessage = Reference.empty();
 
     @Inject
     public FirmwareCampaignItemDomainExtension(FirmwareServiceImpl firmwareService, Thesaurus thesaurus, Clock clock) {
@@ -101,10 +109,13 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         this.dataModel = firmwareService.getDataModel();
         this.ddcDataModel = firmwareService.getOrmService().getDataModel(DeviceDataServices.COMPONENT_NAME).get();
         this.thesaurus = thesaurus;
+        this.deviceMessageService = dataModel.getInstance(DeviceMessageService.class);
         this.serviceCallService = dataModel.getInstance(ServiceCallService.class);
         this.taskService = dataModel.getInstance(TaskService.class);
         this.clock = clock;
         this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
+        this.connectionTaskService = dataModel.getInstance(ConnectionTaskService.class);
+        this.communicationTaskService = dataModel.getInstance(CommunicationTaskService.class);
     }
 
     @Override
@@ -123,29 +134,64 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     }
 
     @Override
-    public ServiceCall cancel(boolean initFromCampaign) {
+    public void cancel() {
         ServiceCall serviceCall = getServiceCall();
-        // TODO: will need to be returned
-//        if (serviceCall.getState().equals(DefaultState.ONGOING)) {
-//            if (!initFromCampaign) {
-//                throw new FirmwareCampaignException(thesaurus, MessageSeeds.DEVICE_IS_NOT_PENDING_STATE);
-//            }
-//        } else
-        serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
-        return serviceCallService.getServiceCall(serviceCall.getId()).get();
+        ServiceCall lockedServiceCall = LockUtils.forceLockWithDoubleCheck(serviceCall,
+                serviceCallService::lockServiceCall,
+                sc -> sc.canTransitionTo(DefaultState.CANCELLED),
+                sc -> cantCancelServiceCallException(serviceCall.getNumber(), sc));
+        lockedServiceCall.cancel();
+        this.serviceCall.set(lockedServiceCall);
+    }
+
+    void beforeCancelling() {
+        if (getDeviceMessage().isPresent()){
+            boolean hasRunningFirmwareTask = firmwareService.hasRunningFirmwareTask(getDevice());
+            logger.info("[FWC] beforeCancelling message " + getDeviceMessage().get().getId() +
+                    " with status " + getDeviceMessage().get().getStatus() +
+                    " of device " + getDevice().getName() + ", has running firmware task: " + hasRunningFirmwareTask);
+        }
+
+        getDeviceMessage()
+                // if already cancelled or failed, just cancel also the service call with no errors
+                .filter(message -> message.getStatus() != DeviceMessageStatus.CANCELED && message.getStatus() != DeviceMessageStatus.FAILED)
+                .ifPresent(message -> LockUtils.forceLockWithDoubleCheck(message,
+                                deviceMessageService::findAndLockDeviceMessageById,
+                                dm -> dm.getStatus() == DeviceMessageStatus.WAITING || dm.getStatus() == DeviceMessageStatus.PENDING, // pre-check
+                                dm -> dm.getStatus() == DeviceMessageStatus.WAITING || dm.getStatus() == DeviceMessageStatus.PENDING // post-check
+                                        && !firmwareService.hasRunningFirmwareTask(getDevice()),
+                                dm -> cantCancelDeviceMessageException())
+                        .revoke()
+                );
+    }
+
+    private FirmwareCampaignException cantCancelServiceCallException(String serviceCallNumber, ServiceCall serviceCall) {
+        return new FirmwareCampaignException(thesaurus, MessageSeeds.CANT_CANCEL_SERVICE_CALL,
+                serviceCallNumber, serviceCall == null ? "no state" : serviceCall.getState().getDisplayName(thesaurus));
+    }
+
+    private FirmwareCampaignException cantRetryServiceCallException(String serviceCallNumber, ServiceCall serviceCall) {
+        return new FirmwareCampaignException(thesaurus, MessageSeeds.CANT_RETRY_SERVICE_CALL,
+                serviceCallNumber, serviceCall == null ? "no state" : serviceCall.getState().getDisplayName(thesaurus));
+    }
+
+    private FirmwareCampaignException cantCancelDeviceMessageException() {
+        return new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
     }
 
     @Override
-    public ServiceCall retry() {
+    public void retry() {
         ServiceCall serviceCall = getServiceCall();
         if (serviceCall.getParent().get().getExtension(FirmwareCampaignDomainExtension.class).get().isManuallyCancelled()) {
             throw new FirmwareCampaignException(thesaurus, MessageSeeds.CAMPAIGN_WITH_DEVICE_CANCELLED);
         }
-        if (serviceCall.canTransitionTo(DefaultState.PENDING)) {
-            serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.RETRIED_BY_USER).format());
-            serviceCall.requestTransition(DefaultState.PENDING);
-        }
-        return serviceCallService.getServiceCall(serviceCall.getId()).get();
+        ServiceCall lockedServiceCall = LockUtils.forceLockWithDoubleCheck(serviceCall,
+                serviceCallService::lockServiceCall,
+                sc -> sc.canTransitionTo(DefaultState.PENDING),
+                sc -> cantRetryServiceCallException(serviceCall.getNumber(), sc));
+        lockedServiceCall.requestTransition(DefaultState.PENDING);
+        lockedServiceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.RETRIED_BY_USER).format());
+        this.serviceCall.set(lockedServiceCall);
     }
 
     @Override
@@ -180,7 +226,6 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     public void setDeviceMessage(DeviceMessage deviceMessage) {
         this.deviceMessage.set(deviceMessage);
     }
-
 
     @Override
     public void copyFrom(ServiceCall domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
@@ -315,23 +360,12 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     }
 
     private void prepareCommunicationTask(Device device) {
-        if (!firmwareService.getFirmwareManagementDeviceUtilsFor(device).getFirmwareComTaskExecution().isPresent()) {
-            createFirmwareComTaskExecution(device);
-        }
+        // the task already exists as ensured by the previous code
+        firmwareService.getFirmwareManagementDeviceUtilsFor(device, true).lockFirmwareComTaskExecution();
     }
 
-    private ComTaskExecution createFirmwareComTaskExecution(Device device) {
-        // Check firmware upgrade task
-        ComTask comTask = taskService.findFirmwareComTask()
-                .orElseThrow(() -> new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.DEFAULT_FIRMWARE_MANAGEMENT_TASK_CAN_NOT_BE_FOUND));
-        ComTaskEnablement comTaskEnablement = device.getDeviceConfiguration().getComTaskEnablementFor(comTask)
-                .orElseThrow(() -> new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.DEFAULT_FIRMWARE_MANAGEMENT_TASK_IS_NOT_ACTIVE));
-        ComTaskExecution firmwareComTaskExecution = device.newFirmwareComTaskExecution(comTaskEnablement).add();
-        device.save();
-        return firmwareComTaskExecution;
-    }
-
-    private FirmwareCampaignDomainExtension getFirmwareCampaign() {
+    @Override
+    public FirmwareCampaignDomainExtension getFirmwareCampaign() {
         return getParent().getExtension(FirmwareCampaignDomainExtension.class).get();
     }
 
@@ -422,24 +456,51 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         Optional<ComTaskExecution> optionalFirmwareComTaskExec = findOrCreateFirmwareComTaskExecution();
         if (optionalFirmwareComTaskExec.isPresent()) {
             ComTaskExecution firmwareComTaskExec = optionalFirmwareComTaskExec.get();
-            Instant appliedStartDate = campaign.getUploadPeriodStart();
-            ConnectionStrategy connectionStrategy;
-            connectionStrategy = ((ScheduledConnectionTask) firmwareComTaskExec.getConnectionTask().get()).getConnectionStrategy();
-            if (firmwareComTaskExec.getConnectionTask().get().isActive() && (!campaign.getFirmwareUploadConnectionStrategy().isPresent() || connectionStrategy == campaign
-                    .getFirmwareUploadConnectionStrategy()
-                    .get())) {
-                firmwareComTaskExec.schedule(appliedStartDate);
+            Instant appliedStartDate = getAppliedStartDate(campaign);
+            ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) firmwareComTaskExec.getConnectionTask().get();
+            if (!firmwareComTaskExec.isOnHold() && connectionTask.isActive()
+                    && (!campaign.getFirmwareUploadConnectionStrategy().isPresent()
+                    || connectionTask.getConnectionStrategy() == campaign.getFirmwareUploadConnectionStrategy().get())) {
+                connectionTaskService.findAndLockConnectionTaskById(connectionTask.getId());
+                ComTaskExecution lockedCTE = communicationTaskService.findAndLockComTaskExecutionById(firmwareComTaskExec.getId()).get();
+                ScheduledConnectionTask lockedCT = (ScheduledConnectionTask) lockedCTE.getConnectionTask().get();
+                if (!lockedCTE.isOnHold() && lockedCT.isActive()
+                        && (!campaign.getFirmwareUploadConnectionStrategy().isPresent()
+                        || lockedCT.getConnectionStrategy() == campaign.getFirmwareUploadConnectionStrategy().get())) {
+                    lockedCTE.schedule(appliedStartDate);
+                } else {
+                    serviceCallService.lockServiceCall(getServiceCall().getId())
+                            .ifPresent(serviceCall::set);
+                    getDeviceMessage().ifPresent(DeviceMessage::revoke);
+                    getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
+                            .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getFirmwareUploadConnectionStrategy().get().name())).format(), lockedCTE.getComTask().getName()));
+                    getServiceCall().requestTransition(DefaultState.REJECTED);
+                }
             } else {
-                serviceCallService.lockServiceCall(getServiceCall().getId());
+                serviceCallService.lockServiceCall(getServiceCall().getId())
+                        .ifPresent(serviceCall::set);
+                getDeviceMessage().ifPresent(DeviceMessage::revoke);
                 getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
                         .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getFirmwareUploadConnectionStrategy().get().name())).format(), firmwareComTaskExec.getComTask().getName()));
                 getServiceCall().requestTransition(DefaultState.REJECTED);
             }
         } else {
-            serviceCallService.lockServiceCall(getServiceCall().getId());
+            serviceCallService.lockServiceCall(getServiceCall().getId())
+                    .ifPresent(serviceCall::set);
+            getDeviceMessage().ifPresent(DeviceMessage::revoke);
             getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
             getServiceCall().requestTransition(DefaultState.REJECTED);
         }
+    }
+
+    private Instant getAppliedStartDate(FirmwareCampaign campaign) {
+        Instant now = clock.instant();
+
+        if (campaign.getComWindow().includes(now)){
+            return now;
+        }
+
+        return campaign.getUploadPeriodStart();
     }
 
     @Override

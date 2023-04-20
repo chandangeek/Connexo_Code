@@ -463,7 +463,7 @@
                         maxOccurs="unbounded"/>
             <xs:element name="ConnectionAttributes" type="m:ConnectionAttributes" minOccurs="0"
                         maxOccurs="unbounded"/>
-	    <xs:element name="SecurityKeys" type="sec:SecurityKeys" minOccurs="0" maxOccurs="1" />
+            <xs:element name="SecurityKeys" type="sec:SecurityKeys" minOccurs="0" maxOccurs="1" />
             <xs:element name="TimeSeriesCustomAttributeSet" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                     <xs:sequence>

@@ -152,6 +152,17 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 },
                                 {
                                     xtype: 'displayfield',
+                                    name: 'traced',
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.tracing', 'MDC', 'Tracing'),
+                                    renderer: function (value) {
+                                        if (value === true) {
+                                            return Uni.I18n.translate('general.yes', 'MDC', 'Yes');
+                                        }
+                                        return Uni.I18n.translate('general.no', 'MDC', 'No');
+                                    }
+                                },
+                                {
+                                    xtype: 'displayfield',
                                     name: 'securitySettings',
                                     fieldLabel: Uni.I18n.translate('general.securitySets', 'MDC', 'Security sets')
                                 },

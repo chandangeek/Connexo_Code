@@ -451,7 +451,7 @@ public class OfflineExecuter implements OfflineActionExecuter {
      */
     synchronized public void process() {
         try {
-            serviceProvider.threadPrincipalService().runAs(comServerUser, () -> doProcess());
+            serviceProvider.threadPrincipalService().runAs(comServerUser, this::doProcess);
         } catch (Throwable e) {
             getLogging().getLogger().severe("Uncaught exception - OfflineExecuter exiting! " + e.getMessage());
             e.printStackTrace();

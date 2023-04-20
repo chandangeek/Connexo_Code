@@ -10,12 +10,15 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,6 +47,10 @@ public class StartRecurringCommunicationTest {
     private Device device;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
+    @Mock
+    private ConnectionTaskService connectionTaskService;
 
     @Test
     public void testGetPropertySpecs() {
@@ -60,6 +67,10 @@ public class StartRecurringCommunicationTest {
     public void executeActivatesAllConnectionTasks() {
         ConnectionTask connectionTask1 = mock(ConnectionTask.class);
         ConnectionTask connectionTask2 = mock(ConnectionTask.class);
+        when(connectionTask1.getId()).thenReturn(1L);
+        when(connectionTask2.getId()).thenReturn(2L);
+        when(connectionTaskService.findAndLockConnectionTaskById(1)).thenReturn(Optional.of(connectionTask1));
+        when(connectionTaskService.findAndLockConnectionTaskById(2)).thenReturn(Optional.of(connectionTask2));
         when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask1, connectionTask2));
         StartRecurringCommunication microAction = this.getTestInstance();
 
@@ -78,6 +89,11 @@ public class StartRecurringCommunicationTest {
         comTaskExecution1.putOnHold();
         ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
         when(comTaskExecution2.isOnHold()).thenReturn(true);
+        when(comTaskExecution1.getId()).thenReturn(1L);
+        when(comTaskExecution2.getId()).thenReturn(2L);
+        when(communicationTaskService.findAndLockComTaskExecutionById(1)).thenReturn(Optional.of(comTaskExecution1));
+        when(communicationTaskService.findAndLockComTaskExecutionById(2)).thenReturn(Optional.of(comTaskExecution2));
+
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
         when(this.device.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         StartRecurringCommunication microAction = this.getTestInstance();
@@ -88,7 +104,7 @@ public class StartRecurringCommunicationTest {
     }
 
     private StartRecurringCommunication getTestInstance() {
-        return new StartRecurringCommunication(thesaurus);
+        return new StartRecurringCommunication(thesaurus, communicationTaskService, connectionTaskService);
     }
 
 }

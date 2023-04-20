@@ -29,7 +29,7 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
 
     @Override
     public void renew() {
-        Optional<SecurityAccessorType> wrappingSecurityAccessorType =  getDevice().getDeviceType().getWrappingSecurityAccessorType(this.getKeyAccessorTypeReference());
+        Optional<SecurityAccessorType> wrappingSecurityAccessorType =  getDevice().getDeviceType().getWrappingSecurityAccessorType(this.getSecurityAccessorType());
 
         Optional<HsmKey> masterKey;
 
@@ -43,7 +43,7 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
             }
             SecurityAccessor wrapperSecAccessor = securityAccessor.get();
 
-            Optional actualValueWrapperAccessor = wrapperSecAccessor.getActualPassphraseWrapperReference();
+            Optional actualValueWrapperAccessor = wrapperSecAccessor.getActualValue();
             if (!actualValueWrapperAccessor.isPresent()) {
                 throw new PkiLocalizedException(thesaurus, MessageSeeds.NO_WRAPPER_ACTUAL_VALUE);
             }
@@ -66,7 +66,7 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
     }
 
     private void doRenewValue(Optional<HsmKey> masterKey) {
-        SecurityAccessorType keyAccessorType = getKeyAccessorTypeReference();
+        SecurityAccessorType keyAccessorType = getSecurityAccessorType();
         HsmKey symmetricKeyWrapper = (HsmKey) securityManagementService.newSymmetricKeyWrapper(keyAccessorType);
         symmetricKeyWrapper.generateValue(keyAccessorType, masterKey);
         tempSymmetricKeyWrapperReference = dataModel.asRefAny(symmetricKeyWrapper);

@@ -48,8 +48,8 @@ public class UpgraderV10_7 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 7));
         QueueTableSpec defaultQueueTableSpec = installerV10_7.createDefaultQueueTableSpecIfNotExist(PRIORITIZED_RAW_QUEUE_TABLE);
-        installerV10_7.createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME,
-                ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_SUBSCRIBER, ServiceCallService.COMPONENT_NAME, logger);
+        installerV10_7.createMessageHandler(defaultQueueTableSpec, ServiceCallService.SERVICE_CALLS_SUBSCRIBER_NAME,
+                ServiceCallService.SERVICE_CALLS_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_SUBSCRIBER, ServiceCallService.COMPONENT_NAME, logger);
         installerV10_7.createMessageHandler(defaultQueueTableSpec, ServiceCallService.SERVICE_CALLS_ISSUE_SUBSCRIBER_NAME,
                 ServiceCallService.SERVICE_CALLS_ISSUE_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_ISSUE_SUBSCRIBER, ServiceCallService.COMPONENT_NAME, logger);
         replaceSubscriber();
@@ -63,7 +63,7 @@ public class UpgraderV10_7 implements Upgrader {
     }
 
     private void replaceSubscriber() {
-        SubscriberSpec newSubscriber = getSubscriber4(ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME).orElseThrow(() -> new IllegalStateException("Subscriber '" + ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME + "' was not created."));
+        SubscriberSpec newSubscriber = getSubscriber4(ServiceCallService.SERVICE_CALLS_DESTINATION_NAME).orElseThrow(() -> new IllegalStateException("Subscriber '" + ServiceCallService.SERVICE_CALLS_DESTINATION_NAME + "' was not created."));
         Optional<SubscriberSpec> oldSubscriberSpec = getSubscriber4(OLD_SERVICE_CALLS_DESTINATION_NAME);
         oldSubscriberSpec.ifPresent(oldSubscriber -> {
             appService.findAppServers().stream()

@@ -75,7 +75,7 @@ public class CertificateExportProcessorTest {
         KeyPair keyPair = keyGenerator.genKeyPair();
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.of(clientCertificateWrapper));
+        when(securityAccessor.getActualValue()).thenReturn(Optional.of(clientCertificateWrapper));
         when(clientCertificateWrapper.getPrivateKeyWrapper()).thenReturn(privateKeyWrapper);
         when(clientCertificateWrapper.hasPrivateKey()).thenReturn(true);
         when(privateKeyWrapper.getPrivateKey()).thenReturn(Optional.of(privateKey));

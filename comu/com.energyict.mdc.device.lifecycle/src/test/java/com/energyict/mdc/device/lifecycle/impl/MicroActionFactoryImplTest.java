@@ -15,6 +15,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import org.junit.Test;
@@ -55,7 +57,10 @@ public class MicroActionFactoryImplTest {
     private MetrologyConfigurationService metrologyConfigurationService;
     @Mock
     private DeviceService deviceService;
-
+    @Mock
+    private CommunicationTaskService communicationTaskService;
+    @Mock
+    private ConnectionTaskService connectionTaskService;
 
     @Test
     public void allMicroActionsAreCovered() {
@@ -72,7 +77,9 @@ public class MicroActionFactoryImplTest {
     }
 
     private MicroActionFactoryImpl getTestInstance() {
-        return new MicroActionFactoryImpl(this.nlsService, this.meteringService, this.meteringGroupsService, this.topologyService, this.validationService, this.estimationService, this.issueService, this.metrologyConfigurationService, this.deviceService);
+        return new MicroActionFactoryImpl(this.nlsService, this.meteringService, this.meteringGroupsService, this.topologyService,
+                this.validationService, this.estimationService, this.issueService, this.metrologyConfigurationService, deviceService,
+                communicationTaskService, connectionTaskService);
     }
 
 }

@@ -22,10 +22,12 @@ public class DeviceFirmwareVersionInfo {
         public FirmwareStatusInfo firmwareVersionStatus;
         public Long lastCheckedDate;
 
-        public ActiveVersion() {}
+        public ActiveVersion() {
+        }
     }
 
-    public DeviceFirmwareVersionInfo() {}
+    public DeviceFirmwareVersionInfo() {
+    }
 
     @JsonAnyGetter
     public Map<String, Map<String, Object>> any() {

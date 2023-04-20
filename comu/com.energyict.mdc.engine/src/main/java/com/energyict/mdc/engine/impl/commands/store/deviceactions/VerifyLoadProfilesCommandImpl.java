@@ -172,6 +172,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                         issues.addAll(verifyChannelConfiguration(loadProfileReader, loadProfileConfiguration));
                         if (!issues.isEmpty()) {
                             createAndAddFailedCollectedLoadProfile(loadProfileReader, ResultType.ConfigurationError, issues);
+                            issues.forEach(issue -> addIssue(issue, CompletionCode.forResultType(ResultType.ConfigurationError)));
                         }
                     }
                 }
@@ -289,9 +290,8 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
             return getIssueService().newProblem(
                     loadProfileConfigurationObisCode,
                     MessageSeeds.LOAD_PROFILE_CHANNEL_MISSING,
-                    localChannelInfo.getName(),
-                    loadProfileConfigurationObisCode,
-                    localChannelInfo.getMeterIdentifier()
+                    localChannelInfo.getChannelObisCode(),
+                    loadProfileConfigurationObisCode
             );
         } else {
             return getIssueService().newProblem(

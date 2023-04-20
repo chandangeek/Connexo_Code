@@ -7,6 +7,7 @@ package com.energyict.mdc.engine.impl.core.inbound;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.comserver.ComPort;
@@ -28,6 +29,7 @@ import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.coap.EmbeddedCoapServerFactory;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
@@ -66,13 +68,14 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.InboundDeviceProtocol;
+import com.energyict.mdc.upl.OfflineDeviceRequirements;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
-
+import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.protocol.exceptions.CommunicationException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -180,13 +183,21 @@ public class InboundCommunicationHandler {
 
     private void findDeviceAndHandleCollectedData(InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContextImpl context, InboundDeviceProtocol.DiscoverResultType discoverResultType) {
         Optional<OfflineDevice> device;
-        device = this.comServerDAO.findOfflineDevice(inboundDeviceProtocol.getDeviceIdentifier());
+        device = this.comServerDAO.findOfflineDevice(inboundDeviceProtocol.getDeviceIdentifier(), getOfflineContext(inboundDeviceProtocol));
         if (device.isPresent()) {
             this.logger.deviceIdentified(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
             this.handleKnownDevice(inboundDeviceProtocol, context, discoverResultType, device.get());
         } else {
             this.handleUnknownDevice(inboundDeviceProtocol);
         }
+    }
+
+    private OfflineDeviceContext getOfflineContext(InboundDeviceProtocol inboundDeviceProtocol) {
+        if (inboundDeviceProtocol instanceof OfflineDeviceRequirements) {
+            return ((OfflineDeviceRequirements) inboundDeviceProtocol).getOfflineDeviceContext();
+        }
+
+        return DeviceOffline.needsEverything;
     }
 
     private void publishDiscoveryResult(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType discoverResultType, com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol) {
@@ -711,6 +722,15 @@ public class InboundCommunicationHandler {
             return serviceProvider.eventService();
         }
 
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return serviceProvider.deviceMessageService();
+        }
+
+        @Override
+        public TransactionService transactionService() {
+            return serviceProvider.transactionService();
+        }
     }
 
     private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {

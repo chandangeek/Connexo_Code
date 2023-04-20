@@ -31,20 +31,20 @@ public class DeviceSecurityAccessorFilterTest {
 
     @Test(expected = CommandAbortException.class)
     public void noSuchSecurityAccessorOnDeviceType() throws CommandAbortException {
-        Mockito.when(securityAccessor.getKeyAccessorTypeReference()).thenReturn(securityAccessorType);
+        Mockito.when(securityAccessor.getSecurityAccessorType()).thenReturn(securityAccessorType);
         Mockito.when(securityAccessor.getDevice()).thenReturn(device);
         Mockito.when(device.getDeviceType()).thenReturn(deviceTpe);
-        Mockito.when(deviceTpe.getSecurityAccessor(securityAccessor.getKeyAccessorTypeReference())).thenReturn(Optional.empty());
+        Mockito.when(deviceTpe.getSecurityAccessor(securityAccessor.getSecurityAccessorType())).thenReturn(Optional.empty());
         DeviceSecurityAccessorFilter deviceSecurityAccessorFilter = new DeviceSecurityAccessorFilter();
         deviceSecurityAccessorFilter.run(securityAccessor);
     }
 
     @Test(expected = CommandAbortException.class)
     public void notConfiguredSecurityAccessorOnDeviceType() throws CommandAbortException {
-        Mockito.when(securityAccessor.getKeyAccessorTypeReference()).thenReturn(securityAccessorType);
+        Mockito.when(securityAccessor.getSecurityAccessorType()).thenReturn(securityAccessorType);
         Mockito.when(securityAccessor.getDevice()).thenReturn(device);
         Mockito.when(device.getDeviceType()).thenReturn(deviceTpe);
-        Mockito.when(deviceTpe.getSecurityAccessor(securityAccessor.getKeyAccessorTypeReference())).thenReturn(Optional.of(securityAccessorTypeOnDevice));
+        Mockito.when(deviceTpe.getSecurityAccessor(securityAccessor.getSecurityAccessorType())).thenReturn(Optional.of(securityAccessorTypeOnDevice));
         DeviceSecurityAccessorFilter deviceSecurityAccessorFilter = new DeviceSecurityAccessorFilter();
         Mockito.when(securityAccessorTypeOnDevice.isRenewalConfigured()).thenReturn(false);
         deviceSecurityAccessorFilter.run(securityAccessor);
@@ -52,10 +52,10 @@ public class DeviceSecurityAccessorFilterTest {
 
     @Test
     public void configuredSecurityAccessorOnDeviceType() throws CommandAbortException {
-        Mockito.when(securityAccessor.getKeyAccessorTypeReference()).thenReturn(securityAccessorType);
+        Mockito.when(securityAccessor.getSecurityAccessorType()).thenReturn(securityAccessorType);
         Mockito.when(securityAccessor.getDevice()).thenReturn(device);
         Mockito.when(device.getDeviceType()).thenReturn(deviceTpe);
-        Mockito.when(deviceTpe.getSecurityAccessor(securityAccessor.getKeyAccessorTypeReference())).thenReturn(Optional.of(securityAccessorTypeOnDevice));
+        Mockito.when(deviceTpe.getSecurityAccessor(securityAccessor.getSecurityAccessorType())).thenReturn(Optional.of(securityAccessorTypeOnDevice));
         DeviceSecurityAccessorFilter deviceSecurityAccessorFilter = new DeviceSecurityAccessorFilter();
         Mockito.when(securityAccessorTypeOnDevice.isRenewalConfigured()).thenReturn(true);
         deviceSecurityAccessorFilter.run(securityAccessor);

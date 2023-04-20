@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
@@ -59,6 +60,11 @@ public class NoDeviceCommandServices implements DeviceCommand.ServiceProvider {
 
     @Override
     public DeviceMessageService deviceMessageService() {
+        return null;
+    }
+
+    @Override
+    public TransactionService transactionService() {
         return null;
     }
 }

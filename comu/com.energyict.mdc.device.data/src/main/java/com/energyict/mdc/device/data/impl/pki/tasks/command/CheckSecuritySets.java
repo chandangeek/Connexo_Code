@@ -22,7 +22,7 @@ public class CheckSecuritySets implements Command {
         if (device == null) {
             throw new CommandErrorException("No device attached to security accessor:" + securityAccessor);
         }
-        SecurityAccessorType keyAccessorType = securityAccessor.getKeyAccessorTypeReference();
+        SecurityAccessorType keyAccessorType = securityAccessor.getSecurityAccessorType();
         logger.log(Level.INFO, "Checking security sets, Type=" + keyAccessorType.getName()
                 + " Device=" + device.getName());
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();

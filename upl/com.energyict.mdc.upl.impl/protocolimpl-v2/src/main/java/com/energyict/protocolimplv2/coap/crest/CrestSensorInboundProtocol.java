@@ -29,11 +29,13 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -41,6 +43,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import com.fasterxml.jackson.dataformat.cbor.CBORParser;
 import com.google.common.base.Strings;
+import org.apache.commons.codec.binary.Hex;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -48,17 +51,19 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtocol, CrestSensorConst {
 
     public static final String RESPONSE_OK = "0";
     public static final String RESPONSE_KO = "SERR";
+    public static final String LOGGING_PAYLOAD_DETAILS = "logPayloadDetails";
 
+    private final TypedProperties protocolProperties;
     private final PropertySpecService propertySpecService;
     private final List<CollectedData> collectedData = new ArrayList<>();
     private CoapBasedExchange exchange;
@@ -69,6 +74,8 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
 
     public CrestSensorInboundProtocol(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+        protocolProperties = com.energyict.mdc.upl.TypedProperties.empty();
+
     }
 
     private static String cborToJson(byte[] input) throws IOException {
@@ -91,7 +98,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
 
     @Override
     public String getVersion() {
-        return "2022-10-30";
+        return "2022-01-20";
     }
 
     @Override
@@ -109,7 +116,13 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     public DiscoverResultType doDiscovery() {
         byte[] cborInput = exchange.getRequestPayload();
         try {
+            if (isLoggingPayloadDetails()) {
+                getLogger().info("Payload received: " + Hex.encodeHexString(cborInput));
+            }
             String json = cborToJson(cborInput);
+            if (isLoggingPayloadDetails()) {
+                getLogger().info("Payload decoded: " + json);
+            }
             crestObject = new ObjectMapper().readValue(json, CrestObjectV2_1.class);
             handleData();
             if (!sendNextMessages()) {
@@ -117,7 +130,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
             }
         } catch (Exception e) {
             exchange.respond(RESPONSE_KO);
-            getLogger().severe("Payload error: " + e.getMessage());
+            getLogger().log(Level.SEVERE, "Payload error: " + e.getMessage(), e);
             throw ConnectionCommunicationException.unexpectedIOException(new IOException("Incorrect payload data", e));
         }
         return DiscoverResultType.DATA;
@@ -129,25 +142,6 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
             getLogger().severe("Crest sensor inbound communication failure: " + responseType);
             exchange.respond(RESPONSE_KO);
         }
-    }
-
-    private LegacyMessageConverter getMessageConverter() {
-        if (messageConverter == null) {
-            messageConverter = new CrestSensorMessageConverter(this.propertySpecService, context.getNlsService(), context.getConverter());
-        }
-        return messageConverter;
-    }
-
-    private boolean sendNextMessages() {
-        int nrOfAcceptedMessages = 0;
-        List<OfflineDeviceMessage> pendingMessages = getContext().getInboundDAO().confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
-        for (OfflineDeviceMessage pendingMessage : pendingMessages) {
-            nrOfAcceptedMessages++;
-            exchange.respond(getMessageConverter().toMessageEntry(pendingMessage).getContent());
-            getContext().getInboundDAO().confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
-            return true;
-        }
-        return false;
     }
 
     @Override
@@ -170,11 +164,30 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
         return false;
     }
 
+    private LegacyMessageConverter getMessageConverter() {
+        if (messageConverter == null) {
+            messageConverter = new CrestSensorMessageConverter(this.propertySpecService, context.getNlsService(), context.getConverter());
+        }
+        return messageConverter;
+    }
+
+    private boolean sendNextMessages() {
+        int nrOfAcceptedMessages = 0;
+        List<OfflineDeviceMessage> pendingMessages = getContext().getInboundDAO().confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
+        for (OfflineDeviceMessage pendingMessage : pendingMessages) {
+            nrOfAcceptedMessages++;
+            exchange.respond(getMessageConverter().toMessageEntry(pendingMessage).getContent());
+            getContext().getInboundDAO().confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
+            return true;
+        }
+        return false;
+    }
+
     private void handleData() {
         DeviceIdentifier deviceIdentifier = new DeviceIdentifierBySerialNumber(crestObject.getId());
         collectedData.add(buildCollectedFirmwareVersion(deviceIdentifier));
         collectedData.add(buildTextCollectedRegister(deviceIdentifier, OBIS_CODE_TELECOM_PROVIDER_NAME, crestObject.getTel()));
-        collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_BATTERY_VOLTAGE, new Quantity(new BigDecimal(crestObject.getBat()), Unit.get(BaseUnit.VOLT))));
+        collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_BATTERY_VOLTAGE, new Quantity(new BigDecimal(crestObject.getBat()), Unit.get(BaseUnit.VOLT, -3))));
         collectedData.add(buildTextCollectedRegister(deviceIdentifier, OBIS_CODE_SERIAL_NUMBER, crestObject.getId()));
         collectedData.add(buildTextCollectedRegister(deviceIdentifier, OBIS_CODE_CONNECTION_METHOD, crestObject.getCon()));
         collectedData.add(buildTextCollectedRegister(deviceIdentifier, OBIS_CODE_CELL_ID, crestObject.getCID()));
@@ -206,8 +219,19 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     }
 
     private String getSlaveSerialNumber(String mbusMessage) {
-        CycleFrame6 frame6 = new CycleFrame6(ProtocolTools.hexToBytes(mbusMessage));
-        return frame6.getFabricationNumber();
+        byte[] mbusFrame = ProtocolTools.hexToBytes(mbusMessage);
+        switch (ManufacturerID.forId(mbusFrame[12])) {
+            case ACTARIS: {
+                ActarisFrame6 frame6 = new ActarisFrame6(mbusFrame);
+                return frame6.getFabricationNumber();
+            }
+            case FALCON: {
+                FalconFrameSndUp frameSndUp = new FalconFrameSndUp(mbusFrame);
+                return frameSndUp.getSerialNumber();
+            }
+            default:
+                return "0";
+        }
     }
 
     private CollectedData buildCollectedLoadProfile(DeviceIdentifier deviceIdentifier, List<Integer> v1) {
@@ -237,7 +261,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
 
     private IntervalData buildIntervalData(List<Integer> v1, int number) {
         Date intervalDate = roundToInterval(buildDate(v1.get((number * 2) + 1)));
-        Integer value = v1.get((number * 2));
+        Double value = v1.get((number * 2)) / (double) 1000;
         IntervalData intervalData = new IntervalData(intervalDate);
         IntervalValue intervalValue = new IntervalValue(value, 0, 0);
         intervalData.getIntervalValues().add(intervalValue);
@@ -330,11 +354,26 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        return Collections.emptyList();
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        propertySpecs.add(loggingPayloadDetailsPropertySpec());
+        return propertySpecs;
     }
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        this.protocolProperties.setAllProperties(properties);
+    }
+
+    protected PropertySpec loggingPayloadDetailsPropertySpec() {
+        return UPLPropertySpecFactory.specBuilder(LOGGING_PAYLOAD_DETAILS, true, PropertyTranslationKeys.V2_CREST_LOG_PAYLOAD_DETAILS, propertySpecService::booleanSpec).finish();
+    }
+
+    public TypedProperties getProtocolProperties() {
+        return protocolProperties;
+    }
+
+    private boolean isLoggingPayloadDetails() {
+        return getProtocolProperties().getTypedProperty(LOGGING_PAYLOAD_DETAILS, false);
     }
 
     protected Logger getLogger() {

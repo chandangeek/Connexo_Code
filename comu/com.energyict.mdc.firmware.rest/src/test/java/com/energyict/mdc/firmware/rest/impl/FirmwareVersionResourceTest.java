@@ -104,19 +104,19 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
 
         JsonModel jsonModel = JsonModel.create(json);
 
-        assertThat(jsonModel.<List<?>> get("$.firmwares")).hasSize(1);
+        assertThat(jsonModel.<List<?>>get("$.firmwares")).hasSize(1);
     }
 
     @Test
     public void testGetFirmwaresWithFilters() {
         String json = target("devicetypes/1/firmwares")
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"firmwareType\",\"value\":[\"communication\",\"meter\"]}," +
-                                      "{\"property\":\"firmwareStatus\",\"value\":[\"test\",\"ghost\",\"final\",\"deprecated\"]}]"))
+                        "{\"property\":\"firmwareStatus\",\"value\":[\"test\",\"ghost\",\"final\",\"deprecated\"]}]"))
                 .request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(json);
 
-        assertThat(jsonModel.<List<?>> get("$.firmwares")).hasSize(1);
+        assertThat(jsonModel.<List<?>>get("$.firmwares")).hasSize(1);
     }
 
     @Test
@@ -125,12 +125,11 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
 
         JsonModel jsonModel = JsonModel.create(json);
 
-        assertThat(jsonModel.<Number> get("$.id").longValue()).isEqualTo(1L);
-        assertThat(jsonModel.<String> get("$.firmwareVersion")).isEqualTo(FIRMWARE_VERSION
-);
-        assertThat(jsonModel.<String> get("$.firmwareType.id")).isEqualTo("meter");
-        assertThat(jsonModel.<String> get("$.firmwareStatus.id")).isEqualTo("final");
-        assertThat(jsonModel.<Number> get("$.rank")).isEqualTo(3);
+        assertThat(jsonModel.<Number>get("$.id").longValue()).isEqualTo(1L);
+        assertThat(jsonModel.<String>get("$.firmwareVersion")).isEqualTo(FIRMWARE_VERSION);
+        assertThat(jsonModel.<String>get("$.firmwareType.id")).isEqualTo("meter");
+        assertThat(jsonModel.<String>get("$.firmwareStatus.id")).isEqualTo("final");
+        assertThat(jsonModel.<Number>get("$.rank")).isEqualTo(3);
         assertThat(jsonModel.<Object>get("$.meterFirmwareDependency")).isNull();
         assertThat(jsonModel.<Object>get("$.communicationFirmwareDependency")).isNull();
     }
@@ -145,7 +144,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
 
         JsonModel jsonModel = JsonModel.create(json);
 
-        assertThat(jsonModel.<Number> get("$.id").longValue()).isEqualTo(1L);
+        assertThat(jsonModel.<Number>get("$.id").longValue()).isEqualTo(1L);
         assertThat(jsonModel.<Number>get("$.meterFirmwareDependency.id")).isEqualTo(25);
         assertThat(jsonModel.<String>get("$.meterFirmwareDependency.name")).isEqualTo(METER_FW_DEPENDENCY);
         assertThat(jsonModel.<Number>get("$.communicationFirmwareDependency.id")).isEqualTo(21);
@@ -327,9 +326,9 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
     public void testEditFirmwareVersion() throws Exception {
         FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
         formDataMultiPart.field("firmwareVersion", "METER1")
-            .field("firmwareStatus", FirmwareStatus.FINAL.getStatus())
-            .field("imageIdentifier", "10.4.0")
-            .bodyPart(new FileDataBodyPart("firmwareFile", File.createTempFile("prefix", "suffix"))).close();
+                .field("firmwareStatus", FirmwareStatus.FINAL.getStatus())
+                .field("imageIdentifier", "10.4.0")
+                .bodyPart(new FileDataBodyPart("firmwareFile", File.createTempFile("prefix", "suffix"))).close();
 
         Response response = target("devicetypes/1/firmwares/1").request().post(Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
 
