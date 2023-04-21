@@ -344,7 +344,7 @@ public class EndDeviceEventsBuilder {
         long deviceId = Long.parseLong(endDevice.getAmrId());
         List<Device> foundDevices = deviceService.findDevicesBySerialNumber(endDevice.getSerialNumber());
         if (foundDevices.size() > 1) {
-            throw faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NAME_MUST_BE_UNIQUE, END_DEVICE_EVENT_ITEM).get();
+            throw faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NAME_AND_SERIAL_MUST_BE_UNIQUE, END_DEVICE_EVENT_ITEM).get();
         }
         return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
     }
