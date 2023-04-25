@@ -41,10 +41,7 @@ public interface OutboundEndPointProvider extends EndPointProvider {
         /**
          * Terminal operation that sends the request.
          * @param request The request to send.
-         * @return The map of {@link EndPointConfiguration}s, where the request was sent, to received responses.
-         * In case of one-way web service, the result map contains keys mapped to null response.
-         * In case of some failure related to some endpoint(s), corresponding web service call occurrence(s) is(are) failed,
-         * and related endpoint configuration(s) is(are) NOT included into the result map.
+         * @return The {@link BulkWebServiceCallResult} representation of the bulk web service call result.
          * @throws RuntimeException In case the request should have been sent to all available endpoint configurations, but no suitable one is found.
          */
         BulkWebServiceCallResult send(Object request);
@@ -52,11 +49,8 @@ public interface OutboundEndPointProvider extends EndPointProvider {
         /**
          * Terminal operation that sends the raw xml request.
          * @param message The raw xml message to send.
-         * @return The map of {@link EndPointConfiguration}s, where the request was sent, to received responses.
-         * In case of one-way web service, the result map contains keys mapped to {@code null} response.
-         * In case of some failure related to some endpoint(s), corresponding web service call occurrence(s) is(are) failed,
-         * and related endpoint configuration(s) is(are) NOT included into the result map.
-         * @throws RuntimeException In case the request should have been sent to all endpoint configurations, but no suitable one is found.
+         * @return The {@link BulkWebServiceCallResult} representation of the bulk web service call result.
+         * @throws RuntimeException In case the request should have been sent to all available endpoint configurations, but no suitable one is found.
          */
         BulkWebServiceCallResult sendRawXml(String message);
 
