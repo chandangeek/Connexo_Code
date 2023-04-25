@@ -53,6 +53,7 @@ import com.energyict.protocolimplv2.dlms.itron.em620.messages.EM620Messaging;
 import com.energyict.protocolimplv2.dlms.itron.em620.profiledata.EM620ProfileDataReader;
 import com.energyict.protocolimplv2.dlms.itron.em620.properties.EM620ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.itron.em620.properties.EM620Properties;
+import com.energyict.protocolimplv2.dlms.itron.em620.registers.EM620DlmsStoredValues;
 import com.energyict.protocolimplv2.dlms.itron.em620.registers.EM620RegisterFactory;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
@@ -65,6 +66,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.READCACHE_PROPERTY;
+import static com.energyict.protocolimplv2.dlms.itron.em620.registers.EM620RegisterFactory.BILLING_PROFILE_OBIS_CODE;
 
 public class EM620 extends AbstractDlmsProtocol {
 
@@ -230,7 +232,7 @@ public class EM620 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2023-04-04$";
+        return "$Date: 2023-04-07$";
     }
 
     @Override
@@ -303,6 +305,9 @@ public class EM620 extends AbstractDlmsProtocol {
         }
     }
 
+    public EM620DlmsStoredValues getStoredValues() {
+        return new EM620DlmsStoredValues(getDlmsSession(), BILLING_PROFILE_OBIS_CODE);
+    }
 
     protected long getFrameCounter(DlmsSession publicDlmsSession) throws IOException {
         journal("Public client connected, reading frame counter " + FRAME_COUNTER_MANAGEMENT_ONLINE.toString() + ", corresponding to client " + getDlmsSessionProperties().getClientMacAddress());

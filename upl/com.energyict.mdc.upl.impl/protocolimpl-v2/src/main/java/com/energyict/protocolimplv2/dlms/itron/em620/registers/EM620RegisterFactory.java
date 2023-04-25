@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.dlms.itron.em620.registers;
 
 import com.energyict.mdc.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -20,6 +21,7 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
@@ -41,9 +43,10 @@ import java.util.logging.Logger;
 
 public class EM620RegisterFactory implements DeviceRegisterSupport {
 
-    public static final int EXTENDED_REGISTER_CAPTURE_OBJECT_ATTRIBUTE_INDEX = 5;
-    public static final int DEMAND_REGISTER_CAPTURE_OBJECT_ATTRIBUTE_INDEX = 6;
+    public static final int EXTENDED_REGISTER_CAPTURE_OBJECT_ATTRIBUTE_INDEX = ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber();
+    public static final int DEMAND_REGISTER_CAPTURE_OBJECT_ATTRIBUTE_INDEX = DemandRegisterAttributes.CAPTURE_TIME.getAttributeNumber();
 
+    public static final ObisCode BILLING_PROFILE_OBIS_CODE = ObisCode.fromString("0.0.98.1.0.255");
 
     private final EM620 em620;
     private final CollectedDataFactory collectedDataFactory;
@@ -72,42 +75,60 @@ public class EM620RegisterFactory implements DeviceRegisterSupport {
         ComposedCosemObject composedCosemObject = new ComposedCosemObject(em620.getDlmsSession(), em620.getDlmsSession().getProperties().isBulkRequest(), getDLMSAttributes());
 
         for (OfflineRegister offlineRegister : offlineRegisterList) {
+            ObisCode obisCode = offlineRegister.getObisCode();
 
-            ComposedRegister composedRegister = getComposedRegisterMap().get(offlineRegister.getObisCode());
-            if (composedRegister == null) {
-                addResult(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
-                continue;
-            }
-            final UniversalObject universalObject;
-            try {
-                universalObject = em620.getDlmsSession().getMeterConfig().findObject(offlineRegister.getObisCode());
-            } catch (final NotInObjectListException e) {
-                addResult(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
-                continue;   // Move on to the next register, this one is not supported by the meter
-            }
-            try {
-                RegisterValue registerValue = parseRegisterReading(universalObject, composedCosemObject, offlineRegister, composedRegister, offlineRegister.getObisCode());
-
-                if (registerValue != null) {
+            if (isBillingLoadProfileObisCode(obisCode)) {
+                try {
+                    HistoricalValue historicalValue = em620.getStoredValues().getHistoricalValue(obisCode);
+                    RegisterValue registerValue = new RegisterValue(obisCode, historicalValue.getQuantityValue(), historicalValue.getEventTime());
                     addResult(createCollectedRegister(registerValue, offlineRegister));
+                } catch (NotInObjectListException e) {
+                    addResult(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage()));
+                } catch (NoSuchRegisterException e) {
+                    addResult(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
+                } catch (IOException e) {
+                    getLogger().warning("Error while reading " + offlineRegister + ": " + e.getMessage());
+                    addResult(createFailureCollectedRegister(offlineRegister, ResultType.Other, e.getMessage()));
+                    final ProtocolException protocolException = new ProtocolException(e, "Error while reading out " + obisCode.toString() + ": " + e.getMessage());
+                    throw com.energyict.protocol.exception.ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection intact
                 }
-            } catch (IOException e) {
-                getLogger().warning("Error while reading " + offlineRegister + ": " + e.getMessage());
-                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, em620.getDlmsSession().getProperties().getRetries() + 1)) {
-                    if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
-                        addResult(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
-                    } else {
-                        addResult(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage()));
+            } else {
+                ComposedRegister composedRegister = getComposedRegisterMap().get(offlineRegister.getObisCode());
+                if (composedRegister == null) {
+                    addResult(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
+                    continue;
+                }
+                final UniversalObject universalObject;
+                try {
+                    universalObject = em620.getDlmsSession().getMeterConfig().findObject(offlineRegister.getObisCode());
+                } catch (final NotInObjectListException e) {
+                    addResult(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
+                    continue;   // Move on to the next register, this one is not supported by the meter
+                }
+                try {
+                    RegisterValue registerValue = parseRegisterReading(universalObject, composedCosemObject, offlineRegister, composedRegister, offlineRegister.getObisCode());
+
+                    if (registerValue != null) {
+                        addResult(createCollectedRegister(registerValue, offlineRegister));
                     }
-                } else {
-                    throw com.energyict.protocol.exception.ConnectionCommunicationException.numberOfRetriesReachedWithConnectionStillIntact(
-                            e, em620.getDlmsSession().getProperties().getRetries() + 1);
+                } catch (IOException e) {
+                    getLogger().warning("Error while reading " + offlineRegister + ": " + e.getMessage());
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, em620.getDlmsSession().getProperties().getRetries() + 1)) {
+                        if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+                            addResult(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
+                        } else {
+                            addResult(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage()));
+                        }
+                    } else {
+                        throw com.energyict.protocol.exception.ConnectionCommunicationException.numberOfRetriesReachedWithConnectionStillIntact(
+                                e, em620.getDlmsSession().getProperties().getRetries() + 1);
+                    }
+                } catch (Exception ex) {
+                    getLogger().warning("Error while reading " + offlineRegister + ": " + ex.getMessage());
+                    addResult(createFailureCollectedRegister(offlineRegister, ResultType.Other, ex.getMessage()));
+                    final ProtocolException protocolException = new ProtocolException(ex, "Error while reading out " + offlineRegister.getObisCode().toString() + ": " + ex.getMessage());
+                    throw com.energyict.protocol.exception.ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection intact
                 }
-            } catch (Exception ex) {
-                getLogger().warning("Error while reading " + offlineRegister + ": " + ex.getMessage());
-                addResult(createFailureCollectedRegister(offlineRegister, ResultType.Other, ex.getMessage()));
-                final ProtocolException protocolException = new ProtocolException(ex, "Error while reading out "+ offlineRegister.getObisCode().toString()+": " + ex.getMessage());
-                throw com.energyict.protocol.exception.ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection intact
             }
         }
         return getCollectedRegisters();
@@ -267,5 +288,9 @@ public class EM620RegisterFactory implements DeviceRegisterSupport {
 
     protected List<CollectedRegister> getCollectedRegisters() {
         return collectedRegisters;
+    }
+
+    private boolean isBillingLoadProfileObisCode(ObisCode obisCode) {
+        return obisCode.getF() != 255;
     }
 }

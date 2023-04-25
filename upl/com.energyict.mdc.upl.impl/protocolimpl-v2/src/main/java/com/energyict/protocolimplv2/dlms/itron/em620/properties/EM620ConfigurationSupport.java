@@ -51,7 +51,6 @@ public class EM620ConfigurationSupport implements HasDynamicProperties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
                 this.timeZonePropertySpec(),
                 this.serverUpperMacAddressPropertySpec(),
