@@ -10,6 +10,10 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import java.util.List;
 
 public class EM620RegisterFactory implements DeviceRegisterSupport {
+
+    public static final int EXTENDED_REGISTER_CAPTURE_OBJECT_ATTRIBUTE_INDEX = 5;
+    public static final int DEMAND_REGISTER_CAPTURE_OBJECT_ATTRIBUTE_INDEX = 6;
+
     private final AbstractDlmsProtocol mProtocol;
 
     final ObisCode ALLDEMANDS_PROFILE = ObisCode.fromString("0.0.98.133.5.255");

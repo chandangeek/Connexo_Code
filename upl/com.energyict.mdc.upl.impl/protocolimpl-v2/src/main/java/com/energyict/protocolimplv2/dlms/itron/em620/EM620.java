@@ -50,6 +50,7 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.itron.em620.logbooks.EM620LogBookFactory;
 import com.energyict.protocolimplv2.dlms.itron.em620.messages.EM620MessageExecutor;
 import com.energyict.protocolimplv2.dlms.itron.em620.messages.EM620Messaging;
+import com.energyict.protocolimplv2.dlms.itron.em620.profiledata.EM620ProfileDataReader;
 import com.energyict.protocolimplv2.dlms.itron.em620.properties.EM620ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.itron.em620.properties.EM620Properties;
 import com.energyict.protocolimplv2.dlms.itron.em620.registers.EM620RegisterFactory;
@@ -71,8 +72,9 @@ public class EM620 extends AbstractDlmsProtocol {
     private DeviceRegisterSupport registerFactory;
     private final NlsService nlsService;
     private EM620ConfigurationSupport em620ConfigurationSupport;
-    private EM620Messaging messaging = null;
-    private EM620LogBookFactory logBookFactory = null;
+    private EM620Messaging messaging;
+    private EM620LogBookFactory logBookFactory;
+    private EM620ProfileDataReader loadProfileReader;
     private final Converter converter;
     private EM620Cache deviceCache = null;
 
@@ -143,12 +145,23 @@ public class EM620 extends AbstractDlmsProtocol {
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        return null;
+        return getLoadProfileReader().fetchLoadProfileConfiguration(loadProfilesToRead);
     }
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        return null;
+        return getLoadProfileReader().getLoadProfileData(loadProfiles);
+    }
+
+    private EM620ProfileDataReader getLoadProfileReader() {
+        if (loadProfileReader == null) {
+            loadProfileReader = createLoadProfileReader();
+        }
+        return loadProfileReader;
+    }
+
+    protected EM620ProfileDataReader createLoadProfileReader() {
+        return new EM620ProfileDataReader(this, getCollectedDataFactory(), getIssueFactory());
     }
 
     @Override
@@ -210,7 +223,7 @@ public class EM620 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2023-03-27$";
+        return "$Date: 2023-03-29$";
     }
 
     @Override
