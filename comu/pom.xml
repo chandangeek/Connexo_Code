@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>19.1.0-Kratos-SNAPSHOT</version>
+        <version>19.2.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <groupId>com.energyict</groupId>
@@ -22,11 +22,10 @@
         <serialio.version>10.0.4.2</serialio.version>
         <org.rxtx.version>2.2pre2</org.rxtx.version>
         <jackson.version>2.10.3</jackson.version>
-        <json.version>20090211</json.version>
         <javadoc.excluded.package.names>
             com.energyict.mdc.device.alarms.security:com.energyict.mdc.device.command.security:com.energyict.mdc.device.config.security:com.energyict.mdc.device.data.security:${line.separator}
-            com.energyict.mdc.engine.config.security:com.energyict.mdc.firmware.security:com.energyict.mdc.masterdata.security:com.energyict.mdc.multisense.api.security:com.energyict.mdc.scheduling.security:${line.separator}
-            com.energyict.mdc.device.lifecycle.config.bpmhandler:com.energyict.mdc.gogo
+            com.energyict.mdc.engine.config.security:com.energyict.mdc.firmware.security:com.energyict.mdc.masterdata.security:com.energyict.mdc.multisense.api.security:${line.separator}
+            com.energyict.mdc.scheduling.security:com.energyict.mdc.device.lifecycle.config.bpmhandler:com.energyict.mdc.gogo:${line.separator}
             com.energyict.assembly:com.energyict.dialer:com.energyict.dlms:com.energyict.encryption:com.energyict.genericprotocolimpl:com.energyict.license:com.energyict.protocolimpl:${line.separator}
             com.energyict.protocolimplv2:com.energyict.protocols.exception:com.energyict.protocols.mdc:com.energyict.protocols.messaging:com.energyict.protocols.sms:com.energyict.protocols.util:${line.separator}
             com.energyict.smartmeterprotocolimpl:com.energyict.xml
@@ -562,12 +561,6 @@
             </dependency>
 
             <!-- Remoting libraries -->
-            <dependency>
-                <groupId>org.json</groupId>
-                <artifactId>json</artifactId>
-                <version>${json.version}</version>
-                <scope>provided</scope>
-            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>

@@ -1,15 +1,15 @@
 {
-  "compatVersion" : "10.9.24",
+  "compatVersion" : "10.9.25",
   "creator" : "Elster Jupiter Project",
   "detailedDescription" : "Long description of package",
   "format" : "1",
   "local" : true,
   "name" : "com.energyict.mdc.firmware.extjs",
   "requires" : [
-    "com.elster.jupiter.unifyingjs@10.9.24",
-    "com.energyict.comserver.comserver.core.extjs@10.9.24"
+    "com.elster.jupiter.unifyingjs@10.9.25",
+    "com.energyict.comserver.comserver.core.extjs@10.9.25"
   ],
   "summary" : "Short summary",
   "type" : "code",
-  "version" : "10.9.24"
+  "version" : "10.9.25"
 }

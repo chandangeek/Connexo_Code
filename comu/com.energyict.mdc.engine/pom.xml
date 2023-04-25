@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>19.1.0-Kratos-SNAPSHOT</version>
+        <version>19.2.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc.engine</artifactId>
@@ -424,11 +424,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.protocols</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>audit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.DeviceFunction;
@@ -39,13 +40,11 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
-import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
 
@@ -66,6 +65,7 @@ import java.util.Optional;
 public class EIWeb implements DeviceProtocol, SerialNumberSupport {
 
     private static final String PHONE_NUMBER = "PhoneNumber";
+    public static final String MAX_WAIT_TIME = "maxWaitTime";
     private OfflineDevice offlineDevice;
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
     private LegacyMessageConverter messageConverter;
@@ -106,7 +106,8 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 getPhoneNumberPropertySpec(),
-                getCallHomeIdPropertySpec());
+                getCallHomeIdPropertySpec(),
+                getMaxWaitTimePropertySpec());
     }
 
     private PropertySpec getPhoneNumberPropertySpec() {
@@ -115,6 +116,12 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
 
     private PropertySpec getCallHomeIdPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, true, com.energyict.mdc.channels.nls.PropertyTranslationKeys.CTR_INBOUND_DIAL_HOME_ID, this.propertySpecService::stringSpec).finish();
+    }
+
+    private PropertySpec getMaxWaitTimePropertySpec() {
+        return UPLPropertySpecFactory
+                .specBuilder(MAX_WAIT_TIME, false, PropertyTranslationKeys.V2_EICT_MAX_WAIT_TIME, this.propertySpecService::durationSpec)
+                .finish();
     }
 
     @Override
@@ -271,7 +278,7 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-12-06 13:29:40 +0100 (Tue, 06 Dec 2016)$";
+        return "2023-04-06";
     }
 
     @Override
