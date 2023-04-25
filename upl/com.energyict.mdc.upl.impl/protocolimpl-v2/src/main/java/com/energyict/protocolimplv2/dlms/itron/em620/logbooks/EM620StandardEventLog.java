@@ -17,30 +17,29 @@ public class EM620StandardEventLog extends StandardEventLog {
     @Override
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
         switch (eventId) {
-
             case 21:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.DEVICE_RESET, eventId, "Global meter reset"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Global meter reset"));
                 break;
             case 22:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.BATTERY_STATUS_DISABLED, eventId, "Battery removed"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Battery removed"));
                 break;
             case 23:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.BATTERY_STATUS_ENABLED, eventId, "Battery removed end"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Battery removed end"));
                 break;
             case 24:
-                // TODO meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent., eventId, "Display set mode active"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Display set mode active"));
                 break;
             case 25:
-                // TODO meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent., eventId, "Display set mode deactive"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Display set mode deactive"));
                 break;
             case 26:
-                // TODO meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent., eventId, "Display set mode success config"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Display set mode success config"));
                 break;
             case 27:
-                // TODO meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent., eventId, "Display set mode reject config"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Display set mode reject config"));
                 break;
             case 49:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.UPDATED_MASTERKEY, eventId, "Master key changed"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Master key changed"));
                 break;
             default:
                 super.buildMeterEvent(meterEvents, eventTimeStamp, eventId);

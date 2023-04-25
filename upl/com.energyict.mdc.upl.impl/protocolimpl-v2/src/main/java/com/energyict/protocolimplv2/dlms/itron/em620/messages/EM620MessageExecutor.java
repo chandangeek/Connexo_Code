@@ -135,120 +135,6 @@ public class EM620MessageExecutor extends AbstractMessageExecutor {
         return collectedMessage;
     }
 
-    /**
-     * Substracts 5 seconds from the startReadingTime and adds 5 seconds to the endReadingTime
-     *
-     * @param loadProfileReader the reader
-     * @return the reader with the adjested times
-     */
-    protected LoadProfileReader constructDateTimeCorrectdLoadProfileReader(final LoadProfileReader loadProfileReader) {
-        Date from = new Date(loadProfileReader.getStartReadingTime().getTime() - 5000);
-        Date to = new Date(loadProfileReader.getEndReadingTime().getTime() + 5000);
-        return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(),
-                loadProfileReader.getMeterSerialNumber(), loadProfileReader.getChannelInfos());
-    }
-
-    protected CollectedMessage loadProfileRegisterRequest(OfflineDeviceMessage pendingMessage) throws IOException {
-        String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getValue();
-        String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getValue();
-
-        String fullLoadProfileContent = LoadProfileMessageUtils.createLoadProfileRegisterMessage(
-                "LoadProfileRegister",
-                getDefaultDateFormatter().format(new Date(Long.parseLong(fromDateEpoch))),
-                loadProfileContent
-        );
-        Date fromDate = new Date(Long.valueOf(fromDateEpoch));
-        try {
-            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder();
-            builder = builder.fromXml(fullLoadProfileContent);
-            if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
-                CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
-                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, createMessageFailedIssue(pendingMessage,
-                        "Unable to execute the message, there are no channels attached under LoadProfile " +
-                                builder.getProfileObisCode() + "!"));
-            }
-
-            LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()),
-                    builder.getMeterSerialNumber());
-            LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, new Date(), lpr.getLoadProfileId(),
-                    lpr.getMeterSerialNumber(), lpr.getChannelInfos());
-
-            List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().
-                    fetchLoadProfileConfiguration(Arrays.asList(fullLpr));
-            for (CollectedLoadProfileConfiguration config : collectedLoadProfileConfigurations) {
-                if (!config.isSupportedByMeter()) {   //LP not supported
-                    CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
-                    collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                    collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage,
-                            "Load profile with obiscode " + config.getObisCode() + " is not supported by the device"));
-                    return collectedMessage;
-                }
-            }
-
-            List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Arrays.asList(fullLpr));
-
-            CollectedLoadProfile collectedLoadProfile = loadProfileData.get(0);
-            IntervalData intervalDatas = null;
-            for (IntervalData intervalData : collectedLoadProfile.getCollectedIntervalData()) {
-                if (intervalData.getEndTime().equals(builder.getStartReadingTime())) {
-                    intervalDatas = intervalData;
-                }
-            }
-
-            if (intervalDatas == null) {
-                CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
-                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                collectedMessage.setFailureInformation(ResultType.DataIncomplete, createMessageFailedIssue(pendingMessage,
-                        "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")"));
-                return collectedMessage;
-            }
-
-            com.energyict.protocol.Register previousRegister = null;
-            List<CollectedRegister> collectedRegisters = new ArrayList<>();
-            for (com.energyict.protocol.Register register : builder.getRegisters()) {
-                if (register.equals(previousRegister)) {
-                    continue;    //Don't add the same intervals twice if there's 2 channels with the same obiscode
-                }
-                for (int i = 0; i < collectedLoadProfile.getChannelInfo().size(); i++) {
-                    final ChannelInfo channel = collectedLoadProfile.getChannelInfo().get(i);
-                    if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.
-                            getSerialNumber().equals(channel.getMeterIdentifier())) {
-                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(intervalDatas.get(i),
-                                channel.getUnit()), intervalDatas.getEndTime(), null, intervalDatas.getEndTime(),
-                                new Date(), register.getRtuRegisterId());
-                        collectedRegisters.add(createCollectedRegister(registerValue, pendingMessage));
-                    }
-                }
-                previousRegister = register;
-            }
-            CollectedMessage collectedMessage = createCollectedMessageWithRegisterData(pendingMessage, collectedRegisters);
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
-            return collectedMessage;
-        } catch (SAXException e) {
-            CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, e));
-            return collectedMessage;
-        } catch (IndexOutOfBoundsException e) {
-            throw new ProtocolException("Unable to get load profile data at index 0");
-        }
-
-    }
-
-    private DateFormat getDefaultDateFormatter() {
-        return AbstractMessageConverter.dateTimeFormatWithTimeZone;
-    }
-
-    private LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, String serialNumber) {
-        if (lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))) {
-            return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(),
-                    lpr.getLoadProfileId(), serialNumber, lpr.getChannelInfos());
-        } else {
-            return lpr;
-        }
-    }
-
     private void doBillingReset() throws IOException {
         ScriptTable demandResetScriptTable = getCosemObjectFactory().getScriptTable(BILLING_SCRIPT_TABLE_OBIS_CODE);
         demandResetScriptTable.execute(1);
@@ -258,7 +144,7 @@ public class EM620MessageExecutor extends AbstractMessageExecutor {
         int mode = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, enableDSTAttributeName).getValue());
 
         Clock clock = getProtocol().getDlmsSession().getCosemObjectFactory().getClock();
-        clock.enableDisableDs(mode == 1 ? true : false);
+        clock.enableDisableDs(mode == 1);
     }
 
     protected void activityCalendarWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {

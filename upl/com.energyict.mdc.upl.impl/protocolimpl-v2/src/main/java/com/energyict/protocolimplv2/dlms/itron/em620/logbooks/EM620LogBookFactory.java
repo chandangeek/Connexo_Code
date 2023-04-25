@@ -27,11 +27,6 @@ import java.util.TreeSet;
 public class EM620LogBookFactory implements DeviceLogBookSupport {
 
     private final static ObisCode STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
-    private final static ObisCode FRAUD_DETECTION_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
-    private final static ObisCode POWER_QUALITY_EVENT_LOG = ObisCode.fromString("1.0.99.98.4.255");
-    private final static ObisCode COMMUNICATION_EVENT_LOG = ObisCode.fromString("0.0.99.98.5.255");
-    private final static ObisCode POWER_FAILURE_EVENT_LOG = ObisCode.fromString("1.0.99.97.0.255");
-
 
     private AbstractSet<ObisCode> supportedLogBooks = new TreeSet<>();
     private AbstractDlmsProtocol protocol;
@@ -62,45 +57,19 @@ public class EM620LogBookFactory implements DeviceLogBookSupport {
         for (LogBookReader logBookReader : logBooks) {
             CollectedLogBook collectedLogBook = this.collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
             if (isSupported(logBookReader)) {
-                ProfileGeneric profileGeneric = null;
-                try {
-                    profileGeneric = protocol.getDlmsSession().getCosemObjectFactory()
-                            .getProfileGeneric(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(),
-                                    logBookReader.getMeterSerialNumber()));
-                } catch (NotInObjectListException e) {
-                    collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader,
-                            String.format("Logbook with OBIS code %s was not found it meter object list",
-                                    logBookReader.getLogBookObisCode().toString()), logBookReader.getLogBookObisCode().toString(),
-                            e.getMessage()));
-                }
+                ProfileGeneric profileGeneric = getProfileGeneric(logBookReader, collectedLogBook);
                 if (profileGeneric != null) {
                     Calendar fromDate = getCalendar();
                     fromDate.setTime(logBookReader.getLastLogBook());
-                    DataContainer dataContainer;
-                    try {
-                        dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
-                        collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
-                    } catch (NotInObjectListException e) {
-                        collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.
-                                createWarning(logBookReader,
-                                        String.format("Logbook with OBIS code %s was not found it meter object list",
-                                                logBookReader.getLogBookObisCode().toString()),
-                                        logBookReader.getLogBookObisCode().toString(), e.getMessage()));
-                    } catch (IOException e) {
-                        if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession().getProperties().
-                                getRetries() + 1)) {
-                            collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.
-                                    createWarning(logBookReader,
-                                            String.format("IOException while reading logbook with OBIS code %s ",
-                                                    logBookReader.getLogBookObisCode().toString()) + e.getMessage()));
-                        }
-                    }
+                    getEvents(logBookReader, collectedLogBook, fromDate, profileGeneric);
                 }
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader,
-                        String.format("Logbook with OBIS code %s is not supported by the protocol",
-                                logBookReader.getLogBookObisCode().toString()),
-                        logBookReader.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(
+                        ResultType.NotSupported,
+                        issueFactory.createWarning(
+                                logBookReader,
+                                String.format("Logbook with OBIS code %s is not supported by the protocol", logBookReader.getLogBookObisCode().toString()),
+                                logBookReader.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
         }
@@ -118,5 +87,46 @@ public class EM620LogBookFactory implements DeviceLogBookSupport {
 
     private Calendar getCalendar() {
         return ProtocolUtils.getCalendar(protocol.getTimeZone());
+    }
+
+    private ProfileGeneric getProfileGeneric(LogBookReader logBookReader, CollectedLogBook collectedLogBook) {
+        try {
+            return protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(
+                            protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(),
+                            logBookReader.getMeterSerialNumber()));
+        } catch (NotInObjectListException e) {
+            collectedLogBook.setFailureInformation(
+                    ResultType.InCompatible,
+                    issueFactory.createWarning(
+                            logBookReader,
+                            String.format("Logbook with OBIS code %s was not found it meter object list", logBookReader.getLogBookObisCode().toString()),
+                            logBookReader.getLogBookObisCode().toString(),
+                            e.getMessage()));
+        }
+        return null;
+    }
+
+    private void getEvents(LogBookReader logBookReader, CollectedLogBook collectedLogBook, Calendar fromDate, ProfileGeneric profileGeneric) {
+        try {
+            DataContainer dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
+            collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
+        } catch (NotInObjectListException e) {
+            collectedLogBook.setFailureInformation(
+                    ResultType.InCompatible,
+                    issueFactory.createWarning(
+                            logBookReader,
+                            String.format("Logbook with OBIS code %s was not found it meter object list", logBookReader.getLogBookObisCode().toString()),
+                            logBookReader.getLogBookObisCode().toString(),
+                            e.getMessage()));
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession().getProperties().getRetries() + 1)) {
+                collectedLogBook.setFailureInformation(
+                        ResultType.NotSupported,
+                        issueFactory.createWarning(
+                                logBookReader,
+                                String.format("IOException while reading logbook with OBIS code %s ",
+                                        logBookReader.getLogBookObisCode().toString()) + e.getMessage()));
+            }
+        }
     }
 }

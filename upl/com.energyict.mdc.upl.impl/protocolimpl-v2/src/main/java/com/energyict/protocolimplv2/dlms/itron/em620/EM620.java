@@ -9,7 +9,6 @@ import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
-import com.energyict.mdc.upl.Manufacturer;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.TypedProperties;
@@ -69,9 +68,9 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.READCACHE_PROPERT
 public class EM620 extends AbstractDlmsProtocol {
 
     private EM620Properties em620Properties;
-    private DeviceRegisterSupport registerFactory = new EM620RegisterFactory(this);
+    private DeviceRegisterSupport registerFactory;
     private final NlsService nlsService;
-    private HasDynamicProperties em620ConfSupport = new EM620ConfigurationSupport(getPropertySpecService());
+    private EM620ConfigurationSupport em620ConfigurationSupport;
     private EM620Messaging messaging = null;
     private EM620LogBookFactory logBookFactory = null;
     private final Converter converter;
@@ -211,7 +210,7 @@ public class EM620 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2023-03-10$";
+        return "$Date: 2023-03-27$";
     }
 
     @Override
@@ -253,7 +252,10 @@ public class EM620 extends AbstractDlmsProtocol {
 
     @Override
     protected HasDynamicProperties getDlmsConfigurationSupport() {
-        return em620ConfSupport;
+        if (em620ConfigurationSupport == null) {
+            em620ConfigurationSupport = new EM620ConfigurationSupport(getPropertySpecService());
+        }
+        return em620ConfigurationSupport;
     }
 
     @Override

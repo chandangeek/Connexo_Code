@@ -57,6 +57,5 @@ public class EM620Cache extends DLMSCache implements DeviceProtocolCache, FrameC
         } else {
             return -1;
         }
-
     }
 }

@@ -67,8 +67,7 @@ public class EM620ConfigurationSupport implements HasDynamicProperties {
                 this.validateCachedFrameCounter(),
                 this.frameCounterRecoveryRetries(),
                 this.frameCounterRecoveryStep(),
-                this.statusFlagChannelSpec(),
-                this.apTitleSpec());
+                this.statusFlagChannelSpec());
     }
 
     protected PropertySpec retriesPropertySpec() {
@@ -189,12 +188,6 @@ public class EM620ConfigurationSupport implements HasDynamicProperties {
         return UPLPropertySpecFactory
                 .specBuilder(name, false, translationKey, this.propertySpecService::booleanSpec)
                 .setDefaultValue(defaultValue)
-                .finish();
-    }
-
-    protected PropertySpec apTitleSpec() {
-        return UPLPropertySpecFactory.specBuilder(CALLING_AP_TITLE, false, com.energyict.protocolimpl.nls.PropertyTranslationKeys.DLMS_CALLING_AP_TITLE, getPropertySpecService()::stringSpec)
-                .setDefaultValue(CALLING_AP_TITLE_DEFAULT)
                 .finish();
     }
 }

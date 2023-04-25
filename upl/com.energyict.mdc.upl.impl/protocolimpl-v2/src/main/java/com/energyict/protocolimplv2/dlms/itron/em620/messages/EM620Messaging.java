@@ -56,8 +56,6 @@ public class EM620Messaging extends AbstractDlmsMessaging implements DeviceMessa
 
         supportedMessages.add(PowerConfigurationDeviceMessage.SetVoltageAndCurrentParameters.get(this.propertySpecService,
                 this.nlsService, this.converter));
-        //supportedMessages.add(DeviceActionMessage.ReadDLMSAttribute.get(this.propertySpecService, this.nlsService, this.converter));
-
         return supportedMessages;
     }
 
