@@ -16,11 +16,12 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum Status implements TranslationKey {
     NEW("New"),
     PROCESSING("Ongoing"),
+    // starting from here, only final statuses
     SUCCESS("Successful"),
     SUCCESS_WITH_FAILURES("Partial success"),
     FAILURE("Failed");
 
-    private String defaultFormat;
+    private final String defaultFormat;
 
     Status(String name) {
         this.defaultFormat = name;
@@ -31,7 +32,6 @@ public enum Status implements TranslationKey {
         return this.defaultFormat;
     }
 
-
     @Override
     public String getKey() {
         return "com.elster.jupiter.fileimport." + name();
@@ -40,5 +40,9 @@ public enum Status implements TranslationKey {
     @Override
     public String getDefaultFormat() {
         return defaultFormat;
+    }
+
+    public boolean isFinal() {
+        return ordinal() >= Status.SUCCESS.ordinal();
     }
 }

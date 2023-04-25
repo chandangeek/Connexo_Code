@@ -485,7 +485,7 @@
                 <artifactId>bcpkix-jdk15on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
-			<dependency>
+            <dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
                 <version>1.4_3</version>
@@ -494,6 +494,12 @@
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
                 <version>0.9.10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${json.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <!-- Project modules - please keep in alphabetical order on artifactId -->

@@ -45,6 +45,24 @@ public enum GeneralDeviceMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.xmlMessageAttributeName, DeviceMessageConstants.xmlMessageAttributeDefaultTranslation));
         }
+    },
+    SET_PSK(11004, "Set PSK") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.pskValue, DeviceMessageConstants.pskDefaultTranslation));
+        }
+    },
+    RESET_FOTA(11005, "Reset FOTA") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.downlink, DeviceMessageConstants.downlinkDefaultTranslation));
+        }
+    },
+    SWITCH_BACK_PREVIOUS_FIRMWARE(11006, "Switch back to previous firmware") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.downlink, DeviceMessageConstants.downlinkDefaultTranslation));
+        }
     };
 
     private final long id;
