@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>19.2.0-Kratos-SNAPSHOT</version>
+        <version>20.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc</artifactId>
