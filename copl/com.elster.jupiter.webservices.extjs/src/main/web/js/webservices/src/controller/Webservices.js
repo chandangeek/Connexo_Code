@@ -270,11 +270,11 @@ Ext.define('Wss.controller.Webservices', {
             var authenticationMethod = form.down('#authenticationCombo').findRecordByValue(record.get('authenticationMethod'));
         }
         authenticationMethod ? record.setAuthenticationMethod(authenticationMethod) : record.set('authenticationMethod', null);
-        if (authenticationMethod.data.id === 'NONE') {
+        if (record.getAuthenticationMethod().data.id === 'NONE') {
             record.set('username', null);
             record.set('password', null);
         }
-        if (authenticationMethod.data.id === 'OAUTH2_FRAMEWORK') {
+        if (record.getAuthenticationMethod().data.id === 'OAUTH2_FRAMEWORK') {
             record.set('clientId', form.down('#clientIdField').getValue());
             record.set('clientSecret', form.down('#clientSecretField').getValue());
         }

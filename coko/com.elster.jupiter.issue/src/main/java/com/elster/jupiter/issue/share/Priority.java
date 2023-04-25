@@ -135,6 +135,9 @@ public final class Priority implements Comparable<Priority>, Cloneable {
     }
 
     public Rank getRank() {
+        if (this.rank == null) {
+            setRank();
+        }
         return rank;
     }
 
