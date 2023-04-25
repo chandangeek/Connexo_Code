@@ -18,6 +18,7 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -50,7 +51,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CurrentRatioDenominatorAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CurrentRatioNumeratorAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.VoltageRatioDenominatorAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.VoltageRatioNumeratorAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
@@ -61,11 +64,20 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadP
 
 public class EM620MessageExecutor extends AbstractMessageExecutor {
     public static final String SEPARATOR = ";";
-    private static final ObisCode BILLING_SCRIPT_TABLE_OBIS_CODE = ObisCode.fromString("0.0.98.1.0.255");
-    private static final ObisCode VTNumerator = ObisCode.fromString("1.0.0.4.3.255");
-    private static final ObisCode CTNumerator = ObisCode.fromString("1.0.0.4.2.255");
+    private static final ObisCode BILLING_SCRIPT_TABLE_OBIS_CODE = ObisCode.fromString("0.0.10.0.1.255");
 
-    public static String ENABLE_DST = "EnableDST";
+    private static final ObisCode CT_NUMERATOR = ObisCode.fromString("1.0.0.4.2.255");
+    private static final ObisCode VT_NUMERATOR = ObisCode.fromString("1.0.0.4.3.255");
+    private static final ObisCode CT_DENOMINATOR = ObisCode.fromString("1.0.0.4.5.255");
+    private static final ObisCode VT_DENOMINATOR = ObisCode.fromString("1.0.0.4.6.255");
+    private static final ObisCode START_MEASUREMENT_SCRIPT = ObisCode.fromString("0.0.10.128.108.255");
+
+    private static final String WRITE_CT_VT_DISPLAY = "Write voltage and current ratios";
+
+    private static final int DATETIME_PART_NOT_DEFINED = 0XFF;
+    private static final int DATETIME_NOT_SPECIFIED_DEVIATION = 0x80;
+    private static final int DATETIME_LAST_DAY_OF_MONTH = 0xFD;
+    private static final int DATETIME_SECOND_LAST_DAY_OF_MONTH = 0xFE;
 
     public EM620MessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol, protocol.getCollectedDataFactory(), protocol.getIssueFactory());
@@ -75,24 +87,30 @@ public class EM620MessageExecutor extends AbstractMessageExecutor {
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         CollectedMessageList result = getCollectedDataFactory().createCollectedMessageList(pendingMessages);
 
-        List<OfflineDeviceMessage> masterMessages = getMessagesOfMaster(pendingMessages);
-
-        for (OfflineDeviceMessage pendingMessage : masterMessages) {
+        for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
                 if (pendingMessage.getSpecification().equals(DeviceActionMessage.BILLING_RESET)) {
+                    infoLog("Sending message BillingReset.");
                     doBillingReset();
+                    infoLog("BillingReset message successful.");
                 } else if (pendingMessage.getSpecification().equals(ClockDeviceMessage.EnableOrDisableDST)) {
+                    infoLog("Sending EnableDST message.");
                     doEnableDST(pendingMessage);
+                    infoLog("EnableDST message successful");
                 } else if (pendingMessage.getSpecification().equals(ClockDeviceMessage.SetStartOfDST)) {
+                    infoLog("Sending StartOfDST message.");
                     doSetDSTTime(pendingMessage, true);
+                    infoLog("StartOfDST message successful");
                 } else if (pendingMessage.getSpecification().equals(ClockDeviceMessage.SetEndOfDST)) {
+                    infoLog("Sending EndOfDST message.");
                     doSetDSTTime(pendingMessage, false);
+                    infoLog("EndOfDST message successful");
                 } else if (pendingMessage.getSpecification().equals(PowerConfigurationDeviceMessage.SetVoltageAndCurrentParameters)) {
-                    setVoltageRatioEnumerator(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PowerConfigurationDeviceMessage.SetCurrentRatioNumerator)) {
-                    setCurrentRatioEnumerator(pendingMessage);
+                    infoLog("Sending " + WRITE_CT_VT_DISPLAY + " message.");
+                    setCtVt(pendingMessage);
+                    infoLog(WRITE_CT_VT_DISPLAY + " message successful");
                 } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME)) {
                     activityCalendarWithActivationDate(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ReadDLMSAttribute)) {
@@ -136,8 +154,8 @@ public class EM620MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void doBillingReset() throws IOException {
-        ScriptTable demandResetScriptTable = getCosemObjectFactory().getScriptTable(BILLING_SCRIPT_TABLE_OBIS_CODE);
-        demandResetScriptTable.execute(1);
+        ScriptTable billingResetScriptTable = getCosemObjectFactory().getScriptTable(BILLING_SCRIPT_TABLE_OBIS_CODE);
+        billingResetScriptTable.execute(1);
     }
 
     private void doEnableDST(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
@@ -165,71 +183,47 @@ public class EM620MessageExecutor extends AbstractMessageExecutor {
         activityCalendarController.writeCalendarActivationTime(activationCal);   //Activate now
     }
 
-    protected List<OfflineDeviceMessage> getMessagesOfMaster(List<OfflineDeviceMessage> deviceMessages) {
-        List<OfflineDeviceMessage> messages = new ArrayList<>();
-
-        for (OfflineDeviceMessage pendingMessage : deviceMessages) {
-            if (getProtocol().getSerialNumber().equals(pendingMessage.getDeviceSerialNumber())) {
-                messages.add(pendingMessage);
-            }
-        }
-        return messages;
-    }
-
     private void doSetDSTTime(OfflineDeviceMessage offlineDeviceMessage, boolean startOfDST) throws IOException {
         int month = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.month).getValue());
-        if (month < 1 || month > 12) {
+
+        if (month < Calendar.JANUARY + 1 || month > Calendar.DECEMBER + 1) {
             throw new IOException("Failed to parse the message content. " + month + " is not a valid month. Message will fail.");
         }
 
-        int dayOfMonth = 0xFF;
+        int dayOfMonth = DATETIME_PART_NOT_DEFINED;
         try {
-            dayOfMonth = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage,
-                    DeviceMessageConstants.dayOfMonth).getValue());
+            dayOfMonth = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.dayOfMonth).getValue());
 
             if (dayOfMonth == -1) {
-                dayOfMonth = 0xFD;
+                dayOfMonth = DATETIME_LAST_DAY_OF_MONTH;
             } else if (dayOfMonth == -2) {
-                dayOfMonth = 0xFE;
-            } else if (dayOfMonth < -2 || dayOfMonth > 31) {
+                dayOfMonth = DATETIME_SECOND_LAST_DAY_OF_MONTH;
+            } else if (isInvalidDayOfMonth(dayOfMonth)) {
                 throw new IOException("Failed to parse the message content. " + dayOfMonth + " is not a valid Day of month. Message will fail.");
             }
         } catch (NumberFormatException e) {
+            infoLog("Provided day of month is not valid, set it to not defined.");
         } // if parsing fails, just set value to initial state
 
 
-        int dayOfWeek = 0xFF;
+        int dayOfWeek = DATETIME_PART_NOT_DEFINED;
         try {
-            dayOfWeek = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage,
-                    DeviceMessageConstants.dayOfWeek).getValue());
-            if (dayOfWeek < 1 || dayOfWeek > 7) {
-                throw new IOException("Failed to parse the message content. " + dayOfWeek + " is not a valid Day of week. " +
-                        "Message will fail.");
+            dayOfWeek = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.dayOfWeek).getValue());
+
+            if (isInvalidDayOfWeek(dayOfWeek)) {
+                throw new IOException("Failed to parse the message content. " + dayOfWeek + " is not a valid Day of week. Message will fail.");
             }
         } catch (NumberFormatException e) {
+            infoLog("Provided day of week is not valid, set it to not defined.");
         } // if parsing fails, just set value to initial state
 
-        int hour = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage,
-                DeviceMessageConstants.hour).getValue());
-        if (hour < 0 || hour > 23) {
-            throw new IOException("Failed to parse the message content. " + hour + " is not a valid hour. " +
-                    "Message will fail.");
+        int hour = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.hour).getValue());
+
+        if (isInvalidHour(hour)) {
+            throw new IOException("Failed to parse the message content. " + hour + " is not a valid hour. Message will fail.");
         }
 
-        byte[] dsDateTimeByteArray = new byte[]{
-                (byte) 0xFF,
-                (byte) 0xFF,
-                (byte) month,
-                (byte) dayOfMonth,
-                (byte) dayOfWeek,
-                (byte) hour,
-                (byte) 0x00,
-                (byte) 0xFF,
-                (byte) 0xFF,
-                (byte) 0x80,
-                0,
-                (byte) 0xFF
-        };
+        byte[] dsDateTimeByteArray = getDateTimeByteArray(month, dayOfMonth, dayOfWeek, hour);
 
         Clock clock = getProtocol().getDlmsSession().getCosemObjectFactory().getClock();
         if (startOfDST) {
@@ -239,17 +233,67 @@ public class EM620MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void setCurrentRatioEnumerator(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        int cr_numerator = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage,
-                CurrentRatioNumeratorAttributeName).getValue()).intValue();
-        getCosemObjectFactory().writeObject(CTNumerator, DLMSClassId.REGISTER.getClassId(), RegisterAttributes.
-                VALUE.getAttributeNumber(), new Unsigned16(cr_numerator).getBEREncodedByteArray());
+    private boolean isInvalidDayOfMonth(int dayOfMonth) {
+        return dayOfMonth < -2 || dayOfMonth > 31;
     }
 
-    private void setVoltageRatioEnumerator(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        int vt_numerator = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage,
-                VoltageRatioNumeratorAttributeName).getValue()).intValue();
-        getCosemObjectFactory().writeObject(VTNumerator, DLMSClassId.REGISTER.getClassId(), RegisterAttributes.
-                VALUE.getAttributeNumber(), new Unsigned16(vt_numerator).getBEREncodedByteArray());
+    private boolean isInvalidDayOfWeek(int dayOfWeek) {
+        return dayOfWeek < 1 || dayOfWeek > 7;
+    }
+
+    private boolean isInvalidHour(int hour) {
+        return hour < 0 || hour > 23;
+    }
+
+    private byte[] getDateTimeByteArray(int month, int dayOfMonth, int dayOfWeek, int hour) {
+        return new byte[] {
+                (byte) DATETIME_PART_NOT_DEFINED,
+                (byte) DATETIME_PART_NOT_DEFINED,
+                (byte) month,
+                (byte) dayOfMonth,
+                (byte) dayOfWeek,
+                (byte) hour,
+                (byte) 0x00,
+                (byte) DATETIME_PART_NOT_DEFINED,
+                (byte) DATETIME_PART_NOT_DEFINED,
+                (byte) DATETIME_NOT_SPECIFIED_DEVIATION,
+                0,
+                (byte) DATETIME_PART_NOT_DEFINED
+        };
+    }
+
+    private void setCtVt(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        int ct_numerator = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, CurrentRatioNumeratorAttributeName).getValue()).intValue();
+        infoLog("Setting " + CurrentRatioNumeratorAttributeName + " to " + ct_numerator);
+        getCosemObjectFactory().writeObject(CT_NUMERATOR, DLMSClassId.DATA.getClassId(),
+                RegisterAttributes.VALUE.getAttributeNumber(), new Unsigned16(ct_numerator).getBEREncodedByteArray());
+        infoLog("Done");
+
+        int ct_denominator = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, CurrentRatioDenominatorAttributeName).getValue()).intValue();
+        infoLog("Setting " + CurrentRatioDenominatorAttributeName + " to " + ct_denominator);
+        getCosemObjectFactory().writeObject(CT_DENOMINATOR, DLMSClassId.DATA.getClassId(),
+                RegisterAttributes.VALUE.getAttributeNumber(), new Unsigned16(ct_denominator).getBEREncodedByteArray());
+        infoLog("Done");
+
+        int vt_numerator = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, VoltageRatioNumeratorAttributeName).getValue()).intValue();
+        infoLog("Setting " + VoltageRatioNumeratorAttributeName + " to " + vt_numerator);
+        getCosemObjectFactory().writeObject(VT_NUMERATOR, DLMSClassId.DATA.getClassId(),
+                RegisterAttributes.VALUE.getAttributeNumber(), new Unsigned16(vt_numerator).getBEREncodedByteArray());
+        infoLog("Done");
+
+        int vt_denominator = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, VoltageRatioDenominatorAttributeName).getValue()).intValue();
+        infoLog("Setting " + VoltageRatioDenominatorAttributeName + " to " + vt_denominator);
+        getCosemObjectFactory().writeObject(VT_DENOMINATOR, DLMSClassId.DATA.getClassId(),
+                RegisterAttributes.VALUE.getAttributeNumber(), new Unsigned16(vt_denominator).getBEREncodedByteArray());
+        infoLog("Done");
+
+        infoLog("Executing start measurement script");
+        GenericInvoke genericInvoke = getCosemObjectFactory().getGenericInvoke(START_MEASUREMENT_SCRIPT, DLMSClassId.SCRIPT_TABLE.getClassId(), 1);
+        genericInvoke.invoke(new Unsigned16(2).getBEREncodedByteArray());
+        infoLog("Done");
+    }
+
+    private void infoLog(String messageToLog) {
+        getProtocol().getLogger().info(messageToLog);
     }
 }

@@ -33,7 +33,6 @@ import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
-import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -48,7 +47,6 @@ import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.itron.em620.logbooks.EM620LogBookFactory;
-import com.energyict.protocolimplv2.dlms.itron.em620.messages.EM620MessageExecutor;
 import com.energyict.protocolimplv2.dlms.itron.em620.messages.EM620Messaging;
 import com.energyict.protocolimplv2.dlms.itron.em620.profiledata.EM620ProfileDataReader;
 import com.energyict.protocolimplv2.dlms.itron.em620.properties.EM620ConfigurationSupport;
@@ -178,32 +176,39 @@ public class EM620 extends AbstractDlmsProtocol {
         return logBookFactory;
     }
 
-    protected EM620LogBookFactory createLogBookFactory() {
+    private EM620LogBookFactory createLogBookFactory() {
         return new EM620LogBookFactory(this);
+    }
+
+    private EM620Messaging createEM620Messaging() {
+        return new EM620Messaging(this, this.converter, getNlsService(), getPropertySpecService());
+    }
+
+    private EM620Messaging getEM620Messaging() {
+        if (this.messaging == null) {
+            this.messaging = createEM620Messaging();
+        }
+        return messaging;
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        if (this.messaging == null) {
-            this.messaging = new EM620Messaging(new EM620MessageExecutor(this), converter,
-                    nlsService, this.getPropertySpecService());
-        }
-        return messaging.getSupportedMessages();
+        return getEM620Messaging().getSupportedMessages();
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return null;
+        return getEM620Messaging().executePendingMessages(pendingMessages);
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return null;
+        return getEM620Messaging().updateSentMessages(sentMessages);
     }
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        return messaging.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+        return getEM620Messaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override
@@ -232,7 +237,7 @@ public class EM620 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2023-04-07$";
+        return "$Date: 2023-04-24$";
     }
 
     @Override
@@ -360,7 +365,6 @@ public class EM620 extends AbstractDlmsProtocol {
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(BigDecimal.valueOf(PUBLIC_CLIENT), 0, 0, 0, 0, 0, publicProperties));    //SecurityLevel 0:0
 
         final EM620DlmsSession publicDlmsSession = new EM620DlmsSession(comChannel, publicClientProperties);
-        //final ObisCode frameCounterObisCode = getFrameCounterForClient(getDlmsSessionProperties().getClientMacAddress());
         final long frameCounter;
 
         try {
@@ -486,47 +490,4 @@ public class EM620 extends AbstractDlmsProtocol {
                 || ex.getMessageSeed() == ProtocolExceptionMessageSeeds.UNEXPECTED_PROTOCOL_ERROR
                 || ex.getMessageSeed() == ProtocolExceptionMessageSeeds.PROTOCOL_CONNECT;
     }
-
-   /* @Override
-    protected void connectWithRetries(DlmsSession dlmsSession) {
-        int tries = 0;
-        while (true) {
-            ProtocolRuntimeException exception;
-            try {
-                dlmsSession.getDLMSConnection().setRetries(0); // Temporarily disable retries in the connection layer, AARQ retries are handled here
-                if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
-                    dlmsSession.getDlmsV2Connection().connectMAC();
-                    dlmsSession.createAssociation();
-                }
-                return;
-            } catch (ProtocolRuntimeException e) {
-                journal(Level.WARNING, e.getMessage(), e);
-                if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
-                    throw e;    // Throw real errors, e.g. unsupported security mechanism, wrong password...
-                } else if (e instanceof com.energyict.protocol.exceptions.ConnectionCommunicationException) {
-                    throw e;
-                } else if (e instanceof DataEncryptionException) {
-                    throw e;
-                }
-                exception = e;
-            } finally {
-                dlmsSession.getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
-            }
-
-            // Release and retry the AARQ in case of ACSE exception
-            if (++tries > dlmsSession.getProperties().getRetries()) {
-                journal(Level.SEVERE, "Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries.");
-                throw CommunicationException.protocolConnectFailed(exception);
-            } else {
-                journal("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
-                try {
-                    dlmsSession.getDlmsV2Connection().disconnectMAC();
-                } catch (ProtocolRuntimeException e) {
-                    dlmsSession.getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
-                    // Absorb exception: in 99% of the cases we expect an exception here ...
-                }
-            }
-        }
-    }*/
-
 }

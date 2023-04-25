@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.itron.em620.logbooks;
+package com.energyict.protocolimplv2.dlms.itron.em620.events;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.protocol.MeterEvent;

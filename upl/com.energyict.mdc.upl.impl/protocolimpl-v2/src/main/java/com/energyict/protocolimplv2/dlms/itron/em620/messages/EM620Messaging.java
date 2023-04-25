@@ -12,6 +12,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.idis.hs3300.messages.HS3300MessageExecutor;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -27,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class EM620Messaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
-    private final AbstractMessageExecutor messageExecutor;
+    private EM620MessageExecutor messageExecutor;
     private List<DeviceMessageSpec> supportedMessages = new ArrayList<>();
     protected final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -35,10 +37,9 @@ public class EM620Messaging extends AbstractDlmsMessaging implements DeviceMessa
     private final NlsService nlsService;
     private final PropertySpecService propertySpecService;
 
-    public EM620Messaging(AbstractMessageExecutor messageExecutor, Converter converter, NlsService nlsService,
+    public EM620Messaging(AbstractDlmsProtocol protocol, Converter converter, NlsService nlsService,
                           PropertySpecService propertySpecService) {
-        super(messageExecutor.getProtocol());
-        this.messageExecutor = messageExecutor;
+        super(protocol);
         this.converter = converter;
         this.nlsService = nlsService;
         this.propertySpecService = propertySpecService;
@@ -56,6 +57,7 @@ public class EM620Messaging extends AbstractDlmsMessaging implements DeviceMessa
 
         supportedMessages.add(PowerConfigurationDeviceMessage.SetVoltageAndCurrentParameters.get(this.propertySpecService,
                 this.nlsService, this.converter));
+        supportedMessages.add(DeviceActionMessage.ReadDLMSAttribute.get(this.propertySpecService, this.nlsService, this.converter));
         return supportedMessages;
     }
 
@@ -90,7 +92,10 @@ public class EM620Messaging extends AbstractDlmsMessaging implements DeviceMessa
         return getMessageExecutor().executePendingMessages(pendingMessages);
     }
 
-    protected AbstractMessageExecutor getMessageExecutor() {
+    protected EM620MessageExecutor getMessageExecutor() {
+        if (messageExecutor == null) {
+            this.messageExecutor = new EM620MessageExecutor(getProtocol());
+        }
         return messageExecutor;
     }
 }

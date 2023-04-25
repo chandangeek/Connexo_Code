@@ -16,6 +16,7 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.itron.em620.events.EM620StandardEventLog;
 
 import java.io.IOException;
 import java.util.AbstractSet;
