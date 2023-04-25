@@ -69,7 +69,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.READCACHE_PROPERT
 public class EM620 extends AbstractDlmsProtocol {
 
     private EM620Properties em620Properties;
-    private DeviceRegisterSupport registerFactory;
+    private EM620RegisterFactory registerFactory;
     private final NlsService nlsService;
     private EM620ConfigurationSupport em620ConfigurationSupport;
     private EM620Messaging messaging;
@@ -218,12 +218,19 @@ public class EM620 extends AbstractDlmsProtocol {
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        return registerFactory.readRegisters(registers);
+        return getRegisterFactory().readRegisters(registers);
+    }
+
+    private EM620RegisterFactory getRegisterFactory() {
+        if (this.registerFactory == null) {
+            this.registerFactory = new EM620RegisterFactory(this, getCollectedDataFactory(), getIssueFactory());
+        }
+        return this.registerFactory;
     }
 
     @Override
     public String getVersion() {
-        return "$Date: 2023-03-29$";
+        return "$Date: 2023-04-04$";
     }
 
     @Override
