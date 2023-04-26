@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.itron.em620.profiledata;
 
 import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
@@ -30,7 +34,6 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.itron.em620.properties;
 
 import com.energyict.dlms.InvokeIdAndPriorityHandler;

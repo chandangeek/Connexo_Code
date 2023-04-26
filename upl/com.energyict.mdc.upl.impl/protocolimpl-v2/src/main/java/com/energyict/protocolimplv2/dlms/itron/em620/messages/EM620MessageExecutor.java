@@ -1,16 +1,15 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.itron.em620.messages;
 
-import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
-import com.energyict.cbo.Quantity;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -22,12 +21,7 @@ import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -36,19 +30,12 @@ import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.PowerConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.convertor.AbstractMessageConverter;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CurrentRatioDenominatorAttributeName;
@@ -59,8 +46,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activ
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enableDSTAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
 
 public class EM620MessageExecutor extends AbstractMessageExecutor {
     public static final String SEPARATOR = ";";

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.itron.em620.registers;
 
 import com.energyict.mdc.identifiers.RegisterIdentifierById;
@@ -29,7 +33,6 @@ import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.itron.em620.EM620;
 

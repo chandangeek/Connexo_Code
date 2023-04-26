@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.itron.em620.profiledata;
 
 import com.energyict.mdc.upl.ProtocolException;
@@ -43,7 +47,6 @@ public class EM620ProfileIntervals extends DLMSProfileIntervals {
         boolean outOfInterval = false;
         int profileStatus = 0;
         if (getAllDataTypes().size() != 0) {
-
             for (int i = 0; i < nrOfDataTypes(); i++) {
                 Structure element = (Structure) getDataType(i);
                 List<Number> values = new ArrayList<>();

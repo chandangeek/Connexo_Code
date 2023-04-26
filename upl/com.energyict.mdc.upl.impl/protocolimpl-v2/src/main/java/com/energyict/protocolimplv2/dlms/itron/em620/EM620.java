@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.itron.em620;
 
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -88,7 +92,6 @@ public class EM620 extends AbstractDlmsProtocol {
         this.nlsService = nlsService;
         this.converter = converter;
     }
-
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -379,7 +382,6 @@ public class EM620 extends AbstractDlmsProtocol {
         } finally {
             publicDlmsSession.getDlmsV2Connection().disconnectMAC();
         }
-
         setTXFrameCounter(frameCounter + 1);
     }
 
@@ -413,7 +415,6 @@ public class EM620 extends AbstractDlmsProtocol {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -435,7 +436,6 @@ public class EM620 extends AbstractDlmsProtocol {
             retries = 0;
             step = 0;
         }
-
         do {
             try {
                 testDlmsSession.getDlmsV2Connection().connectMAC();
@@ -459,7 +459,6 @@ public class EM620 extends AbstractDlmsProtocol {
                         //Try to release that association once, it may be that it was still open from a previous session, causing troubles to create the new association.
                         try {
                             testDlmsSession.getDlmsV2Connection().disconnectMAC();
-                            ;
                         } catch (ProtocolRuntimeException e) {
                             testDlmsSession.getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
                             // Absorb exception: in 99% of the cases we expect an exception here ...

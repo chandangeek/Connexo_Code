@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.itron.em620.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessage;
@@ -58,8 +62,7 @@ public class EM620Messaging extends AbstractDlmsMessaging implements DeviceMessa
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec,
-                         Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.ConfigurationChangeDate:
                 return dateFormat.format((Date) messageAttribute);
