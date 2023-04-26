@@ -139,7 +139,7 @@ public class EM620ProfileDataReader {
                 throw new IOException("Failed to build the load profile data: Invalid ChannelMask!");
             }
 
-            DLMSProfileIntervals intervalParser = new DLMSProfileIntervals(encodedData, channelMask[0], channelMask[1], channelMask[2], new EM620ProfileIntervalStatusBits());
+            EM620ProfileIntervals intervalParser = new EM620ProfileIntervals(this.protocol, encodedData, channelMask[0], channelMask[1], channelMask[2], new EM620ProfileIntervalStatusBits());
             List<IntervalData> intervalDatas = intervalParser.parseIntervals(this.loadProfileConfigurationMap.get(loadProfileReader).getProfileInterval(), protocol.getTimeZone());
             collectedLoadProfile.setCollectedIntervalData(intervalDatas, getChannelInfosMap().get(loadProfileReader));
         } catch (IOException e) {

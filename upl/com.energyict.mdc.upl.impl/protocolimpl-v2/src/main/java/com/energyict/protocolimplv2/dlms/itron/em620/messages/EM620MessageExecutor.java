@@ -172,7 +172,6 @@ public class EM620MessageExecutor extends AbstractMessageExecutor {
         if (calendarName.length() > 8) {
             calendarName = calendarName.substring(0, 8);
         }
-
         ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(),
                 getProtocol().getDlmsSession().getTimeZone(), false);
         activityCalendarController.parseContent(activityCalendarContents);

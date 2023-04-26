@@ -48,15 +48,11 @@ public class EM620Messaging extends AbstractDlmsMessaging implements DeviceMessa
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         supportedMessages.add(DeviceActionMessage.BILLING_RESET.get(this.propertySpecService, this.nlsService, this.converter));
-
         supportedMessages.add(ClockDeviceMessage.EnableOrDisableDST.get(this.propertySpecService, this.nlsService, this.converter));
         supportedMessages.add(ClockDeviceMessage.SetStartOfDST.get(this.propertySpecService, this.nlsService, this.converter));
         supportedMessages.add(ClockDeviceMessage.SetEndOfDST.get(this.propertySpecService, this.nlsService, this.converter));
-
         supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME.get(this.propertySpecService, this.nlsService, this.converter));
-
-        supportedMessages.add(PowerConfigurationDeviceMessage.SetVoltageAndCurrentParameters.get(this.propertySpecService,
-                this.nlsService, this.converter));
+        supportedMessages.add(PowerConfigurationDeviceMessage.SetVoltageAndCurrentParameters.get(this.propertySpecService, this.nlsService, this.converter));
         supportedMessages.add(DeviceActionMessage.ReadDLMSAttribute.get(this.propertySpecService, this.nlsService, this.converter));
         return supportedMessages;
     }

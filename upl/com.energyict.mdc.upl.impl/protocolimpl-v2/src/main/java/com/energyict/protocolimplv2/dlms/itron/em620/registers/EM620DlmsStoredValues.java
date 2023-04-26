@@ -79,7 +79,6 @@ public class EM620DlmsStoredValues implements StoredValues {
 
     @Override
     public void retrieve() throws IOException {
-
     }
 
     private Unit getUnit(ObisCode baseObisCode) throws IOException {
