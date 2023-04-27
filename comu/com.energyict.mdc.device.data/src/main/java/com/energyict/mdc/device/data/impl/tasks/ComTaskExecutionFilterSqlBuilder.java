@@ -100,7 +100,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         this.append(" ) ");
         this.append(" ) ");
 
-        this.append(sqlStartClause.replace( TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName,   allctedataAlias + " " + communicationTaskAliasName + " "));
+        this.append("select cte.device from  "  + allctedataAlias + " " + communicationTaskAliasName + " ");
         this.appendLocationIdCondition(locationId);
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
         if (statusIterator.hasNext()) {
