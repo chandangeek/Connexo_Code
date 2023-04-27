@@ -112,6 +112,8 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     public static final String GRACE_WARNING_STEP = "graceWarningStep";
     public static final String ADDITIONAL_TAX_STEP = "additionalTaxStep";
 
+    private static final int DEFAULT_FW_PARTITION_SIZE = 1024;
+
     public AcudMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
     }
@@ -183,7 +185,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
             writeSpecialDays(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SPECIAL_DAY_CSV_STRING)) {
             writeSpecialDaysCsv(pendingMessage);
-        }  else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.WRITE_CONFIGURATION_TEXT)) {
+        } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.WRITE_CONFIGURATION_TEXT)) {
             postGatewayConfigurationJson(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
             collectedMessage = remoteDisconnect(pendingMessage);
@@ -250,11 +252,11 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
 
         int creditType = CreditDeviceMessage.CreditType.entryForDescription(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.creditType)).getId();
         CollectedCreditAmount cca = getProtocol().getCreditAmounts().stream()
-                .filter(creditAmount1 -> creditType == CreditDeviceMessage.CreditType.entryForDescription(creditAmount1.getCreditType()).getId() )
+                .filter(creditAmount1 -> creditType == CreditDeviceMessage.CreditType.entryForDescription(creditAmount1.getCreditType()).getId())
                 .findAny()
                 .orElse(null);
 
-        if( cca != null ) {
+        if (cca != null) {
             Register register = new Register(-1, AcudCreditUtils.getCreditTypeObiscode(CreditDeviceMessage.CreditType.entryForDescription(cca.getCreditType())), pendingMessage.getDeviceSerialNumber());
             List<CollectedRegister> collectedRegisters = new ArrayList<>();
             final RegisterValue registerValue = new RegisterValue(register, new Quantity(cca.getCreditAmount().get(), Unit.get(COUNT, 0)));
@@ -288,8 +290,9 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         Boolean passiveImmediateActivation = Boolean.parseBoolean(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.passiveImmediateActivation));
         Structure passiveUnitChargeStructure = createPassiveUnitCharge(pendingMessage);
         chargeSetup.writeChargeAttribute(ChargeSetupAttributes.UNIT_CHARGE_PASSIVE, passiveUnitChargeStructure);
-        if (passiveImmediateActivation)
+        if (passiveImmediateActivation) {
             chargeSetup.invokeChargeMethod(ChargeSetupMethods.ACTIVATE_PASSIVE_UNIT_CHARGE);
+        }
     }
 
     private void changePassiveUnitChargeWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -489,7 +492,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void friendlyWeekdaysUpdate(OfflineDeviceMessage pendingMessage) throws IOException {
-        Integer weekdays = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.friendlyWeekdays),2);
+        Integer weekdays = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.friendlyWeekdays), 2);
         BitString weekdaysBits = new BitString(weekdays, 8);
         getCosemObjectFactory().writeObject(FRIENDLY_WEEKDAYS_OBIS, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), weekdaysBits.getBEREncodedByteArray());
     }
@@ -601,29 +604,58 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         imageTransfer.upgrade(binaryImage, false, id, false);
     }
 
-    private void postGatewayConfigurationJson(OfflineDeviceMessage pendingMessage)  throws IOException {
+    private void postGatewayConfigurationJson(OfflineDeviceMessage pendingMessage) throws IOException {
         String hostAddress = ((AcudGateway) getProtocol()).getHostAddress();
         int portNumber = ((AcudGateway) getProtocol()).getPortNumber();
 
-        AcudDlmsProperties properties = (AcudDlmsProperties)getProtocol().getDlmsSessionProperties();
-        String urlConnection = "http://" + hostAddress.trim() + ":" + portNumber + properties.getGatewayConfigUrl();
+        AcudDlmsProperties properties = (AcudDlmsProperties) getProtocol().getDlmsSessionProperties();
+        String postConfigurationEndpoint = properties.getGatewayConfigUrl();
+        String urlPath = "http://" + hostAddress.trim() + ":" + portNumber + (startsWithSlash(postConfigurationEndpoint) ? postConfigurationEndpoint : "/" + postConfigurationEndpoint);
 
         final String jsonInputString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, gatewayConfigurationJson).getValue();
         byte[] input = jsonInputString.getBytes("utf-8");
 
-        doPost(urlConnection, input, true);
+        doPost(urlPath, input, true);
     }
 
-    private void upgradeGatewayFirmware(OfflineDeviceMessage pendingMessage)  throws IOException {
+    private void upgradeGatewayFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
         String hostAddress = ((AcudGateway) getProtocol()).getHostAddress();
         int portNumber = ((AcudGateway) getProtocol()).getPortNumber();
 
-        AcudDlmsProperties properties = (AcudDlmsProperties)getProtocol().getDlmsSessionProperties();
-        String urlConnection = "http://" + hostAddress.trim() + ":" + portNumber + properties.getGatewayFirmwareUrl();
+        AcudDlmsProperties properties = (AcudDlmsProperties) getProtocol().getDlmsSessionProperties();
+        String postFirmwareEndpoint = properties.getGatewayFirmwareUrl();
+        String partitionSizePropertyPath = properties.getGatewayFirmwarePartitionSize();
+
+        int partitionSize = DEFAULT_FW_PARTITION_SIZE;
+        try {
+            partitionSize = Integer.parseInt(partitionSizePropertyPath);
+        } catch (Exception ex) {
+            getProtocol().journal("Default firmware file partition size will be used: " + DEFAULT_FW_PARTITION_SIZE);
+        }
+        String urlPathBase = "http://" + hostAddress.trim() + ":" + portNumber + (startsWithSlash(postFirmwareEndpoint) ? postFirmwareEndpoint : "/" + postFirmwareEndpoint);
 
         String path = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateFileAttributeName);
         byte[] binaryImage = TempFileLoader.loadTempFile(path);
-        doPost(urlConnection, binaryImage, false);
+
+        if (binaryImage.length > partitionSize) {
+            int counter = binaryImage.length / partitionSize;
+            int leftover = binaryImage.length % partitionSize;
+
+            for(int i = 0; i < counter; i++) {
+                byte[] part = new byte[partitionSize];
+                System.arraycopy(binaryImage, partitionSize * i, part, 0, partitionSize);
+                doPost(urlPathBase + "/" + partitionSize + "/" + i, part, false);
+            }
+            byte[] part = new byte[leftover];
+            System.arraycopy(binaryImage, partitionSize * counter, part, 0, leftover);
+            doPost(urlPathBase + "/" + leftover + "/" + counter, part, false);
+        } else {
+            doPost(urlPathBase + "/" + binaryImage.length, binaryImage, false);
+        }
+    }
+
+    private boolean startsWithSlash(String endpoint) {
+        return endpoint != null && endpoint.startsWith("/");
     }
 
     private void doPost(String urlConnection, byte[] binary, boolean isJson) throws IOException {
@@ -637,17 +669,15 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
                 httpConnection.setRequestProperty("Content-Type", "application/json");
             }
             httpConnection.setDoOutput(true);
-            httpConnection.setReadTimeout(30000);
+            httpConnection.setReadTimeout((int)((AcudGateway)getProtocol()).getConnectionTimeout().toMillis());
 
-            try(OutputStream os = httpConnection.getOutputStream()) {
+            try (OutputStream os = httpConnection.getOutputStream()) {
                 os.write(binary, 0, binary.length);
                 os.flush();
-            }
-
-            int responseCode = httpConnection.getResponseCode();
-            if (responseCode != HttpURLConnection.HTTP_OK) {
-                getProtocol().journal("Change is not applied. Gateway response code is: " + responseCode);
-                throw new ProtocolException("Change is not applied. Gateway response code is: " + responseCode);
+                int responseCode = httpConnection.getResponseCode();
+                if (responseCode != HttpURLConnection.HTTP_OK) {
+                    throw new ProtocolException("Change is not applied. Gateway response code is: " + responseCode);
+                }
             }
         } catch (Exception e) {
             getProtocol().journal("[EXCEPTION] " + e.getMessage());
@@ -657,6 +687,5 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
                 httpConnection.disconnect();
             }
         }
-
     }
 }

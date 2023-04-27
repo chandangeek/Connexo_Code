@@ -853,7 +853,7 @@ public final class DeviceMessageConstants {
     public static final String engineerPinTimeout = "ConfigurationChangeDeviceMessage.engineerPinTimeout";
     public static final String engineerPinTimeoutDefaultTranslation = "Engineer PIN timeout";
     public static final String gatewayConfigurationJson = "ConfigurationChangeDeviceMessage.gatewayConfigurationJson";
-    public static final String gatewayConfigurationJsonDefaultTranslation = "JSON Configuration";
+    public static final String gatewayConfigurationJsonDefaultTranslation = "Configuration JSON";
 
     public static final String SetDialCommandAttributeName = "ModemConfigurationDeviceMessage.setdialcommand";
     public static final String SetDialCommandAttributeDefaultTranslation = "Set dial command";

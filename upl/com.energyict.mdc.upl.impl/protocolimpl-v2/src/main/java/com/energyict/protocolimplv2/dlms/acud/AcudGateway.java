@@ -9,7 +9,6 @@ import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
-import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -42,6 +41,7 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,8 +52,14 @@ import static com.google.common.net.HttpHeaders.USER_AGENT;
 public class AcudGateway extends Acud {
 
     private static final EndDeviceType typeMeter = EndDeviceType.GATEWAY;
+
+    private static final String HOST_ADDRESS = "host";
+    private static final String PORT_NUMBER = "portNumber";
+    private static final String CONNECTION_TIMEOUT = "connectionTimeout";
+
     private String hostAddress;
     private int portNumber;
+    private Duration connectionTimeout;
 
     public AcudGateway(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory, nlsService, converter, calendarExtractor, messageFileExtractor);
@@ -62,13 +68,14 @@ public class AcudGateway extends Acud {
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
-        this.hostAddress = comChannel.getProperties().getTypedProperty("host");
-        this.portNumber = comChannel.getProperties().getTypedProperty("portNumber", BigDecimal.valueOf(80)).intValue();
+        this.hostAddress = comChannel.getProperties().getTypedProperty(HOST_ADDRESS);
+        this.portNumber = comChannel.getProperties().getTypedProperty(PORT_NUMBER, BigDecimal.valueOf(80)).intValue();
+        this.connectionTimeout = comChannel.getProperties().getTypedProperty(CONNECTION_TIMEOUT, Duration.parse("PT10S"));
     }
 
     @Override
     public void logOn() {
-        // nothing to de here
+        // nothing to do here
     }
 
     @Override
@@ -127,7 +134,7 @@ public class AcudGateway extends Acud {
 
     @Override
     public String getVersion() {
-        return "$Date: 2023-03-20 $";
+        return "$Date: 2023-04-27 $";
     }
 
     @Override
@@ -148,18 +155,27 @@ public class AcudGateway extends Acud {
         return portNumber;
     }
 
+    public Duration getConnectionTimeout() {
+        return connectionTimeout;
+    }
+
     @Override
     public String getFirmwareVersion() {
         String hostAddress = this.getHostAddress();
         int portNumber = this.getPortNumber();
 
-        String urlConnection = "http://" + hostAddress.trim() + ":" + portNumber + getDlmsSessionProperties().getGatewayFirmwareVersionUrl();
+        String getVersionEndpoint = getDlmsSessionProperties().getGatewayFirmwareVersionUrl();
+        String urlPath = "http://" + hostAddress.trim() + ":" + portNumber + (startsWithSlash(getVersionEndpoint) ? getVersionEndpoint : "/" + getVersionEndpoint);
         try {
-            return sendGetFirmwareVersion(urlConnection);
+            return sendGetFirmwareVersion(urlPath);
         } catch (IOException e) {
             journal("[EXCEPTION] " + e.getMessage());
             throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
+    }
+
+    private boolean startsWithSlash(String endpoint) {
+        return endpoint != null && endpoint.startsWith("/");
     }
 
     @Override
@@ -173,30 +189,35 @@ public class AcudGateway extends Acud {
         return new ArrayList<>();
     }
 
-    private String sendGetFirmwareVersion(String urlConnection) throws IOException {
-        journal("Getting firmware version from " + urlConnection);
-        URL obj = new URL(urlConnection);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("GET");
-        con.setRequestProperty("User-Agent", USER_AGENT);
-        con.setReadTimeout(30000);
-        int responseCode = con.getResponseCode();
+    private String sendGetFirmwareVersion(String urlPath) throws IOException {
+        journal("Getting firmware version from " + urlPath);
+        URL obj = new URL(urlPath);
+        HttpURLConnection httpURLConnection = (HttpURLConnection) obj.openConnection();
+        try {
+            httpURLConnection.setRequestMethod("GET");
+            httpURLConnection.setRequestProperty("User-Agent", USER_AGENT);
+            httpURLConnection.setReadTimeout((int)getConnectionTimeout().toMillis());
+            int responseCode = httpURLConnection.getResponseCode();
 
-        if (responseCode == HttpURLConnection.HTTP_OK) { // success
-            try(BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
-                String inputLine;
-                StringBuilder response = new StringBuilder();
+            if (responseCode == HttpURLConnection.HTTP_OK) { // success
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()))) {
+                    String inputLine;
+                    StringBuilder response = new StringBuilder();
 
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    journal("Received firmware version: " + response.toString());
+                    return response.toString();
                 }
-                in.close();
-                journal("Received firmware version: " + response.toString());
-                return response.toString();
+            } else {
+                journal("Getting firmware version from " + urlPath + "failed with response code: " + responseCode);
+                throw new IOException("Getting firmware version from " + urlPath + "failed with response code: " + responseCode);
             }
-        } else {
-            journal("Getting firmware version from " + urlConnection + "failed with response code: " + responseCode);
-            throw new IOException("Getting firmware version from " + urlConnection + "failed with response code: " + responseCode);
+        } finally {
+            if (httpURLConnection != null) {
+                httpURLConnection.disconnect();
+            }
         }
     }
 }

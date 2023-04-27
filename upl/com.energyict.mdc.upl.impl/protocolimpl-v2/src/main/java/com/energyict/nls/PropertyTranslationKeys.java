@@ -308,6 +308,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
 
     V2_POST_GATEWAY_CONFIG_URL("upl.property.v2.acud.gateway.config.url", "Post gateway configuration URL"),
     V2_POST_GATEWAY_FIRMWARE_URL("upl.property.v2.acud.gateway.firmware.url", "Post gateway firmware URL"),
+    V2_POST_GATEWAY_FIRMWARE_PART_SIZE("upl.property.v2.acud.gateway.firmware.part.size", "Maximum gateway firmware file part size"),
     V2_GET_GATEWAY_FIRMWARE_VERSION_URL("upl.property.v2.acud.gateway.firmware.version.url", "Get gateway firmware version URL"),
 
     V2_TEST_TIMEOUT("upl.property.v2.test.timeout", "Timeout"),
