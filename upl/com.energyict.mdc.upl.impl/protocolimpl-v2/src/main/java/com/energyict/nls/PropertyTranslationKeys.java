@@ -171,6 +171,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_EICT_PHONE_NUMBER_DESCRIPTION("upl.property.v2.eict.phoneNumber.description", "Phone number"),
     V2_EICT_MAX_IDLE_TIME("upl.property.v2.eict.maxIdleTime", "Max idle time"),
     V2_EICT_MAX_IDLE_TIME_DESCRIPTION("upl.property.v2.eict.maxIdleTime.description", "Max idle time"),
+    V2_EICT_MAX_WAIT_TIME("upl.property.v2.eict.maxWaitTime", "Max wait time"),
+    V2_EICT_MAX_WAIT_TIME_DESCRIPTION("upl.property.v2.eict.maxWaitTime.description", "Max wait time"),
     V2_EICT_SERVER_UPPER_MAC_ADDRESS("upl.property.v2.eict.serverUpperMacAddress", "Server upper MAC address"),
     V2_EICT_SERVER_UPPER_MAC_ADDRESS_DESCRIPTION("upl.property.v2.eict.serverUpperMacAddress.description", "Server upper MAC address"),
     V2_EICT_VALIDATE_INVOKE_ID("upl.property.v2.eict.validateInvokeId", "Validate invoke Id"),

@@ -11,18 +11,21 @@ Ext.define('Uni.store.FindLocations', {
     autoLoad: false,
 
     fields: [
-        {name:'displayValue'}
+        {name: 'displayValue'}
     ],
 
 
     proxy: {
         type: 'rest',
         url: '',
+        actionMethods: {
+            read: 'POST'
+        },
         reader: {
             type: 'json',
             root: 'values'
         },
-        setUrl: function(url){
+        setUrl: function (url) {
             this.url = url;
         }
     }

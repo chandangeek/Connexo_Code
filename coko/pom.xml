@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>20.0.0-Kratos-SNAPSHOT</version>
+        <version>19.2.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>kore</artifactId>
@@ -375,12 +375,6 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.json</groupId>
-                <artifactId>json</artifactId>
-                <version>${json.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>webservice.issue</artifactId>
                 <version>${project.version}</version>
@@ -402,7 +396,6 @@
     </dependencyManagement>
 
     <properties>
-        <json.version>20090211</json.version>
         <javadoc.excluded.package.names>
             ch.iec.tc57.*:org.w3.*:*.security.*:com.elster.jupiter.metering.cim
         </javadoc.excluded.package.names>

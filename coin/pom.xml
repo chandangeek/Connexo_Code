@@ -8,17 +8,13 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>20.0.0-Kratos-SNAPSHOT</version>
+        <version>19.2.0-Kratos-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.elster.jupiter</groupId>
     <artifactId>mdm.parent</artifactId>
     <packaging>pom</packaging>
     <name>[MDM] mdm.parent</name>
 
-	<properties>
-        <json.version>20090211</json.version>
-	</properties>	
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -107,13 +103,6 @@
                 <artifactId>mdm.issue.datavalidation.rest</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
-            </dependency>
-            <!-- Other deps-->
-            <dependency>
-                <groupId>org.json</groupId>
-                <artifactId>json</artifactId>
-                <version>${json.version}</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>20.0.0-Kratos-SNAPSHOT</version>
+        <version>19.2.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc.data.push</artifactId>

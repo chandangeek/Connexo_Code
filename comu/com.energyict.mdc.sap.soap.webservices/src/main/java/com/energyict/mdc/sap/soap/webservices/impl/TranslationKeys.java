@@ -154,7 +154,18 @@ public enum TranslationKeys implements TranslationKey {
     SETPUSHEVENTSTOSAP_SUBSCRIBER(SetPushEventsToSapFlagOnDeviceMessageHandlerFactory.BULK_SETPUSHEVENTSTOSAP_QUEUE_SUBSCRIBER, SetPushEventsToSapFlagOnDeviceMessageHandlerFactory.BULK_SETPUSHEVENTSTOSAP_QUEUE_DISPLAYNAME),
 
     SAP_EVENT_MAPPING_STATUS_CPS(SAPDeviceEventMappingStatusCustomPropertySet.CUSTOM_PROPERTY_SET_ID, "SAP device event mapping status"),
-    SAP_EVENT_MAPPING_LOADING_SC_TYPE("SAPEventMappingLoadingServiceCallType", "Loading of SAP device event mapping csv");
+    SAP_EVENT_MAPPING_LOADING_SC_TYPE("SAPEventMappingLoadingServiceCallType", "Loading of SAP device event mapping csv"),
+
+    REGION_CODE("sap.locationinfo.RegionCode", "Region code"),
+    COUNTRY_CODE("sap.locationinfo.CountryCode", "Country code"),
+    CITY_NAME("sap.locationinfo.CityName", "City name"),
+    STREET_POSTAL_CODE("sap.locationinfo.StreetPostalCode", "Street postal code"),
+    STREET_NAME("sap.locationinfo.StreetName", "Street name"),
+    HOUSE_ID("sap.locationinfo.HouseId", "House id"),
+    INSTALLATION_DATE("sap.modificationinfo.InstallationDate", "Installation date"),
+    INSTALLATION_TIME("sap.modificationinfo.InstallationTime", "Installation time"),
+    REMOVE_DATE("sap.modificationinfo.RemoveDate", "Remove date"),
+    REMOVE_TIME("sap.modificationinfo.RemoveTime", "Remove time");
 
     private final String key;
     private final String defaultFormat;

@@ -1353,6 +1353,8 @@ public final class DeviceMessageConstants {
     public static final String configUserFileAttributeDefaultTranslation = "Configuration file";
     public static final String xmlMessageAttributeName = "GeneralDeviceMessage.xmlMessage";
     public static final String xmlMessageAttributeDefaultTranslation = "XML message";
+    public static final String pskValue = "GeneralDeviceMessage.PSK";
+    public static final String pskDefaultTranslation = "PSK";
     public static final String transportTypeAttributeName = "AlarmConfigurationMessage.transportType";
     public static final String transportTypeAttributeDefaultTranslation = "Transport type";
     public static final String objectDefinitionsAttributeName = "AlarmConfigurationMessage.objectDefinitions";
@@ -1363,6 +1365,8 @@ public final class DeviceMessageConstants {
     public static final String destinationAddressAttributeDefaultTranslation = "Destination address (host:port)";
     public static final String messageTypeAttributeName = "AlarmConfigurationMessage.messageType";
     public static final String messageTypeAttributeDefaultTranslation = "Message type";
+    public static final String downlink = "GeneralDeviceMessage.Downlink";
+    public static final String downlinkDefaultTranslation = "Downlink";
 
     public static final String broadCastLogTableEntryTTLAttributeName = "PLCConfigurationDeviceMessage.broadcastlogtableentryttl";
     public static final String broadCastLogTableEntryTTLAttributeDefaultTranslation = "Broadcast log table entry TTL";

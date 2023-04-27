@@ -8,9 +8,9 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>20.0.0-Kratos-SNAPSHOT</version>
-
+        <version>19.2.0-Kratos-SNAPSHOT</version>
     </parent>
+
     <artifactId>export</artifactId>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.export</name>
@@ -122,6 +122,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cps</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm</artifactId>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>
@@ -167,11 +171,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bpm</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>fsm</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -228,10 +227,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>http.whiteboard</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>fsm</artifactId>
         </dependency>
     </dependencies>
 </project>

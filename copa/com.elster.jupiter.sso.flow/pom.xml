@@ -12,7 +12,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>copa</artifactId>
-        <version>20.0.0-Kratos-SNAPSHOT</version>
+        <version>19.2.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <repositories>
@@ -27,7 +27,6 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <jbpm.version>6.4.0.Final</jbpm.version>
         <uberfire.version>0.8.0.Final</uberfire.version>
-        <json.version>20090211</json.version>
     </properties>
 
     <dependencies>
@@ -112,8 +111,6 @@
             <artifactId>json</artifactId>
             <version>${json.version}</version>
         </dependency>
-
-
     </dependencies>
 
 </project>

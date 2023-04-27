@@ -162,4 +162,6 @@ public interface FirmwareService {
     List<FirmwareCampaignVersionStateShapshot> findFirmwareCampaignVersionStateSnapshots(FirmwareCampaign firmwareCampaign);
 
     String getLocalizedFirmwareStatus(FirmwareStatus firmwareStatus);
+
+    boolean hasRunningFirmwareTask(Device device);
 }

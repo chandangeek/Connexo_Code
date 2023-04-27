@@ -951,6 +951,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return FirmwareStatusTranslationKeys.translationFor(firmwareStatus, thesaurus);
     }
 
+    @Override
     public boolean hasRunningFirmwareTask(Device device) {
         return getFirmwareComTask()
                 .map(ct -> device.getComTaskExecutions().stream().filter(cte -> cte.getComTask().equals(ct)))

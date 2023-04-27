@@ -296,14 +296,27 @@ public class DeviceFirmwareMessagesResource {
                         .withMessageTitle(MessageSeeds.CANCEL_FIRMWARE_MESSAGE_CONCURRENT_FAIL_TITLE)
                         .withActualVersion(() -> deviceService.findDeviceByName(name).map(Device::getVersion).orElse(null))
                         .supplier());
-        DeviceInFirmwareCampaign firmwareItem = firmwareService.getFirmwareCampaignService().findActiveFirmwareItemByDevice(device)
-                .filter(item -> item.getDeviceMessage().map(DeviceMessage::getId).filter(id -> id == msgId).isPresent())
-                .orElseThrow(conflictFactory.contextDependentConflictOn(name)
-                        .withMessageTitle(MessageSeeds.CANCEL_FIRMWARE_MESSAGE_CONCURRENT_FAIL_TITLE)
-                        .supplier());
-        firmwareItem.cancel();
+        DeviceMessage deviceMessage;
+        Optional<? extends DeviceInFirmwareCampaign> firmwareItem = firmwareService.getFirmwareCampaignService().findActiveFirmwareItemByDevice(device)
+                .filter(item -> item.getDeviceMessage().map(DeviceMessage::getId).filter(id -> id == msgId).isPresent());
+        if (firmwareItem.isPresent()) {
+            deviceMessage = firmwareItem.get().getDeviceMessage().get();
+            firmwareItem.get().cancel();
+        } else {
+            deviceMessage = deviceMessageService.findAndLockDeviceMessageById(msgId).filter(message ->
+                            device.equals(message.getDevice())).filter(message -> message.getStatus().isPredecessorOf(DeviceMessageStatus.CANCELED))
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(name)
+                            .withMessageTitle(MessageSeeds.CANCEL_FIRMWARE_MESSAGE_CONCURRENT_FAIL_TITLE)
+                            .supplier());
+            if (deviceMessage.getStatus() == DeviceMessageStatus.WAITING || deviceMessage.getStatus() == DeviceMessageStatus.PENDING && !firmwareService.hasRunningFirmwareTask(device)) {
+                deviceMessage.revoke();
+            } else {
+                throw exceptionFactory.newException(MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
+
+            }
+        }
         // if we have the pending message that means we need to reschedule comTaskExecution for firmware upgrade
-        rescheduleFirmwareUpgradeTaskAfterCancellingMessage(device, firmwareItem.getDeviceMessage().get()); // device message presence is assured by the code above
+        rescheduleFirmwareUpgradeTaskAfterCancellingMessage(device, deviceMessage);// device message presence is assured by the code above
         return Response.ok().build();
     }
 

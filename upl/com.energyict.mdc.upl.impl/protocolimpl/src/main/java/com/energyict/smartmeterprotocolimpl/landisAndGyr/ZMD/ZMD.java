@@ -258,7 +258,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-09-01$";
+        return "$Date: 2023-03-10$";
     }
 
     public void resetDemand() throws IOException {

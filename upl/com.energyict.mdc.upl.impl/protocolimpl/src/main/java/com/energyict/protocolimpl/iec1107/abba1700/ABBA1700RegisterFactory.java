@@ -49,6 +49,7 @@ public class ABBA1700RegisterFactory {
     public static final String HistoricalEventsKey = "HistoricalEvents";
     public static final String BatterySupportStatusKey = "BatterySupportStatus";
     public static final String HistoricalValuesKey = "HistoricalValues";
+    public static final String loadProfileKey = "LoadProfile";
 
     public static final int MAX_CMD_REGS=8;
     public static final int MAX_MD_REGS=24;
