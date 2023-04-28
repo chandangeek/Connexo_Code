@@ -425,7 +425,7 @@ public enum ServerComTaskStatus {
     }
 
     private static String isNotPriorityTask() {
-        return " and (not exists (select * from DDC_HIPRIOCOMTASKEXEC where comtaskexecution is not null and comtaskexecution = cte.device )) ";
+        return " and (not exists (select * from DDC_HIPRIOCOMTASKEXEC where comtaskexecution is not null and comtaskexecution = cte.id )) ";
     }
 
     private static void isExecuting(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
