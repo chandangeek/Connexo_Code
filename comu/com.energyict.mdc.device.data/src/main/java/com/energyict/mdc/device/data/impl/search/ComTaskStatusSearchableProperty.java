@@ -84,7 +84,8 @@ public class ComTaskStatusSearchableProperty extends AbstractSearchableDevicePro
                 .collect(Collectors.toSet());
         filter.restrictedDeviceStates = Collections.emptySet();//no restrictions on device states
         ComTaskExecutionFilterSqlBuilder comTaskExecutionSqlBuilder = new ComTaskExecutionFilterSqlBuilder(filter, clock, null);//null because we will not use device groups in filter
-        SqlFragment devicesWithSuchComTasksSql = comTaskExecutionSqlBuilder.build(new SqlBuilder("select cte.device,cte.id,cte.comport,cte.obsolete_date,cte.onhold,cte.nextexecutiontimestamp,cte.ignorenextexecspecs,cte.lastexecutiontimestamp,cte.connectiontask,cte.currentretrycount,cte.lastexecutionfailed,cte.lastsuccessfulcompletion from DDC_COMTASKEXEC cte"), "cte").asBuilder();
+        SqlFragment devicesWithSuchComTasksSql = comTaskExecutionSqlBuilder.build(new SqlBuilder("select cte.device from DDC_COMTASKEXEC cte"), "cte").asBuilder();
+
         SqlBuilder sqlBuilder = new SqlBuilder(JoinClauseBuilder.Aliases.DEVICE + ".id ");
         sqlBuilder.append(contains.getOperator().getSymbol());
         sqlBuilder.openBracket();
