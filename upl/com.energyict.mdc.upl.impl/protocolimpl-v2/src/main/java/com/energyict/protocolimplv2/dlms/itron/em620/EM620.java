@@ -83,9 +83,10 @@ public class EM620 extends AbstractDlmsProtocol {
     private EM620Cache deviceCache = null;
 
     protected static final int PUBLIC_CLIENT = 16;
+    protected static final int HIGH_SECURITY_LEVEL = 5;
 
     private static final ObisCode LOGICAL_DEVICE_NAME_OBIS = ObisCode.fromString("0.0.96.1.0.255");
-    protected final static ObisCode FRAME_COUNTER_MANAGEMENT_ONLINE = ObisCode.fromString("0.0.43.1.0.255");
+    protected static final ObisCode FRAME_COUNTER_MANAGEMENT_ONLINE = ObisCode.fromString("0.0.43.1.0.255");
 
     public EM620(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter) {
         super(propertySpecService, collectedDataFactory, issueFactory);
@@ -240,7 +241,18 @@ public class EM620 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2023-04-24$";
+        return "$Date: 2023-05-02$";
+    }
+
+    @Override
+    protected void readObjectList() {
+        if (getDlmsSessionProperties().useHardcodedObjectList()) {
+            getLogger().info("Hardcoded object list will be used");
+            getDlmsSession().getMeterConfig().setInstantiatedObjectList(EM620ObjectList.getObjectList());
+        } else {
+            getLogger().info("Reading the object list from the meter. This might take several minutes.");
+            super.readObjectList();
+        }
     }
 
     @Override
@@ -340,7 +352,7 @@ public class EM620 extends AbstractDlmsProtocol {
      * Unless of course the whole session is done with the public client, then there's no need to read out the FC.
      */
     private void handleFC(ComChannel comChannel) {
-        if (getDlmsSessionProperties().getAuthenticationSecurityLevel() < 5) {
+        if (getDlmsSessionProperties().getAuthenticationSecurityLevel() < HIGH_SECURITY_LEVEL) {
             journal(getLogPrefix() + "Skipping FC handling due to lower security level.");
             return; // no need to handle any FC
         }
@@ -350,7 +362,7 @@ public class EM620 extends AbstractDlmsProtocol {
 
             boolean weHaveValidCachedFrameCounter = false;
             if (getDlmsSessionProperties().useCachedFrameCounter()) {
-                weHaveValidCachedFrameCounter = getCachedFrameCounter(comChannel, clientId);
+                weHaveValidCachedFrameCounter = getAndValidateCachedFrameCounter(comChannel, clientId);
             }
 
             if (!weHaveValidCachedFrameCounter) {
@@ -395,7 +407,7 @@ public class EM620 extends AbstractDlmsProtocol {
      * <p/>
      * Additionally, the FC value can be validated with ValidateCachedFrameCounterAndFallback
      */
-    private boolean getCachedFrameCounter(ComChannel comChannel, int clientId) {
+    private boolean getAndValidateCachedFrameCounter(ComChannel comChannel, int clientId) {
         journal(getLogPrefix() + "Will use the cached frame counter");
         boolean weHaveAFrameCounter = false;
         long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);

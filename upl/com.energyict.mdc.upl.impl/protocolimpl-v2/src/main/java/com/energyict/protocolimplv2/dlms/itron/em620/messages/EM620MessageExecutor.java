@@ -59,6 +59,10 @@ public class EM620MessageExecutor extends AbstractMessageExecutor {
 
     private static final String WRITE_CT_VT_DISPLAY = "Write voltage and current ratios";
 
+    private static final int CALENDAR_NAME_MAX_LENGTH = 8;
+    private static final int START_MEASUREMENT_SCRIPT_METHOD = 1;
+    private static final int START_MEASUREMENT_SCRIPT_METHOD_VALUE = 2;
+
     private static final int DATETIME_PART_NOT_DEFINED = 0XFF;
     private static final int DATETIME_NOT_SPECIFIED_DEVIATION = 0x80;
     private static final int DATETIME_LAST_DAY_OF_MONTH = 0xFD;
@@ -154,8 +158,8 @@ public class EM620MessageExecutor extends AbstractMessageExecutor {
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
         String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue();
         String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getValue();
-        if (calendarName.length() > 8) {
-            calendarName = calendarName.substring(0, 8);
+        if (calendarName.length() > CALENDAR_NAME_MAX_LENGTH) {
+            calendarName = calendarName.substring(0, CALENDAR_NAME_MAX_LENGTH);
         }
         ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(),
                 getProtocol().getDlmsSession().getTimeZone(), false);
@@ -218,7 +222,7 @@ public class EM620MessageExecutor extends AbstractMessageExecutor {
     }
 
     private boolean isInvalidDayOfMonth(int dayOfMonth) {
-        return dayOfMonth < -2 || dayOfMonth > 31;
+        return dayOfMonth < 1 || dayOfMonth > 31;
     }
 
     private boolean isInvalidDayOfWeek(int dayOfWeek) {
@@ -272,8 +276,8 @@ public class EM620MessageExecutor extends AbstractMessageExecutor {
         infoLog("Done");
 
         infoLog("Executing start measurement script");
-        GenericInvoke genericInvoke = getCosemObjectFactory().getGenericInvoke(START_MEASUREMENT_SCRIPT, DLMSClassId.SCRIPT_TABLE.getClassId(), 1);
-        genericInvoke.invoke(new Unsigned16(2).getBEREncodedByteArray());
+        GenericInvoke genericInvoke = getCosemObjectFactory().getGenericInvoke(START_MEASUREMENT_SCRIPT, DLMSClassId.SCRIPT_TABLE.getClassId(), START_MEASUREMENT_SCRIPT_METHOD);
+        genericInvoke.invoke(new Unsigned16(START_MEASUREMENT_SCRIPT_METHOD_VALUE).getBEREncodedByteArray());
         infoLog("Done");
     }
 

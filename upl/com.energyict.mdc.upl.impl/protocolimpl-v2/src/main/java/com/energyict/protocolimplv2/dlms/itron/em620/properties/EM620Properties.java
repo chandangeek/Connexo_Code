@@ -17,6 +17,7 @@ import static com.energyict.protocolimplv2.dlms.itron.em620.properties.EM620Conf
 import static com.energyict.protocolimplv2.dlms.itron.em620.properties.EM620ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES;
 import static com.energyict.protocolimplv2.dlms.itron.em620.properties.EM620ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP;
 import static com.energyict.protocolimplv2.dlms.itron.em620.properties.EM620ConfigurationSupport.USE_CACHED_FRAME_COUNTER;
+import static com.energyict.protocolimplv2.dlms.itron.em620.properties.EM620ConfigurationSupport.USE_HARDCODED_OBJECT_LIST;
 import static com.energyict.protocolimplv2.dlms.itron.em620.properties.EM620ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER;
 
 public class EM620Properties extends DlmsProperties {
@@ -31,6 +32,10 @@ public class EM620Properties extends DlmsProperties {
 
     public boolean useCachedFrameCounter() {
         return getProperties().getTypedProperty(USE_CACHED_FRAME_COUNTER, false);
+    }
+
+    public boolean useHardcodedObjectList() {
+        return getProperties().<Boolean>getTypedProperty(USE_HARDCODED_OBJECT_LIST, false);
     }
 
     public boolean validateCachedFrameCounter() {

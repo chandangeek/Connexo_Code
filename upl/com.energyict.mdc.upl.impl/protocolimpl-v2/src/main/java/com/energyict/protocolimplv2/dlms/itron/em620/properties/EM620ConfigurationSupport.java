@@ -36,6 +36,7 @@ public class EM620ConfigurationSupport implements HasDynamicProperties {
 
     public static final String STATUS_FLAG_CHANNEL = "StatusFlagChannel";
     public static final String USE_CACHED_FRAME_COUNTER = "UseCachedFrameCounter";
+    public static final String USE_HARDCODED_OBJECT_LIST = "UseHardcodedObjectList";
     public static final String VALIDATE_CACHED_FRAMECOUNTER = "ValidateCachedFrameCounterAndFallback";
     public static final String FRAME_COUNTER_RECOVERY_RETRIES = "FrameCounterRecoveryRetries";
     public static final String FRAME_COUNTER_RECOVERY_STEP = "FrameCounterRecoveryStep";
@@ -66,6 +67,7 @@ public class EM620ConfigurationSupport implements HasDynamicProperties {
                 this.timeoutPropertySpec(),
                 this.aarqTimeoutPropertySpec(),
                 this.aarqRetriesPropertySpec(),
+                this.useHardcodedObjectListPropertySpec(),
                 this.useCachedFrameCounter(),
                 this.validateCachedFrameCounter(),
                 this.frameCounterRecoveryRetries(),
@@ -153,6 +155,11 @@ public class EM620ConfigurationSupport implements HasDynamicProperties {
 
     protected PropertySpec aarqRetriesPropertySpec() {
         return this.bigDecimalSpec(AARQ_RETRIES_PROPERTY, false, PropertyTranslationKeys.V2_DLMS_AARQ_RETRIES, BigDecimal.valueOf(2));
+    }
+
+    protected PropertySpec useHardcodedObjectListPropertySpec() {
+        return UPLPropertySpecFactory.specBuilder(USE_HARDCODED_OBJECT_LIST, false, PropertyTranslationKeys.V2_DLMS_USE_HARDCODED_OBJECT_LIST, getPropertySpecService()::booleanSpec)
+                .finish();
     }
 
     protected PropertySpec useCachedFrameCounter() {

@@ -109,7 +109,7 @@ public class EM620RegisterFactory implements DeviceRegisterSupport {
                     continue;   // Move on to the next register, this one is not supported by the meter
                 }
                 try {
-                    RegisterValue registerValue = parseRegisterReading(universalObject, composedCosemObject, offlineRegister, composedRegister, offlineRegister.getObisCode());
+                    RegisterValue registerValue = parseRegisterReading(universalObject, composedCosemObject, offlineRegister, composedRegister);
 
                     if (registerValue != null) {
                         addResult(createCollectedRegister(registerValue, offlineRegister));
@@ -137,7 +137,7 @@ public class EM620RegisterFactory implements DeviceRegisterSupport {
         return getCollectedRegisters();
     }
 
-    private RegisterValue parseRegisterReading(UniversalObject universalObject, ComposedCosemObject composedCosemObject, OfflineRegister offlineRegister, ComposedRegister composedRegister, ObisCode baseObisCode) throws IOException {
+    private RegisterValue parseRegisterReading(UniversalObject universalObject, ComposedCosemObject composedCosemObject, OfflineRegister offlineRegister, ComposedRegister composedRegister) throws IOException {
         RegisterValue registerValue;
 
         if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()) {
@@ -207,25 +207,19 @@ public class EM620RegisterFactory implements DeviceRegisterSupport {
         if (classId == DLMSClassId.DATA.getClassId()) {
             DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), DataAttributes.VALUE.getAttributeNumber(), classId);
             composedRegister.setRegisterValue(valueAttribute);
-        }
-
-        if (classId == DLMSClassId.REGISTER.getClassId()) {
+        } else if (classId == DLMSClassId.REGISTER.getClassId()) {
             DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), RegisterAttributes.VALUE.getAttributeNumber(), classId);
             DLMSAttribute scalerUnitAttribute = new DLMSAttribute(register.getObisCode(), RegisterAttributes.SCALER_UNIT.getAttributeNumber(), classId);
             composedRegister.setRegisterValue(valueAttribute);
             composedRegister.setRegisterUnit(scalerUnitAttribute);
-        }
-
-        if (classId == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
+        } else if (classId == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
             DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), ExtendedRegisterAttributes.VALUE.getAttributeNumber(), classId);
             DLMSAttribute scalerUnitAttribute = new DLMSAttribute(register.getObisCode(), ExtendedRegisterAttributes.UNIT.getAttributeNumber(), classId);
             DLMSAttribute captureTimeAttribute = new DLMSAttribute(register.getObisCode(), ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber(), classId);
             composedRegister.setRegisterValue(valueAttribute);
             composedRegister.setRegisterUnit(scalerUnitAttribute);
             composedRegister.setRegisterCaptureTime(captureTimeAttribute);
-        }
-
-        if (classId == DLMSClassId.DEMAND_REGISTER.getClassId()) {
+        } else if (classId == DLMSClassId.DEMAND_REGISTER.getClassId()) {
             DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), DemandRegisterAttributes.CURRENT_AVG_VALUE.getAttributeNumber(), classId);
             DLMSAttribute scalerUnitAttribute = new DLMSAttribute(register.getObisCode(), DemandRegisterAttributes.UNIT.getAttributeNumber(), classId);
             DLMSAttribute captureTimeAttribute = new DLMSAttribute(register.getObisCode(), DemandRegisterAttributes.CAPTURE_TIME.getAttributeNumber(), classId);

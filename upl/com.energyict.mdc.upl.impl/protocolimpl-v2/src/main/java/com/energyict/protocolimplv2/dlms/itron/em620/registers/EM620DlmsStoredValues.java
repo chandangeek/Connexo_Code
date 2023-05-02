@@ -19,7 +19,6 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
-
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -66,7 +65,7 @@ public class EM620DlmsStoredValues implements StoredValues {
         }
         Date billingTimeStamp = getBillingPointTimeDate(Math.abs(obisCode.getF()));
         return new HistoricalValue(cosemValue, billingTimeStamp, billingTimeStamp, 0);
-}
+    }
 
     @Override
     public Date getBillingPointTimeDate(int billingPoint) throws IOException {

@@ -34,7 +34,7 @@ public class EM620StandardEventLog extends StandardEventLog {
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Display set mode active"));
                 break;
             case 25:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Display set mode deactive"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Display set mode inactive"));
                 break;
             case 26:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Display set mode success config"));

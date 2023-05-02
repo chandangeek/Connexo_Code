@@ -120,7 +120,7 @@ public class EM620LogBookFactory implements DeviceLogBookSupport {
                     ResultType.InCompatible,
                     issueFactory.createWarning(
                             logBookReader,
-                            String.format("Logbook with OBIS code %s was not found it meter object list", logBookReader.getLogBookObisCode().toString()),
+                            String.format("Logbook with OBIS code %s was not found in the meter object list", logBookReader.getLogBookObisCode().toString()),
                             logBookReader.getLogBookObisCode().toString(),
                             e.getMessage()));
         } catch (IOException e) {
@@ -129,8 +129,8 @@ public class EM620LogBookFactory implements DeviceLogBookSupport {
                         ResultType.NotSupported,
                         issueFactory.createWarning(
                                 logBookReader,
-                                String.format("IOException while reading logbook with OBIS code %s ",
-                                        logBookReader.getLogBookObisCode().toString()) + e.getMessage()));
+                                String.format("IOException while reading logbook with OBIS code %s: %s ",
+                                        logBookReader.getLogBookObisCode().toString(), e.getMessage())));
             }
         }
     }

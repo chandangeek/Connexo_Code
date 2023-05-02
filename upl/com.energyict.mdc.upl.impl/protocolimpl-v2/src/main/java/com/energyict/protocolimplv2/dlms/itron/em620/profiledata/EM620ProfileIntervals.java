@@ -31,7 +31,6 @@ public class EM620ProfileIntervals extends DLMSProfileIntervals {
         this.protocol = protocol;
     }
 
-    @Override
     /**
      * Parse the content to a list of IntervalData objects
      *
@@ -40,6 +39,7 @@ public class EM620ProfileIntervals extends DLMSProfileIntervals {
      *                        - use this when the deviation information is not present in the octet string, otherwise leave this parameter null.
      * @return a list of intervalData
      */
+    @Override
     public List<IntervalData> parseIntervals(int profileInterval, TimeZone timeZone) throws IOException {
         this.profileInterval = profileInterval;
         List<IntervalData> intervalList = new ArrayList<>();
@@ -105,7 +105,7 @@ public class EM620ProfileIntervals extends DLMSProfileIntervals {
                         throw new ProtocolException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);
                     }
                 }
-                if(!outOfInterval) {
+                if (!outOfInterval) {
                     intervalList.add(currentInterval);
                 }
             }
@@ -117,7 +117,7 @@ public class EM620ProfileIntervals extends DLMSProfileIntervals {
         int intervalInMinutes = profileInterval / 60;
         int currentIntervalMinute = cal.get(Calendar.MINUTE);
         int remainder = currentIntervalMinute % intervalInMinutes;
-        if(remainder != 0) {
+        if (remainder != 0) {
             protocol.journal("Out of interval timestamp detected: " + cal.getTime() + ". Ignoring the collected value.");
             return true;
         } else {
