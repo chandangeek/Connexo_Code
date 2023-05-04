@@ -6,6 +6,8 @@ package com.energyict.protocolimplv2.dlms.itron.em620.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
@@ -22,8 +24,10 @@ import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
@@ -31,21 +35,24 @@ import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.PowerConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CurrentRatioDenominatorAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CurrentRatioNumeratorAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.VoltageRatioDenominatorAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.VoltageRatioNumeratorAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enableDSTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fullActivityCalendarAttributeName;
 
 public class EM620MessageExecutor extends AbstractMessageExecutor {
     public static final String SEPARATOR = ";";
@@ -155,20 +162,43 @@ public class EM620MessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void activityCalendarWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
+        String typeTag = "TimeOfUse";
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
-        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue();
-        String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getValue();
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue();
+        String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fullActivityCalendarAttributeName).getValue();
         if (calendarName.length() > CALENDAR_NAME_MAX_LENGTH) {
             calendarName = calendarName.substring(0, CALENDAR_NAME_MAX_LENGTH);
         }
-        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(),
-                getProtocol().getDlmsSession().getTimeZone(), false);
-        activityCalendarController.parseContent(activityCalendarContents);
+
+        //Insert attribute values in the XML description, this was not done in the format method (since we only have one message attribute at a time there...)
+        long epoch = Long.valueOf(activationDate);
+        epoch = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().before(new Date(epoch)) ? epoch : 1;  //Replace date in past with "1"
+        activityCalendarContents = activityCalendarContents.replace("<ActivationDate>0</ActivationDate>", "<ActivationDate>" + activationDate + "</ActivationDate>");
+        activityCalendarContents = activityCalendarContents.replace("<CalendarName>0</CalendarName>", "<CalendarName>" + calendarName + "</CalendarName>");
+
+        //Encode the XML content
+        String base64encodedXML = encode(activityCalendarContents);
+        MessageTag mainTag = new MessageTag(typeTag);
+        MessageTag subTag = new MessageTag("RawContent");
+        subTag.add(new MessageValue(base64encodedXML));
+        mainTag.add(subTag);
+        String xmlContent = SimpleTagWriter.writeTag(mainTag);
+
+        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone());
+        activityCalendarController.parseContent(xmlContent);
         activityCalendarController.writeCalendarName(calendarName);
         activityCalendarController.writeCalendar(); //Does not activate it yet
-        Calendar activationCal = Calendar.getInstance(getProtocol().getTimeZone());
-        activationCal.setTimeInMillis(Long.parseLong(epoch));
-        activityCalendarController.writeCalendarActivationTime(activationCal);   //Activate now
+    }
+
+    /**
+     * Base64 encode a given xml string
+     */
+    private String encode(String codeTableDescription) {
+        try {
+            return ProtocolTools.compress(codeTableDescription);
+        } catch (IOException e) {
+            throw DataParseException.generalParseException(e);
+        }
     }
 
     private void doSetDSTTime(OfflineDeviceMessage offlineDeviceMessage, boolean startOfDST) throws IOException {
@@ -282,6 +312,6 @@ public class EM620MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void infoLog(String messageToLog) {
-        getProtocol().getLogger().info(messageToLog);
+        getProtocol().journal(messageToLog);
     }
 }

@@ -7,6 +7,7 @@ package com.energyict.protocolimplv2.dlms.itron.em620.messages;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -14,6 +15,7 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -23,6 +25,7 @@ import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.PowerConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.TimeOfUseMessageEntry;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
@@ -40,13 +43,15 @@ public class EM620Messaging extends AbstractDlmsMessaging implements DeviceMessa
     private final Converter converter;
     private final NlsService nlsService;
     private final PropertySpecService propertySpecService;
+    private final TariffCalendarExtractor tariffCalendarExtractor;
 
     public EM620Messaging(AbstractDlmsProtocol protocol, Converter converter, NlsService nlsService,
-                          PropertySpecService propertySpecService) {
+                          PropertySpecService propertySpecService, TariffCalendarExtractor tariffCalendarExtractor) {
         super(protocol);
         this.converter = converter;
         this.nlsService = nlsService;
         this.propertySpecService = propertySpecService;
+        this.tariffCalendarExtractor = tariffCalendarExtractor;
     }
 
     @Override
@@ -69,8 +74,13 @@ public class EM620Messaging extends AbstractDlmsMessaging implements DeviceMessa
             case DeviceMessageConstants.enableDSTAttributeName:
                 return ((Boolean) messageAttribute).booleanValue() ? "1" : "0";
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
-            case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
+            case DeviceMessageConstants.fullActivityCalendarAttributeName:
+                this.tariffCalendarExtractor.threadContext().setDevice(offlineDevice);
+                this.tariffCalendarExtractor.threadContext().setMessage(offlineDeviceMessage);
+                TariffCalendar calender = (TariffCalendar) messageAttribute;
+                //The ID and the XML representation of the code table, separated by a |
+                return tariffCalendarExtractor.id(calender) + TimeOfUseMessageEntry.SEPARATOR + convertCodeTableToXML(calender, tariffCalendarExtractor, 0 , "0");
             default:
                 return messageAttribute.toString();
         }

@@ -22,6 +22,7 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -81,6 +82,7 @@ public class EM620 extends AbstractDlmsProtocol {
     private EM620ProfileDataReader loadProfileReader;
     private final Converter converter;
     private EM620Cache deviceCache = null;
+    private final TariffCalendarExtractor calendarExtractor;
 
     protected static final int PUBLIC_CLIENT = 16;
     protected static final int HIGH_SECURITY_LEVEL = 5;
@@ -88,10 +90,11 @@ public class EM620 extends AbstractDlmsProtocol {
     private static final ObisCode LOGICAL_DEVICE_NAME_OBIS = ObisCode.fromString("0.0.96.1.0.255");
     protected static final ObisCode FRAME_COUNTER_MANAGEMENT_ONLINE = ObisCode.fromString("0.0.43.1.0.255");
 
-    public EM620(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter) {
+    public EM620(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
+        this.calendarExtractor = calendarExtractor;
     }
 
     @Override
@@ -185,7 +188,7 @@ public class EM620 extends AbstractDlmsProtocol {
     }
 
     private EM620Messaging createEM620Messaging() {
-        return new EM620Messaging(this, this.converter, getNlsService(), getPropertySpecService());
+        return new EM620Messaging(this, this.converter, getNlsService(), getPropertySpecService(), this.calendarExtractor);
     }
 
     private EM620Messaging getEM620Messaging() {
@@ -241,7 +244,7 @@ public class EM620 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2023-05-02$";
+        return "$Date: 2023-05-04$";
     }
 
     @Override
