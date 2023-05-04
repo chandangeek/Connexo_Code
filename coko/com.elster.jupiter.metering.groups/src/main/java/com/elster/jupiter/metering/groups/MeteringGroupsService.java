@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.spi.QueryProvider;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
 import aQute.bnd.annotation.ProviderType;
@@ -44,6 +45,8 @@ public interface MeteringGroupsService {
     GroupBuilder.EnumeratedGroupBuilder<EndDevice, ? extends EnumeratedEndDeviceGroup> createEnumeratedEndDeviceGroup(EndDevice... endDevices);
 
     Optional<QueryEndDeviceGroup> findQueryEndDeviceGroup(long id);
+
+    DataMapper<QueryEndDeviceGroup> findQueryEndDeviceGroup();
 
     Optional<EnumeratedEndDeviceGroup> findEnumeratedEndDeviceGroup(long id);
 

@@ -22,6 +22,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -794,6 +795,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         .put(version(10, 9, 17), UpgraderV10_9_17.class)
                         .put(version(10, 9, 23), V10_9_23SimpleUpgrader.class)
                         .put(version(10, 9, 24), UpgraderV10_9_24.class)
+                        .put(version(10, 9, 25), UpgraderV10_9_25.class)
                         .build());
         this.registerRealServices(bundleContext);
     }
@@ -978,5 +980,9 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         } else {
             return EnumSet.complementOf(EnumSet.copyOf(taskStatuses));
         }
+    }
+
+    public MeteringGroupsService getMeteringGroupsService() {
+        return this.meteringGroupsService;
     }
 }
