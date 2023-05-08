@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.QueryStringifier;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.util.List;
@@ -9,7 +10,7 @@ public class DashboardBreakdownSqlBuilder {
 
     private List<QueryEndDeviceGroup> queryEndDeviceGroupList;
 
-    DashboardBreakdownSqlBuilder(List<QueryEndDeviceGroup> queryEndDeviceGroupList) {
+    public DashboardBreakdownSqlBuilder(List<QueryEndDeviceGroup> queryEndDeviceGroupList) {
         this.queryEndDeviceGroupList = queryEndDeviceGroupList;
     }
 
@@ -19,8 +20,6 @@ public class DashboardBreakdownSqlBuilder {
                 "       ( querytype, devicetype, mrid, lastsesshighestcompcode, heatmapcount,\n" +
                 "         tasktype, status, comschedule, count )\n" +
                 "with ");
-        appendDynamicDeviceGroup(sqlBuilder);
-        sqlBuilder.append(", ");
         sqlBuilder.append(
                 " alldata as (\n" +
                         "--\n" +
@@ -49,7 +48,7 @@ public class DashboardBreakdownSqlBuilder {
                         "     FROM\tDDC_COMTASKEXEC cte\n" +
                         "   --\n" +
                         "          JOIN DDC_DEVICE dev\tON cte.device = dev.id\n" +
-                        "  LEFT JOIN dynamic_gr dyg ON dyg.device_id = dev.id\n" +
+                        "  LEFT JOIN DYNAMIC_GROUP_DATA dyg ON dyg.device_id = dev.id\n" +
                         "  LEFT JOIN MTG_ENUM_ED_IN_GROUP gr ON gr.enddevice_id = dev.meterid\n" +
                         "  LEFT JOIN MTG_ED_GROUP grdesc ON dyg.group_id   = grdesc.id OR gr.group_id = grdesc.id    " +
                         "  LEFT OUTER JOIN DDC_CONNECTIONTASK ct\n" +
@@ -269,8 +268,7 @@ public class DashboardBreakdownSqlBuilder {
     public SqlBuilder getConnProcedure() {
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.append("CREATE GLOBAL TEMPORARY TABLE MV_CONNECTIONDATA on commit preserve rows\n" +
-                "AS with");
-        appendDynamicDeviceGroup(sqlBuilder);
+                "AS ");
         sqlBuilder.append("SELECT\n" +
                 "       ct.lastsession,\n" +
                 "       dev.devicetype,\n" +
@@ -370,9 +368,9 @@ public class DashboardBreakdownSqlBuilder {
                 "  --\n" +
                 "       JOIN DDC_DEVICE    dev ON ct.device = dev.id\n" +
                 "  --\n" +
-                "  LEFT JOIN dynamic_gr dyg ON dyg.device_id = dev.id\n" +
+                "  LEFT JOIN DYNAMIC_GROUP_DATA dyg ON dyg.device_id = dev.id\n" +
                 "  LEFT JOIN MTG_ENUM_ED_IN_GROUP gr ON gr.enddevice_id = dev.meterid\n" +
-                "  LEFT JOIN MTG_ED_GROUP grdesc ON dyg.group_id   = grdesc.id OR gr.group_id = grdesc.id " +
+                "  LEFT JOIN MTG_ED_GROUP grdesc ON dyg.group_id = grdesc.id OR gr.group_id = grdesc.id " +
                 "  --\n" +
                 "       LEFT JOIN\n" +
                 "                 ( SELECT comsession\n" +
@@ -408,28 +406,27 @@ public class DashboardBreakdownSqlBuilder {
                 "   group by COMPORTPOOL, CONNECTIONTYPEPLUGGABLECLASS, DEVICETYPE, mrid, TASKSTATUS\n" +
                 ")\n" +
                 "--\n" +
-                "SELECT ''None'', devicetype, mrid, null as item, taskStatus, nvl ( sum ( counter ) , 0 )\n" +
+                "SELECT 'None', devicetype, mrid, null as item, taskStatus, nvl ( sum ( counter ) , 0 )\n" +
                 "  FROM alldata\n" +
                 " GROUP BY devicetype, mrid, taskStatus\n" +
                 "--\n" +
                 "UNION  ALL\n" +
                 "--\n" +
-                "SELECT ''ComPortPool'', devicetype, mrid, comportpool, taskStatus, nvl ( sum ( counter ) , 0 )\n" +
+                "SELECT 'ComPortPool', devicetype, mrid, comportpool, taskStatus, nvl ( sum ( counter ) , 0 )\n" +
                 "  FROM alldata\n" +
                 " GROUP BY devicetype, mrid, taskStatus, comportpool\n" +
                 "--\n" +
                 "UNION  ALL\n" +
                 "--\n" +
-                "SELECT ''ConnectionType'', devicetype, mrid, connectiontypepluggableclass, taskStatus, nvl ( sum ( counter ) , 0 )\n" +
+                "SELECT 'ConnectionType', devicetype, mrid, connectiontypepluggableclass, taskStatus, nvl ( sum ( counter ) , 0 )\n" +
                 "  FROM alldata\n" +
                 " GROUP BY devicetype, mrid, taskStatus, connectiontypepluggableclass\n" +
                 "--\n" +
                 "UNION  ALL\n" +
                 "--\n" +
-                "SELECT ''DeviceType'', devicetype, mrid, devicetype, taskStatus, nvl ( sum ( counter ) , 0 )\n" +
+                "SELECT 'DeviceType', devicetype, mrid, devicetype, taskStatus, nvl ( sum ( counter ) , 0 )\n" +
                 "  FROM alldata\n" +
-                " GROUP BY devicetype, mrid, taskStatus, devicetype");
-
+                " GROUP BY devicetype, mrid, taskStatus");
         return sqlBuilder;
     }
 
@@ -486,7 +483,7 @@ public class DashboardBreakdownSqlBuilder {
         return sqlBuilder;
     }
 
-    private void appendDynamicDeviceGroup(SqlBuilder builder) {
+    public void appendDynamicDeviceGroup(SqlBuilder builder) {
         builder.append(" dynamic_gr as (");
         String unionAll = "";
         for (QueryEndDeviceGroup group : queryEndDeviceGroupList) {
@@ -494,11 +491,28 @@ public class DashboardBreakdownSqlBuilder {
             builder.append("select " + group.getId());
             // builder.append();
             builder.append(" as group_id, id as device_id from (");
-            builder.add(group.toFragment());
+            builder.append(new QueryStringifier(group.toFragment()).getQuery());
+            //builder.add(group.toFragment());
             builder.closeBracket();
             unionAll = " union all ";
         }
         builder.closeBracket();
         // return builder;
+    }
+
+    public SqlBuilder createGlobalTableForDynamicDeviceGroup() {
+        SqlBuilder builder = new SqlBuilder();
+        builder.append("CREATE GLOBAL TEMPORARY TABLE DYNAMIC_GROUP_DATA on commit preserve rows AS ( ");
+        String unionAll = "";
+        for (QueryEndDeviceGroup group : queryEndDeviceGroupList) {
+            builder.append(unionAll);
+            builder.append("select " + group.getId());
+            builder.append(" as group_id, id as device_id from (");
+            builder.append(new QueryStringifier(group.toFragment()).getQuery());
+            builder.closeBracket();
+            unionAll = " union all ";
+        }
+        builder.closeBracket();
+        return builder;
     }
 }

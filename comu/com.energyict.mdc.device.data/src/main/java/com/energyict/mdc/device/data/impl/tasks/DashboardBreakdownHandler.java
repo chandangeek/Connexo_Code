@@ -1,14 +1,10 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.util.conditions.Subquery;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 
@@ -21,7 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class CommunicationDashboardBreakdownHandler implements TaskExecutor {
+public class DashboardBreakdownHandler implements TaskExecutor {
 
     private final DeviceDataModelService deviceDataModelService;
 
@@ -29,7 +25,7 @@ public class CommunicationDashboardBreakdownHandler implements TaskExecutor {
 
     private DashboardBreakdownSqlBuilder builder;
 
-    public CommunicationDashboardBreakdownHandler(DeviceDataModelService deviceDataModelService) {
+    public DashboardBreakdownHandler(DeviceDataModelService deviceDataModelService) {
         this.deviceDataModelService = deviceDataModelService;
     }
 
@@ -40,25 +36,34 @@ public class CommunicationDashboardBreakdownHandler implements TaskExecutor {
         builder = new DashboardBreakdownSqlBuilder(queryEndDeviceGroupList);
         deleteRequiredDashboardTables();
         try (Connection connection = deviceDataModelService.dataModel().getConnection(true);
+             PreparedStatement dynamicGroup = builder.createGlobalTableForDynamicDeviceGroup().prepare(connection);
              PreparedStatement comStmnt = builder.getCommProcedure().prepare(connection);
              PreparedStatement conStmnt = builder.getConnProcedure().prepare(connection)) {
+            dynamicGroup.execute();
             comStmnt.execute();
-            conStmnt.executeQuery();
+            conStmnt.execute();
+            updateConnectionTables(connection);
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
-        updateConnectionTables();
-        Logger.getLogger(CommunicationDashboardBreakdownHandler.class.getName()).log(Level.INFO, "CommunicationDashboardBreakdownHandler Execiuting Tasks");
-        System.out.println("CommunicationDashboardBreakdownHandler Executing Tasks" + deviceDataModelService);
+        Logger.getLogger(DashboardBreakdownHandler.class.getName()).log(Level.INFO, "Task executing by CommunicationDashboardBreakdownHandler");
     }
 
-    public void updateConnectionTables() {
-        try (Connection connection = deviceDataModelService.dataModel().getConnection(true);
-             Statement statement = connection.createStatement()) {
+    public void updateConnectionTables(Connection connection) {
+        try (Statement statement = connection.createStatement()) {
             statement.execute(builder.getConnTaskBreakDown().toString());
             statement.execute(builder.getDashboardCtlcswithatlstoneft().toString());
             statement.execute(builder.getDashboardCtlcsSucIndCount().toString());
             statement.execute(builder.getDashboardConTypeHeatMapBuilder().toString());
+            if (deviceDataModelService.dataModel().doesTableExist("MV_CONNECTIONDATA")) {
+                statement.execute("truncate table MV_CONNECTIONDATA");
+                statement.execute("drop table MV_CONNECTIONDATA");
+            }
+            if (deviceDataModelService.dataModel().doesTableExist("DYNAMIC_GROUP_DATA")) {
+                statement.execute("truncate table DYNAMIC_GROUP_DATA");
+                statement.execute("drop table DYNAMIC_GROUP_DATA");
+            }
+
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
@@ -67,17 +72,11 @@ public class CommunicationDashboardBreakdownHandler implements TaskExecutor {
     public void deleteRequiredDashboardTables() {
         try (Connection connection = deviceDataModelService.dataModel().getConnection(true);
              Statement statement = connection.createStatement()) {
-          /*  statement.execute("BEGIN\n" +
-                    "   EXECUTE IMMEDIATE 'DROP TABLE IF EXISTS' MV_CONNECTIONDATA;\n" +
-                    "END;");*/
             statement.execute("delete from dashboard_comtask");
             statement.execute("delete from DASHBOARD_CONTASKBREAKDOWN");
             statement.execute("delete from DASHBOARD_CONTYPEHEATMAP");
             statement.execute("delete from DASHBOARD_CTLCSSUCINDCOUNT");
             statement.execute("delete from DASHBOARD_CTLCSWITHATLSTONEFT");
-            if (deviceDataModelService.dataModel().doesTableExist("MV_CONNECTIONDATA")) {
-                statement.execute("drop table MV_CONNECTIONDATA");
-            }
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }

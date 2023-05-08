@@ -17,32 +17,31 @@ import java.time.Clock;
 
 @Component(name = "com.energyict.mdc.device.data.impl.tasks.CommunicationDashboardBreakdownHandlerFactory",
         service = MessageHandlerFactory.class,
-        property = {"subscriber=" + CommunicationDashboardBreakdownHandlerFactory.COMM_DASHBOARD_BREAKDOWN_TASK_SUBSCRIBER,
-                "destination=" + CommunicationDashboardBreakdownHandlerFactory.COMM_DASHBOARD_BREAKDOWN_TASK_DESTINATION},
+        property = {"subscriber=" + DashboardBreakdownHandlerFactory.DASHBOARD_BREAKDOWN_TASK_SUBSCRIBER,
+                "destination=" + DashboardBreakdownHandlerFactory.DASHBOARD_BREAKDOWN_TASK_DESTINATION},
         immediate = true)
-public class CommunicationDashboardBreakdownHandlerFactory implements MessageHandlerFactory {
+public class DashboardBreakdownHandlerFactory implements MessageHandlerFactory {
 
-    public static final String COMM_DASHBOARD_BREAKDOWN_TASK_DESTINATION = "CommDshBreakdownTopic";
-    public static final String COMM_DASHBOARD_BREAKDOWN_TASK_SUBSCRIBER = "CommDshBreakdownSubscriber";
-    //CommDshBreakdownSubscriber
-    public static final String COMM_DASHBOARD_BREAKDOWN_TASK_DISPLAYNAME = "Comm Count Breakdown";
+    public static final String DASHBOARD_BREAKDOWN_TASK_DESTINATION = "DshBreakdownTopic";
+    public static final String DASHBOARD_BREAKDOWN_TASK_SUBSCRIBER = "DshBreakdownSubscriber";
+    public static final String COMM_DASHBOARD_BREAKDOWN_TASK_DISPLAYNAME = "Dashboard Count Breakdown";
 
     private volatile TaskService taskService;
     private volatile DeviceDataModelService deviceDataModelService;
 
-    public CommunicationDashboardBreakdownHandlerFactory() {
+    public DashboardBreakdownHandlerFactory() {
 
     }
 
     @Inject
-    CommunicationDashboardBreakdownHandlerFactory(TaskService taskService, NlsService nlsService, DeviceDataModelService deviceDataModelService) {
+    DashboardBreakdownHandlerFactory(TaskService taskService, DeviceDataModelService deviceDataModelService) {
         setTaskService(taskService);
         setDeviceDataModelService(deviceDataModelService);
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new CommunicationDashboardBreakdownHandler(deviceDataModelService));
+        return taskService.createMessageHandler(new DashboardBreakdownHandler(deviceDataModelService));
     }
 
     @Reference
