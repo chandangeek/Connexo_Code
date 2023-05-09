@@ -17,21 +17,21 @@ import java.sql.SQLException;
 import java.time.Clock;
 
 
-public class UpgraderV10_9_25 implements Upgrader {
+public class UpgraderV10_9_26 implements Upgrader {
     private final DataModel dataModel;
     private final Clock clock;
     private static final int CONNECTION_TYPE_PLUGGABLE_CLASS_TYPE = 18;
     private static final String CPC_PLUGGABLECLASS_TABLE_NAME = "CPC_PLUGGABLECLASS";
 
     @Inject
-    public UpgraderV10_9_25(DataModel dataModel, Clock clock) {
+    public UpgraderV10_9_26(DataModel dataModel, Clock clock) {
         this.dataModel = dataModel;
         this.clock = clock;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 9, 25));
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 9, 26));
         long upgradeTime = clock.instant().toEpochMilli();
         String sql = "INSERT INTO %s (ID, NAME, JAVACLASSNAME, PLUGGABLETYPE, VERSIONCOUNT, CREATETIME, MODTIME) " +
                 "VALUES (?, 'OutboundWebServiceConnectionType', 'com.energyict.mdc.channels.ip.socket.OutboundWebServiceConnectionType'," +

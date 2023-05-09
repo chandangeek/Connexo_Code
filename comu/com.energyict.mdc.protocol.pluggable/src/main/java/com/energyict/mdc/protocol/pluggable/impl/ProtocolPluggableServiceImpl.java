@@ -993,7 +993,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
                 Installer.class,
                 ImmutableMap.<Version, Class<? extends Upgrader>>builder()
                         .put(Version.version(10, 3), UpgraderV10_3.class)
-                        .put(Version.version(10, 9, 25), UpgraderV10_9_25.class)
+                        .put(Version.version(10, 9, 26), UpgraderV10_9_26.class)
                         .build());
         this.installed = true;
         this.registerAllPluggableClasses();
