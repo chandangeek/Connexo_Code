@@ -6,6 +6,7 @@ package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 
@@ -37,12 +38,13 @@ public class UpgraderV10_9_26 implements Upgrader {
                 "VALUES (?, 'OutboundWebServiceConnectionType', 'com.energyict.mdc.channels.ip.socket.OutboundWebServiceConnectionType'," +
                 CONNECTION_TYPE_PLUGGABLE_CLASS_TYPE + ", 1, " + upgradeTime + ", " + upgradeTime + ")";
 
-        try (Connection connection = dataModel.getConnection(false)) {
-            PreparedStatement insertStatement = connection.prepareStatement(String.format(sql, CPC_PLUGGABLECLASS_TABLE_NAME));
-            insertStatement.setLong(1, getNext(connection, CPC_PLUGGABLECLASS_TABLE_NAME + "ID"));
-            insertStatement.executeUpdate();
+        try (Connection connection = dataModel.getConnection(true)) {
+            try (PreparedStatement insertStatement = connection.prepareStatement(String.format(sql, CPC_PLUGGABLECLASS_TABLE_NAME))) {
+                insertStatement.setLong(1, getNext(connection, CPC_PLUGGABLECLASS_TABLE_NAME + "ID"));
+                insertStatement.executeUpdate();
+            }
         } catch (SQLException e) {
-            throw new RuntimeException("Unable to execute native sql command: " + e.getMessage());
+            throw new UnderlyingSQLFailedException(e);
         }
     }
 

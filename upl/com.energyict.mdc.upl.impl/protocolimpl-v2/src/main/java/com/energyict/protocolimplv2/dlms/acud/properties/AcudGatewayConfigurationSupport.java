@@ -34,11 +34,11 @@ public class AcudGatewayConfigurationSupport extends AcudConfigurationSupport {
     }
 
     protected PropertySpec postGatewayConfigUrlPropertySpec() {
-        return this.stringWithDefaultSpec(POST_GATEWAY_CONFIG_URL, false, PropertyTranslationKeys.V2_POST_GATEWAY_CONFIG_URL, POST_GATEWAY_CONFIG_URL_DEFAULT);
+        return this.stringWithDefaultSpec(POST_GATEWAY_CONFIG_URL, false, PropertyTranslationKeys.V2_POST_GATEWAY_CONFIG_URL_PATH, POST_GATEWAY_CONFIG_URL_DEFAULT);
     }
 
     protected PropertySpec postGatewayFirmwareUrlPropertySpec() {
-        return this.stringWithDefaultSpec(POST_GATEWAY_FIRMWARE_URL, false, PropertyTranslationKeys.V2_POST_GATEWAY_FIRMWARE_URL, POST_GATEWAY_FIRMWARE_URL_DEFAULT);
+        return this.stringWithDefaultSpec(POST_GATEWAY_FIRMWARE_URL, false, PropertyTranslationKeys.V2_POST_GATEWAY_FIRMWARE_URL_PATH, POST_GATEWAY_FIRMWARE_URL_DEFAULT);
     }
 
     protected PropertySpec gatewayFirmwarePartitionSizePropertySpec() {
@@ -46,6 +46,6 @@ public class AcudGatewayConfigurationSupport extends AcudConfigurationSupport {
     }
 
     protected PropertySpec getGatewayFirmwareVersionUrlPropertySpec() {
-        return this.stringWithDefaultSpec(GET_GATEWAY_FIRMWARE_VERSION_URL, false, PropertyTranslationKeys.V2_GET_GATEWAY_FIRMWARE_VERSION_URL, GET_GATEWAY_FIRMWARE_VERSION_URL_DEFAULT);
+        return this.stringWithDefaultSpec(GET_GATEWAY_FIRMWARE_VERSION_URL, false, PropertyTranslationKeys.V2_GET_GATEWAY_FIRMWARE_VERSION_URL_PATH, GET_GATEWAY_FIRMWARE_VERSION_URL_DEFAULT);
     }
 }

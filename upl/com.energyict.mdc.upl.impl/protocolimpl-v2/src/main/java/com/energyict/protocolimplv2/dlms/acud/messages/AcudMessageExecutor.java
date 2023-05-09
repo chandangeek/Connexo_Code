@@ -610,7 +610,9 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
 
         AcudDlmsProperties properties = (AcudDlmsProperties) getProtocol().getDlmsSessionProperties();
         String postConfigurationEndpoint = properties.getGatewayConfigUrl();
-        String urlPath = "http://" + hostAddress.trim() + ":" + portNumber + (startsWithSlash(postConfigurationEndpoint) ? postConfigurationEndpoint : "/" + postConfigurationEndpoint);
+        postConfigurationEndpoint = trimSlashes(postConfigurationEndpoint);
+
+        String urlPath = "http://" + hostAddress.trim() + ":" + portNumber + "/" + postConfigurationEndpoint;
 
         final String jsonInputString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, gatewayConfigurationJson).getValue();
         byte[] input = jsonInputString.getBytes("utf-8");
@@ -624,15 +626,16 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
 
         AcudDlmsProperties properties = (AcudDlmsProperties) getProtocol().getDlmsSessionProperties();
         String postFirmwareEndpoint = properties.getGatewayFirmwareUrl();
-        String partitionSizePropertyPath = properties.getGatewayFirmwarePartitionSize();
+        postFirmwareEndpoint = trimSlashes(postFirmwareEndpoint);
+        String partitionSizeString = properties.getGatewayFirmwarePartitionSize();
 
         int partitionSize = DEFAULT_FW_PARTITION_SIZE;
         try {
-            partitionSize = Integer.parseInt(partitionSizePropertyPath);
+            partitionSize = Integer.parseInt(partitionSizeString);
         } catch (Exception ex) {
             getProtocol().journal("Default firmware file partition size will be used: " + DEFAULT_FW_PARTITION_SIZE);
         }
-        String urlPathBase = "http://" + hostAddress.trim() + ":" + portNumber + (startsWithSlash(postFirmwareEndpoint) ? postFirmwareEndpoint : "/" + postFirmwareEndpoint);
+        String urlPathBase = "http://" + hostAddress.trim() + ":" + portNumber + "/" + postFirmwareEndpoint;
 
         String path = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateFileAttributeName);
         byte[] binaryImage = TempFileLoader.loadTempFile(path);
@@ -646,16 +649,20 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
                 System.arraycopy(binaryImage, partitionSize * i, part, 0, partitionSize);
                 doPost(urlPathBase + "/" + partitionSize + "/" + i, part, false);
             }
-            byte[] part = new byte[leftover];
-            System.arraycopy(binaryImage, partitionSize * counter, part, 0, leftover);
-            doPost(urlPathBase + "/" + leftover + "/" + counter, part, false);
+            if (leftover > 0) {
+                byte[] part = new byte[leftover];
+                System.arraycopy(binaryImage, partitionSize * counter, part, 0, leftover);
+                doPost(urlPathBase + "/" + leftover + "/" + counter, part, false);
+            }
         } else {
             doPost(urlPathBase + "/" + binaryImage.length, binaryImage, false);
         }
     }
 
-    private boolean startsWithSlash(String endpoint) {
-        return endpoint != null && endpoint.startsWith("/");
+    private String trimSlashes(String endpoint) {
+        String result = endpoint.trim();
+        result = result.startsWith("/") ? result.substring(1).trim() : result;
+        return result.endsWith("/") ? result.substring(0, result.length()-1).trim() : result;
     }
 
     private void doPost(String urlConnection, byte[] binary, boolean isJson) throws IOException {
