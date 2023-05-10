@@ -6,10 +6,10 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 
 import java.sql.Connection;
@@ -24,20 +24,17 @@ public class DashboardBreakdownHandler implements TaskExecutor {
 
     private final DashboardBreakdownSqlBuilder builder = new DashboardBreakdownSqlBuilder();
     private final DeviceDataModelService deviceDataModelService;
-    private final OrmService ormService;
+    private final MeteringGroupsService meteringGroupsService;
 
-    public DashboardBreakdownHandler(DeviceDataModelService deviceDataModelService, OrmService ormService) {
+    public DashboardBreakdownHandler(DeviceDataModelService deviceDataModelService, MeteringGroupsService meteringGroupsService) {
         this.deviceDataModelService = deviceDataModelService;
-        this.ormService = ormService;
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @Override
     public void execute(TaskOccurrence occurrence) {
         LOGGER.log(Level.FINE, "Starting " + DashboardBreakdownHandler.class.getSimpleName() + " triggered at " + occurrence.getTriggerTime());
-        List<QueryEndDeviceGroup> queryEndDeviceGroupList = ormService.getDataModel(MeteringGroupsService.COMPONENTNAME)
-                .get()
-                .stream(QueryEndDeviceGroup.class)
-                .select(); // = find all dynamic device groups
+        List<QueryEndDeviceGroup> queryEndDeviceGroupList = meteringGroupsService.getQueryEndDeviceGroupQuery().select(Condition.TRUE); // = find all dynamic device groups
         try (Connection connection = deviceDataModelService.dataModel().getConnection(true);
              Statement statement = connection.createStatement()) {
             // delete all previous records

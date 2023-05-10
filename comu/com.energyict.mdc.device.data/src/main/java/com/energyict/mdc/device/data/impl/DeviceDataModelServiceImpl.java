@@ -821,7 +821,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         deviceSearchDomain = new DeviceSearchDomain(this, clock, protocolPluggableService);
         securityAccessorDAO = new SecurityAccessorDAOImpl(dataModel);
         deviceProcessAssociationProvider = new DeviceProcessAssociationProvider(thesaurus, propertySpecService, finiteStateMachineService, deviceLifeCycleConfigurationService, meteringTranslationService);
-        dashboardBreakdownHandlerFactory = new DashboardBreakdownHandlerFactory(this, dataModel.getOrmService(), jupiterTaskService);
+        dashboardBreakdownHandlerFactory = new DashboardBreakdownHandlerFactory(this, meteringGroupsService, jupiterTaskService);
     }
 
     private void registerRealServices(BundleContext bundleContext) {

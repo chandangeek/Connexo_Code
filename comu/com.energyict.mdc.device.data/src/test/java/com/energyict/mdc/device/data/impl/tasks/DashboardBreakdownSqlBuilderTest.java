@@ -1,4 +1,8 @@
-package com.energyict.mdc.device.data.tasks;
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
@@ -8,7 +12,6 @@ import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
-import com.energyict.mdc.device.data.impl.tasks.DashboardBreakdownSqlBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

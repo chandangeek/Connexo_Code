@@ -49,7 +49,7 @@ public class DeviceGroupDeletionVetoEventHandlerTest {
     @Mock
     private QueryEndDeviceGroup queryEndDeviceGroup;
     @Mock
-    private Query<EndDeviceGroup> endDeviceGroupQuery;
+    private Query<QueryEndDeviceGroup> endDeviceGroupQuery;
     @Mock
     private DeviceGroupSearchableProperty deviceGroupSearchableProperty;
     @Mock

@@ -141,10 +141,10 @@ public class DeviceGroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     // not protected by privileges yet because a combo-box containing all the groups needs to be shown when creating an export task
     public PagedInfoList getDeviceGroups(@QueryParam("type") String typeName, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
-        Query<EndDeviceGroup> query = getDeviceGroupQueryByType(typeName);
+        Query<? extends EndDeviceGroup> query = getDeviceGroupQueryByType(typeName);
         Condition condition = buildCondition(filter);
         Order order = Order.ascending("upper(name)");
-        List<EndDeviceGroup> endDeviceGroups;
+        List<? extends EndDeviceGroup> endDeviceGroups;
         if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
             int from = queryParameters.getStart().get() + 1;
             int to = from + queryParameters.getLimit().get();
@@ -156,7 +156,7 @@ public class DeviceGroupResource {
         return PagedInfoList.fromPagedList("devicegroups", deviceGroupInfos, queryParameters);
     }
 
-    private Query<EndDeviceGroup> getDeviceGroupQueryByType(@QueryParam("type") String typeName) {
+    private Query<? extends EndDeviceGroup> getDeviceGroupQueryByType(@QueryParam("type") String typeName) {
         if (QueryEndDeviceGroup.class.getSimpleName().equalsIgnoreCase(typeName)) {
             return meteringGroupsService.getQueryEndDeviceGroupQuery();
         } else {
@@ -182,14 +182,14 @@ public class DeviceGroupResource {
     public PagedInfoList getDeviceGroupsFiltered(@QueryParam("type") String typeName,
             @QueryParam("exclude") String excludedIdsList, @BeanParam JsonQueryFilter filter,
             @BeanParam JsonQueryParameters queryParameters) {
-        Query<EndDeviceGroup> query = getDeviceGroupQueryByType(typeName);
+        Query<? extends EndDeviceGroup> query = getDeviceGroupQueryByType(typeName);
         Condition condition = buildCondition(filter);
         if (excludedIdsList != null && !excludedIdsList.trim().isEmpty()) {
             final String[] excludedIds = excludedIdsList.split(",");
             condition = condition.and(where("id").in(Arrays.asList(excludedIds)).not());
         }
         Order order = Order.ascending("upper(name)");
-        List<EndDeviceGroup> endDeviceGroups = query.select(condition, order);
+        List<? extends EndDeviceGroup> endDeviceGroups = query.select(condition, order);
         List<DeviceGroupInfo> deviceGroupInfos = deviceGroupInfoFactory.from(endDeviceGroups);
         return PagedInfoList.fromCompleteList("devicegroups", deviceGroupInfos, queryParameters);
     }

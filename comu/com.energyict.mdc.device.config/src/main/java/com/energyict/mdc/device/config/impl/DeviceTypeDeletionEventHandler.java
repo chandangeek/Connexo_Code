@@ -7,7 +7,6 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -62,7 +61,6 @@ public class DeviceTypeDeletionEventHandler implements TopicHandler {
 
     private void validateDelete(DeviceType deviceType){
         this.meteringGroupsService.getQueryEndDeviceGroupQuery().select(Condition.TRUE).stream()
-                .map(QueryEndDeviceGroup.class::cast)
                 .flatMap(deviceGroup -> deviceGroup.getSearchablePropertyValues().stream())
                 .filter(searchablePropertyValue ->
                         DeviceConfigurationImpl.Fields.DEVICETYPE.fieldName().equals(searchablePropertyValue.getProperty().getName()))

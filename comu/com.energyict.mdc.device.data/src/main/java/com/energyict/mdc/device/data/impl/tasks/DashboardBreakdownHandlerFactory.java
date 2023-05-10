@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
-import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.tasks.TaskService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 
@@ -21,19 +21,19 @@ public class DashboardBreakdownHandlerFactory implements MessageHandlerFactory {
     public static final String DASHBOARD_COUNT_BREAKDOWN_TASK_APPLICATION = "MultiSense";
     public static final String DASHBOARD_COUNT_BREAKDOWN_TASK_PAYLOAD = "Communication breakdown";
 
-    private final TaskService taskService;
     private final DeviceDataModelService deviceDataModelService;
-    private final OrmService ormService;
+    private final MeteringGroupsService meteringGroupsService;
+    private final TaskService taskService;
 
     @Inject
-    public DashboardBreakdownHandlerFactory(DeviceDataModelService deviceDataModelService, OrmService ormService, TaskService taskService) {
+    public DashboardBreakdownHandlerFactory(DeviceDataModelService deviceDataModelService, MeteringGroupsService meteringGroupsService, TaskService taskService) {
         this.deviceDataModelService = deviceDataModelService;
-        this.ormService = ormService;
+        this.meteringGroupsService = meteringGroupsService;
         this.taskService = taskService;
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new DashboardBreakdownHandler(deviceDataModelService, ormService));
+        return taskService.createMessageHandler(new DashboardBreakdownHandler(deviceDataModelService, meteringGroupsService));
     }
 }

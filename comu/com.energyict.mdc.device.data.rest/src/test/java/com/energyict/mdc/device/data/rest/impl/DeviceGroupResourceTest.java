@@ -23,7 +23,6 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.rest.util.StatusCode;
-import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
@@ -110,9 +109,9 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
     @Mock
     private Finder<Device> finder;
     @Mock
-    private SearchBuilder<Device> searchBuilder;
-    @Mock
     private Query<EndDeviceGroup> endDeviceGroupQuery;
+    @Mock
+    private Query<QueryEndDeviceGroup> queryEndDeviceGroupQuery;
     @Captor
     private ArgumentCaptor<List<SearchablePropertyCondition>> searchablePropertyConditionsCaptor;
 
@@ -123,14 +122,14 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
 
     @Test
     public void testGetQueryEndDeviceGroup() throws Exception {
-        when(meteringGroupService.getQueryEndDeviceGroupQuery()).thenReturn(endDeviceGroupQuery);
-        EndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
+        when(meteringGroupService.getQueryEndDeviceGroupQuery()).thenReturn(queryEndDeviceGroupQuery);
+        QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
         when(endDeviceGroup.getId()).thenReturn(13L);
         when(endDeviceGroup.getName()).thenReturn("South region");
         when(endDeviceGroup.getMRID()).thenReturn("LAPOPKLQKS");
         when(endDeviceGroup.isDynamic()).thenReturn(true);
-        List<EndDeviceGroup> endDeviceGroups = Collections.singletonList(endDeviceGroup);
-        when(endDeviceGroupQuery.select(anyObject(), anyObject())).thenReturn(endDeviceGroups);
+        List<QueryEndDeviceGroup> endDeviceGroups = Collections.singletonList(endDeviceGroup);
+        when(queryEndDeviceGroupQuery.select(anyObject(), anyObject())).thenReturn(endDeviceGroups);
 
         String response = target("/devicegroups").queryParam("type", "QueryEndDeviceGroup").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);

@@ -28,7 +28,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -51,7 +50,7 @@ public class UsagePointGroupDeletionVetoEventHandlerTest {
     @Mock
     private QueryUsagePointGroup queryUsagePointGroup;
     @Mock
-    private Query<UsagePointGroup> usagePointGroupQuery;
+    private Query<QueryUsagePointGroup> usagePointGroupQuery;
     @Mock
     private UsagePointGroupSearchableProperty usagePointGroupSearchableProperty;
     @Mock
