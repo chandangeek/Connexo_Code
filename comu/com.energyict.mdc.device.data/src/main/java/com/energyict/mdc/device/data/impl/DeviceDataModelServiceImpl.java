@@ -17,12 +17,12 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.metering.ConfigPropertiesService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -84,6 +84,7 @@ import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
+import com.energyict.mdc.device.data.impl.tasks.DashboardBreakdownHandlerFactory;
 import com.energyict.mdc.device.data.impl.tasks.PriorityComTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
@@ -125,6 +126,7 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -208,6 +210,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private DeviceSearchDomain deviceSearchDomain;
     private SecurityAccessorDAO securityAccessorDAO;
     private DeviceProcessAssociationProvider deviceProcessAssociationProvider;
+    private DashboardBreakdownHandlerFactory dashboardBreakdownHandlerFactory;
 
     // For OSGi purposes only
     public DeviceDataModelServiceImpl() {
@@ -818,6 +821,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         deviceSearchDomain = new DeviceSearchDomain(this, clock, protocolPluggableService);
         securityAccessorDAO = new SecurityAccessorDAOImpl(dataModel);
         deviceProcessAssociationProvider = new DeviceProcessAssociationProvider(thesaurus, propertySpecService, finiteStateMachineService, deviceLifeCycleConfigurationService, meteringTranslationService);
+        dashboardBreakdownHandlerFactory = new DashboardBreakdownHandlerFactory(this, dataModel.getOrmService(), jupiterTaskService);
     }
 
     private void registerRealServices(BundleContext bundleContext) {
@@ -838,23 +842,24 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         registerDeviceSearchDomainService(bundleContext);
         registerPKIService(bundleContext);
         registerDeviceProcessAssociationProvider(bundleContext);
+        registerDashboardBreakdownHandlerFactory(bundleContext);
     }
 
     private void registerDeviceSearchDomainService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(SearchDomain.class, this.deviceSearchDomain, null));
+        serviceRegistrations.add(bundleContext.registerService(SearchDomain.class, this.deviceSearchDomain, null));
     }
 
     private void registerPKIService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(SecurityAccessorDAO.class, this.securityAccessorDAO, null));
+        serviceRegistrations.add(bundleContext.registerService(SecurityAccessorDAO.class, this.securityAccessorDAO, null));
     }
 
     private void registerConnectionTaskService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(ConnectionTaskService.class, this.connectionTaskService, null));
-        this.serviceRegistrations.add(bundleContext.registerService(ServerConnectionTaskService.class, this.connectionTaskService, null));
+        serviceRegistrations.add(bundleContext.registerService(ConnectionTaskService.class, this.connectionTaskService, null));
+        serviceRegistrations.add(bundleContext.registerService(ServerConnectionTaskService.class, this.connectionTaskService, null));
     }
 
     private void registerConnectionTaskReportService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(ConnectionTaskReportService.class, this.connectionTaskReportService, null));
+        serviceRegistrations.add(bundleContext.registerService(ConnectionTaskReportService.class, this.connectionTaskReportService, null));
     }
 
     private void registerPriorityComTaskService(BundleContext bundleContext) {
@@ -862,49 +867,57 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     private void registerCommunicationTaskService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(CommunicationTaskService.class, this.communicationTaskService, null));
-        this.serviceRegistrations.add(bundleContext.registerService(ServerCommunicationTaskService.class, this.communicationTaskService, null));
+        serviceRegistrations.add(bundleContext.registerService(CommunicationTaskService.class, this.communicationTaskService, null));
+        serviceRegistrations.add(bundleContext.registerService(ServerCommunicationTaskService.class, this.communicationTaskService, null));
     }
 
     private void registerCommunicationTaskReportService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(CommunicationTaskReportService.class, this.communicationTaskReportService, null));
+        serviceRegistrations.add(bundleContext.registerService(CommunicationTaskReportService.class, this.communicationTaskReportService, null));
     }
 
     private void registerDeviceService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(DeviceService.class, deviceService, null));
-        this.serviceRegistrations.add(bundleContext.registerService(ServerDeviceService.class, deviceService, null));
+        serviceRegistrations.add(bundleContext.registerService(DeviceService.class, deviceService, null));
+        serviceRegistrations.add(bundleContext.registerService(ServerDeviceService.class, deviceService, null));
     }
 
     private void registerRegisterService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(RegisterService.class, registerService, null));
+        serviceRegistrations.add(bundleContext.registerService(RegisterService.class, registerService, null));
     }
 
     private void registerLogBookService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(LogBookService.class, this.logBookService, null));
+        serviceRegistrations.add(bundleContext.registerService(LogBookService.class, this.logBookService, null));
     }
 
     private void registerLoadProfileService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(LoadProfileService.class, this.loadProfileService, null));
+        serviceRegistrations.add(bundleContext.registerService(LoadProfileService.class, this.loadProfileService, null));
     }
 
     private void registerDataCollectionKpiService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(DataCollectionKpiService.class, this.dataCollectionKpiService, null));
+        serviceRegistrations.add(bundleContext.registerService(DataCollectionKpiService.class, this.dataCollectionKpiService, null));
     }
 
     private void registerBatchService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(BatchService.class, this.batchService, null));
+        serviceRegistrations.add(bundleContext.registerService(BatchService.class, this.batchService, null));
     }
 
     private void registerDeviceMessageService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(DeviceMessageService.class, this.deviceMessageService, null));
+        serviceRegistrations.add(bundleContext.registerService(DeviceMessageService.class, this.deviceMessageService, null));
     }
 
     private void registerCrlRequestTaskPropertiesService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(CrlRequestTaskPropertiesService.class, this.crlRequestTaskPropertiesService, null));
+        serviceRegistrations.add(bundleContext.registerService(CrlRequestTaskPropertiesService.class, this.crlRequestTaskPropertiesService, null));
     }
 
     private void registerDeviceProcessAssociationProvider(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(ProcessAssociationProvider.class, deviceProcessAssociationProvider, new Hashtable<>(ImmutableMap.of("name", DeviceProcessAssociationProvider.NAME))));
+        serviceRegistrations.add(
+                bundleContext.registerService(ProcessAssociationProvider.class, deviceProcessAssociationProvider, new Hashtable<>(ImmutableMap.of("name", DeviceProcessAssociationProvider.NAME))));
+    }
+
+    private void registerDashboardBreakdownHandlerFactory(BundleContext bundleContext) {
+        Dictionary<String, Object> properties = new Hashtable<>();
+        properties.put("subscriber", DashboardBreakdownHandlerFactory.DASHBOARD_BREAKDOWN_TASK_SUBSCRIBER);
+        properties.put("destination", DashboardBreakdownHandlerFactory.DASHBOARD_BREAKDOWN_TASK_DESTINATION);
+        serviceRegistrations.add(bundleContext.registerService(MessageHandlerFactory.class, dashboardBreakdownHandlerFactory, properties));
     }
 
     @Deactivate
@@ -980,9 +993,5 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         } else {
             return EnumSet.complementOf(EnumSet.copyOf(taskStatuses));
         }
-    }
-
-    public MeteringGroupsService getMeteringGroupsService() {
-        return this.meteringGroupsService;
     }
 }

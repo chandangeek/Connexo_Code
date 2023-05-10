@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ */
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
@@ -8,268 +11,259 @@ import java.util.List;
 
 public class DashboardBreakdownSqlBuilder {
 
-    private List<QueryEndDeviceGroup> queryEndDeviceGroupList;
-
-    public DashboardBreakdownSqlBuilder(List<QueryEndDeviceGroup> queryEndDeviceGroupList) {
-        this.queryEndDeviceGroupList = queryEndDeviceGroupList;
-    }
-
-    public SqlBuilder getDashboardComTaskDataBuilder() {
-        SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.append("INSERT into dashboard_comtask\n" +
+    public String getDashboardComTaskDataQuery() {
+        return "INSERT into DASHBOARD_COMTASK\n" +
                 "       ( querytype, devicetype, mrid, lastsesshighestcompcode, heatmapcount,\n" +
                 "         tasktype, status, comschedule, count )\n" +
-                "with ");
-        sqlBuilder.append(
-                " alldata as (\n" +
-                        "--\n" +
-                        "  SELECT\n" +
-                        "         cte.id,\n" +
-                        "         cte.nextexecutiontimestamp,\n" +
-                        "         cte.lastexecutiontimestamp,\n" +
-                        "         cte.plannednextexecutiontimestamp,\n" +
-                        "         cte.discriminator,\n" +
-                        "         cte.nextexecutionspecs,\n" +
-                        "         cte.comport,\n" +
-                        "         cte.onhold,\n" +
-                        "         cte.currentretrycount,\n" +
-                        "         cte.lastsuccessfulcompletion,\n" +
-                        "         cte.lastexecutionfailed,\n" +
-                        "         cte.comtask,\n" +
-                        "         cte.comschedule,\n" +
-                        "         cte.device,\n" +
-                        "         cte.lastsession,\n" +
-                        "         cte.lastsess_highestpriocomplcode,\n" +
-                        "         dev.devicetype,\n" +
-                        "         CASE WHEN ct.id                IS NULL THEN 0 ELSE 1 END as thereisabusytask,\n" +
-                        "         CASE WHEN hp.comtaskexecution = cte.id THEN 1 ELSE 0 END as isapriotask,\n" +
-                        "         grdesc.mrid\n" +
-                        "   --\n" +
-                        "     FROM\tDDC_COMTASKEXEC cte\n" +
-                        "   --\n" +
-                        "  JOIN DDC_DEVICE dev ON cte.device = dev.id\n" +
-                        "  LEFT JOIN MTG_ED_GROUP grdesc\n" +
-                        "  ON exists(select * from MTG_ENUM_ED_IN_GROUP where group_id = grdesc.id and enddevice_id = dev.meterid) or " +
-                        " exists(select * from DYNAMIC_GROUP_DATA where group_id = grdesc.id and device_id = dev.id)" +
-                        "  LEFT OUTER JOIN DDC_CONNECTIONTASK ct\n" +
-                        "          ON  cte.connectiontask             = ct.id\n" +
-                        "              AND ct.comPort                is not null\n" +
-                        "              AND ct.lastCommunicationStart  > cte.nextExecutionTimestamp\n" +
-                        "   --\n" +
-                        "          LEFT JOIN DDC_HIPRIOCOMTASKEXEC hp\n" +
-                        "          ON hp.comtaskexecution = cte.id\n" +
-                        "   --\n" +
-                        "    WHERE cte.obsolete_date is null\n" +
-                        "      AND comschedule is not null      -- added by Jozsef\n" +
-                        "),\n" +
-                        "--\n" +
-                        "alldatagrouped as (\n" +
-                        "--\n" +
-                        " SELECT status,\n" +
-                        "        comtask,\n" +
-                        "        comschedule,\n" +
-                        "        devicetype,\n" +
-                        "        mrid,\n" +
-                        "        sum ( q1_count )      as q1_count,\n" +
-                        "        sum ( q2_count )      as q2_count,\n" +
-                        "        count ( comschedule ) as csched_count,\n" +
-                        "        count ( comtask )     as ctask_count,\n" +
-                        "        count ( devicetype )  as devtype_count\n" +
-                        "   FROM\n" +
-                        "        (\n" +
-                        "          SELECT comtask,\n" +
-                        "                 comschedule,\n" +
-                        "                 devicetype,\n" +
-                        "                 mrid,\n" +
-                        "                 1 as q1_count,\n" +
-                        "                 CASE WHEN comschedule is null\n" +
-                        "                      THEN 0\n" +
-                        "                      ELSE 1\n" +
-                        "                  END q2_count,\n" +
-                        "                 CASE\n" +
-                        "                   --\n" +
-                        "                      WHEN onhold = 0\n" +
-                        "                           AND ( comport is not null OR  ( thereisabusytask = 1\n" +
-                        "                                                           AND nextexecutiontimestamp <= 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD')) )\n" +
-                        "                               )\n" +
-                        "                      THEN 'Busy'\n" +
-                        "                   --\n" +
-                        "                      WHEN onhold = 0\n" +
-                        "                           AND isapriotask = 0\n" +
-                        "                           AND comport is null\n" +
-                        "                           AND thereisabusytask = 0\n" +
-                        "                           AND nextexecutiontimestamp <= 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD'))\n" +
-                        "                      THEN 'Pending'\n" +
-                        "                   --\n" +
-                        "                      WHEN onhold = 0\n" +
-                        "                           AND isapriotask = 1\n" +
-                        "                           AND comport is null\n" +
-                        "                           AND thereisabusytask = 0\n" +
-                        "                           AND nextexecutiontimestamp <= 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD'))\n" +
-                        "                      THEN 'PendingWithPriority'\n" +
-                        "                   --\n" +
-                        "                      WHEN onhold = 0\n" +
-                        "                           AND comport is null\n" +
-                        "                           AND currentretrycount = 0\n" +
-                        "                           AND lastsuccessfulcompletion is null\n" +
-                        "                           AND lastExecutionTimestamp is not null\n" +
-                        "                           AND ( nextExecutionTimestamp is null\n" +
-                        "                            OR  nextExecutionTimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD')) )\n" +
-                        "                      THEN 'NeverCompleted'\n" +
-                        "                   --\n" +
-                        "                      WHEN onhold = 0\n" +
-                        "                           AND isapriotask = 0\n" +
-                        "                           AND nextexecutiontimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD'))\n" +
-                        "                           AND comport is null\n" +
-                        "                           AND currentretrycount > 0\n" +
-                        "                      THEN 'Retrying'\n" +
-                        "                   --\n" +
-                        "                      WHEN onhold = 0\n" +
-                        "                           AND isapriotask = 1\n" +
-                        "                           AND nextexecutiontimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD'))\n" +
-                        "                           AND comport is null\n" +
-                        "                           AND currentretrycount > 0\n" +
-                        "                      THEN 'RetryingWithPriority'\n" +
-                        "                   --\n" +
-                        "                      WHEN onhold = 0\n" +
-                        "                           AND nextexecutiontimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD'))\n" +
-                        "                           AND lastsuccessfulcompletion is not null\n" +
-                        "                           AND lastExecutionTimestamp > lastSuccessfulCompletion\n" +
-                        "                           AND lastExecutionfailed = 1\n" +
-                        "                           AND currentretrycount = 0\n" +
-                        "                      THEN 'Failed'\n" +
-                        "                   --\n" +
-                        "                      WHEN onhold = 0\n" +
-                        "                           AND isapriotask = 0\n" +
-                        "                           AND comport is null\n" +
-                        "                           AND lastexecutionfailed = 0\n" +
-                        "                           AND currentretrycount = 0\n" +
-                        "                           AND ( lastExecutionTimestamp is null OR  lastSuccessfulCompletion is not null )\n" +
-                        "                           AND ( ( plannednextexecutiontimestamp IS NULL AND nextexecutiontimestamp IS NULL )\n" +
-                        "                                 OR  ( ( discriminator = 2\n" +
-                        "                                          OR  ( discriminator = 1 AND nextexecutionspecs IS NULL )\n" +
-                        "                                       )\n" +
-                        "                                       AND ( nextexecutiontimestamp IS NULL OR  nextexecutiontimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD')) )\n" +
-                        "                                     )\n" +
-                        "                                 OR  ( nextexecutionspecs IS NOT NULL  AND ( nextexecutiontimestamp IS NULL\n" +
-                        "                                                                             OR  nextexecutiontimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD')) )\n" +
-                        "                                     )\n" +
-                        "                               )\n" +
-                        "                      THEN 'Waiting'\n" +
-                        "                   --\n" +
-                        "                      WHEN onhold = 0\n" +
-                        "                           AND isapriotask = 1\n" +
-                        "                           AND comport is null\n" +
-                        "                           AND lastexecutionfailed = 0\n" +
-                        "                           AND currentretrycount = 0\n" +
-                        "                           AND ( lastExecutionTimestamp is null  OR  lastSuccessfulCompletion is not null )\n" +
-                        "                           AND ( ( plannednextexecutiontimestamp IS NULL  AND nextexecutiontimestamp IS NULL )\n" +
-                        "                                   OR  ( ( discriminator = 2 OR  ( discriminator = 1 AND nextexecutionspecs IS NULL ) )\n" +
-                        "                                         AND ( nextexecutiontimestamp IS NULL  OR  nextexecutiontimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD')) )\n" +
-                        "                                       )\n" +
-                        "                                   OR  ( nextexecutionspecs IS NOT NULL\n" +
-                        "                                         AND ( nextexecutiontimestamp IS NULL OR  nextexecutiontimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD')) )\n" +
-                        "                                       )\n" +
-                        "                               )\n" +
-                        "                      THEN 'WaitingWithPriority'\n" +
-                        "                   --\n" +
-                        "                      WHEN onhold <> 0\n" +
-                        "                      THEN 'OnHold'\n" +
-                        "                   --\n" +
-                        "                      ELSE 'ProcessingError'\n" +
-                        "                   --\n" +
-                        "                  END AS status\n" +
-                        "            FROM alldata\n" +
-                        "        )\n" +
-                        "  GROUP BY status, comtask, comschedule, devicetype, mrid\n" +
-                        ")\n" +
-                        "--\n" +
-                        "SELECT 'COMTASK_Q2' as QTYPE,\n" +
-                        "       DEVICETYPE,\n" +
-                        "       mrid,\n" +
-                        "       lastsess_highestpriocomplcode,\n" +
-                        "       count ( * ) as heatmapcount,\n" +
-                        "       null,\n" +
-                        "       null,\n" +
-                        "       null,\n" +
-                        "       null\n" +
-                        "  FROM alldata\n" +
-                        "-- WHERE\n" +
-                        " -- rowtype2 = 1 and\n" +
-                        "--   lastsession   is not null -- commented as per CXO-11938\n" +
-                        " GROUP BY devicetype, mrid, lastsess_highestpriocomplcode\n" +
-                        "--\n" +
-                        "UNION ALL\n" +
-                        "--\n" +
-                        "SELECT 'COMTASK_Q1' as QTYPE,\n" +
-                        "       DEVICETYPE,\n" +
-                        "       mrid,\n" +
-                        "       null,\n" +
-                        "       null,\n" +
-                        "       'None', status, null as item, sum ( q1_count ) as count\n" +
-                        "  FROM alldatagrouped\n" +
-                        " GROUP BY devicetype, mrid, status\n" +
-                        "--\n" +
-                        "UNION  ALL\n" +
-                        "--\n" +
-                        "SELECT 'COMTASK_Q1' as QTYPE,\n" +
-                        "       DEVICETYPE,\n" +
-                        "       mrid,\n" +
-                        "       null,\n" +
-                        "       null,\n" +
-                        "       'ComSchedule', status, comschedule, sum ( q2_count ) as count\n" +
-                        "  FROM alldatagrouped\n" +
-                        " WHERE comschedule is not null\n" +
-                        "   AND status <> 'OnHold'\n" +
-                        " GROUP BY devicetype, mrid, status, comschedule\n" +
-                        "--\n" +
-                        "UNION  ALL\n" +
-                        "--\n" +
-                        "SELECT 'COMTASK_Q1' as QTYPE,\n" +
-                        "       DEVICETYPE,\n" +
-                        "       mrid,\n" +
-                        "       null,\n" +
-                        "       null,\n" +
-                        "       'ComTask', status, comtask, sum ( ctask_count ) as count\n" +
-                        "  FROM alldatagrouped\n" +
-                        " WHERE comschedule is null\n" +
-                        "   AND status <> 'OnHold'\n" +
-                        " GROUP BY devicetype, mrid, status, comtask\n" +
-                        "--\n" +
-                        "UNION  ALL\n" +
-                        "--\n" +
-                        "SELECT 'COMTASK_Q1' as QTYPE,\n" +
-                        "       DEVICETYPE,\n" +
-                        "       gr.mrid,\n" +
-                        "       null,\n" +
-                        "       null,\n" +
-                        "       'ComTask', GR.status, ctincs.comtask, sum ( csched_count ) as count\n" +
-                        "  FROM alldatagrouped GR\n" +
-                        "       LEFT OUTER JOIN sch_comschedule csch ON GR.comschedule = csch.id\n" +
-                        "       LEFT OUTER JOIN sch_comtaskincomschedule ctincs ON csch.id = ctincs.comschedule\n" +
-                        " WHERE GR.comschedule is not null\n" +
-                        "   AND GR.status <> 'OnHold'\n" +
-                        " GROUP BY devicetype, GR.status, gr.mrid, ctincs.comtask\n" +
-                        "--\n" +
-                        "UNION  ALL\n" +
-                        "--\n" +
-                        "SELECT 'COMTASK_Q1' as QTYPE,\n" +
-                        "       DEVICETYPE,\n" +
-                        "       mrid,\n" +
-                        "       null,\n" +
-                        "       null,\n" +
-                        "       'DeviceType', status, devicetype, sum ( devtype_count ) as count\n" +
-                        "  FROM alldatagrouped\n" +
-                        " WHERE status <> 'OnHold'\n" +
-                        " GROUP BY devicetype, mrid, status, devicetype");
-        return sqlBuilder;
+                "with " +
+                "alldata as (\n" +
+                "--\n" +
+                "  SELECT\n" +
+                "         cte.id,\n" +
+                "         cte.nextexecutiontimestamp,\n" +
+                "         cte.lastexecutiontimestamp,\n" +
+                "         cte.plannednextexecutiontimestamp,\n" +
+                "         cte.discriminator,\n" +
+                "         cte.nextexecutionspecs,\n" +
+                "         cte.comport,\n" +
+                "         cte.onhold,\n" +
+                "         cte.currentretrycount,\n" +
+                "         cte.lastsuccessfulcompletion,\n" +
+                "         cte.lastexecutionfailed,\n" +
+                "         cte.comtask,\n" +
+                "         cte.comschedule,\n" +
+                "         cte.device,\n" +
+                "         cte.lastsession,\n" +
+                "         cte.lastsess_highestpriocomplcode,\n" +
+                "         dev.devicetype,\n" +
+                "         CASE WHEN ct.id                IS NULL THEN 0 ELSE 1 END as thereisabusytask,\n" +
+                "         CASE WHEN hp.comtaskexecution = cte.id THEN 1 ELSE 0 END as isapriotask,\n" +
+                "         grdesc.mrid\n" +
+                "   --\n" +
+                "     FROM\tDDC_COMTASKEXEC cte\n" +
+                "   --\n" +
+                "  JOIN DDC_DEVICE dev ON cte.device = dev.id\n" +
+                "   --\n" +
+                "  LEFT JOIN MTG_ED_GROUP grdesc\n" +
+                "  ON exists(select * from MTG_ENUM_ED_IN_GROUP where group_id = grdesc.id and enddevice_id = dev.meterid)" +
+                "  OR exists(select * from DYNAMIC_GROUP_DATA where group_id = grdesc.id and device_id = dev.id)" +
+                "  LEFT OUTER JOIN DDC_CONNECTIONTASK ct\n" +
+                "          ON  cte.connectiontask             = ct.id\n" +
+                "              AND ct.comPort                is not null\n" +
+                "              AND ct.lastCommunicationStart  > cte.nextExecutionTimestamp\n" +
+                "   --\n" +
+                "          LEFT JOIN DDC_HIPRIOCOMTASKEXEC hp\n" +
+                "          ON hp.comtaskexecution = cte.id\n" +
+                "   --\n" +
+                "    WHERE cte.obsolete_date is null\n" +
+                "      AND comschedule is not null      -- added by Jozsef\n" +
+                "),\n" +
+                "--\n" +
+                "alldatagrouped as (\n" +
+                "--\n" +
+                " SELECT status,\n" +
+                "        comtask,\n" +
+                "        comschedule,\n" +
+                "        devicetype,\n" +
+                "        mrid,\n" +
+                "        sum ( q1_count )      as q1_count,\n" +
+                "        sum ( q2_count )      as q2_count,\n" +
+                "        count ( comschedule ) as csched_count,\n" +
+                "        count ( comtask )     as ctask_count,\n" +
+                "        count ( devicetype )  as devtype_count\n" +
+                "   FROM\n" +
+                "        (\n" +
+                "          SELECT comtask,\n" +
+                "                 comschedule,\n" +
+                "                 devicetype,\n" +
+                "                 mrid,\n" +
+                "                 1 as q1_count,\n" +
+                "                 CASE WHEN comschedule is null\n" +
+                "                      THEN 0\n" +
+                "                      ELSE 1\n" +
+                "                  END q2_count,\n" +
+                "                 CASE\n" +
+                "                   --\n" +
+                "                      WHEN onhold = 0\n" +
+                "                           AND ( comport is not null OR  ( thereisabusytask = 1\n" +
+                "                                                           AND nextexecutiontimestamp <= 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD')) )\n" +
+                "                               )\n" +
+                "                      THEN 'Busy'\n" +
+                "                   --\n" +
+                "                      WHEN onhold = 0\n" +
+                "                           AND isapriotask = 0\n" +
+                "                           AND comport is null\n" +
+                "                           AND thereisabusytask = 0\n" +
+                "                           AND nextexecutiontimestamp <= 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD'))\n" +
+                "                      THEN 'Pending'\n" +
+                "                   --\n" +
+                "                      WHEN onhold = 0\n" +
+                "                           AND isapriotask = 1\n" +
+                "                           AND comport is null\n" +
+                "                           AND thereisabusytask = 0\n" +
+                "                           AND nextexecutiontimestamp <= 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD'))\n" +
+                "                      THEN 'PendingWithPriority'\n" +
+                "                   --\n" +
+                "                      WHEN onhold = 0\n" +
+                "                           AND comport is null\n" +
+                "                           AND currentretrycount = 0\n" +
+                "                           AND lastsuccessfulcompletion is null\n" +
+                "                           AND lastExecutionTimestamp is not null\n" +
+                "                           AND ( nextExecutionTimestamp is null\n" +
+                "                            OR  nextExecutionTimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD')) )\n" +
+                "                      THEN 'NeverCompleted'\n" +
+                "                   --\n" +
+                "                      WHEN onhold = 0\n" +
+                "                           AND isapriotask = 0\n" +
+                "                           AND nextexecutiontimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD'))\n" +
+                "                           AND comport is null\n" +
+                "                           AND currentretrycount > 0\n" +
+                "                      THEN 'Retrying'\n" +
+                "                   --\n" +
+                "                      WHEN onhold = 0\n" +
+                "                           AND isapriotask = 1\n" +
+                "                           AND nextexecutiontimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD'))\n" +
+                "                           AND comport is null\n" +
+                "                           AND currentretrycount > 0\n" +
+                "                      THEN 'RetryingWithPriority'\n" +
+                "                   --\n" +
+                "                      WHEN onhold = 0\n" +
+                "                           AND nextexecutiontimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD'))\n" +
+                "                           AND lastsuccessfulcompletion is not null\n" +
+                "                           AND lastExecutionTimestamp > lastSuccessfulCompletion\n" +
+                "                           AND lastExecutionfailed = 1\n" +
+                "                           AND currentretrycount = 0\n" +
+                "                      THEN 'Failed'\n" +
+                "                   --\n" +
+                "                      WHEN onhold = 0\n" +
+                "                           AND isapriotask = 0\n" +
+                "                           AND comport is null\n" +
+                "                           AND lastexecutionfailed = 0\n" +
+                "                           AND currentretrycount = 0\n" +
+                "                           AND ( lastExecutionTimestamp is null OR  lastSuccessfulCompletion is not null )\n" +
+                "                           AND ( ( plannednextexecutiontimestamp IS NULL AND nextexecutiontimestamp IS NULL )\n" +
+                "                                 OR  ( ( discriminator = 2\n" +
+                "                                          OR  ( discriminator = 1 AND nextexecutionspecs IS NULL )\n" +
+                "                                       )\n" +
+                "                                       AND ( nextexecutiontimestamp IS NULL OR  nextexecutiontimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD')) )\n" +
+                "                                     )\n" +
+                "                                 OR  ( nextexecutionspecs IS NOT NULL  AND ( nextexecutiontimestamp IS NULL\n" +
+                "                                                                             OR  nextexecutiontimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD')) )\n" +
+                "                                     )\n" +
+                "                               )\n" +
+                "                      THEN 'Waiting'\n" +
+                "                   --\n" +
+                "                      WHEN onhold = 0\n" +
+                "                           AND isapriotask = 1\n" +
+                "                           AND comport is null\n" +
+                "                           AND lastexecutionfailed = 0\n" +
+                "                           AND currentretrycount = 0\n" +
+                "                           AND ( lastExecutionTimestamp is null  OR  lastSuccessfulCompletion is not null )\n" +
+                "                           AND ( ( plannednextexecutiontimestamp IS NULL  AND nextexecutiontimestamp IS NULL )\n" +
+                "                                   OR  ( ( discriminator = 2 OR  ( discriminator = 1 AND nextexecutionspecs IS NULL ) )\n" +
+                "                                         AND ( nextexecutiontimestamp IS NULL  OR  nextexecutiontimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD')) )\n" +
+                "                                       )\n" +
+                "                                   OR  ( nextexecutionspecs IS NOT NULL\n" +
+                "                                         AND ( nextexecutiontimestamp IS NULL OR  nextexecutiontimestamp > 86400 * (SYSDATE - TO_DATE('1970/01/01', 'YYYY/MM/DD')) )\n" +
+                "                                       )\n" +
+                "                               )\n" +
+                "                      THEN 'WaitingWithPriority'\n" +
+                "                   --\n" +
+                "                      WHEN onhold <> 0\n" +
+                "                      THEN 'OnHold'\n" +
+                "                   --\n" +
+                "                      ELSE 'ProcessingError'\n" +
+                "                   --\n" +
+                "                  END AS status\n" +
+                "            FROM alldata\n" +
+                "        )\n" +
+                "  GROUP BY status, comtask, comschedule, devicetype, mrid\n" +
+                ")\n" +
+                "--\n" +
+                "SELECT 'COMTASK_Q2' as QTYPE,\n" +
+                "       DEVICETYPE,\n" +
+                "       mrid,\n" +
+                "       lastsess_highestpriocomplcode,\n" +
+                "       count ( * ) as heatmapcount,\n" +
+                "       null,\n" +
+                "       null,\n" +
+                "       null,\n" +
+                "       null\n" +
+                "  FROM alldata\n" +
+                "-- WHERE\n" +
+                " -- rowtype2 = 1 and\n" +
+                "--   lastsession   is not null -- commented as per CXO-11938\n" +
+                " GROUP BY devicetype, mrid, lastsess_highestpriocomplcode\n" +
+                "--\n" +
+                "UNION ALL\n" +
+                "--\n" +
+                "SELECT 'COMTASK_Q1' as QTYPE,\n" +
+                "       DEVICETYPE,\n" +
+                "       mrid,\n" +
+                "       null,\n" +
+                "       null,\n" +
+                "       'None', status, null as item, sum ( q1_count ) as count\n" +
+                "  FROM alldatagrouped\n" +
+                " GROUP BY devicetype, mrid, status\n" +
+                "--\n" +
+                "UNION  ALL\n" +
+                "--\n" +
+                "SELECT 'COMTASK_Q1' as QTYPE,\n" +
+                "       DEVICETYPE,\n" +
+                "       mrid,\n" +
+                "       null,\n" +
+                "       null,\n" +
+                "       'ComSchedule', status, comschedule, sum ( q2_count ) as count\n" +
+                "  FROM alldatagrouped\n" +
+                " WHERE comschedule is not null\n" +
+                "   AND status <> 'OnHold'\n" +
+                " GROUP BY devicetype, mrid, status, comschedule\n" +
+                "--\n" +
+                "UNION  ALL\n" +
+                "--\n" +
+                "SELECT 'COMTASK_Q1' as QTYPE,\n" +
+                "       DEVICETYPE,\n" +
+                "       mrid,\n" +
+                "       null,\n" +
+                "       null,\n" +
+                "       'ComTask', status, comtask, sum ( ctask_count ) as count\n" +
+                "  FROM alldatagrouped\n" +
+                " WHERE comschedule is null\n" +
+                "   AND status <> 'OnHold'\n" +
+                " GROUP BY devicetype, mrid, status, comtask\n" +
+                "--\n" +
+                "UNION  ALL\n" +
+                "--\n" +
+                "SELECT 'COMTASK_Q1' as QTYPE,\n" +
+                "       DEVICETYPE,\n" +
+                "       gr.mrid,\n" +
+                "       null,\n" +
+                "       null,\n" +
+                "       'ComTask', GR.status, ctincs.comtask, sum ( csched_count ) as count\n" +
+                "  FROM alldatagrouped GR\n" +
+                "       LEFT OUTER JOIN sch_comschedule csch ON GR.comschedule = csch.id\n" +
+                "       LEFT OUTER JOIN sch_comtaskincomschedule ctincs ON csch.id = ctincs.comschedule\n" +
+                " WHERE GR.comschedule is not null\n" +
+                "   AND GR.status <> 'OnHold'\n" +
+                " GROUP BY devicetype, GR.status, gr.mrid, ctincs.comtask\n" +
+                "--\n" +
+                "UNION  ALL\n" +
+                "--\n" +
+                "SELECT 'COMTASK_Q1' as QTYPE,\n" +
+                "       DEVICETYPE,\n" +
+                "       mrid,\n" +
+                "       null,\n" +
+                "       null,\n" +
+                "       'DeviceType', status, devicetype, sum ( devtype_count ) as count\n" +
+                "  FROM alldatagrouped\n" +
+                " WHERE status <> 'OnHold'\n" +
+                " GROUP BY devicetype, mrid, status, devicetype";
     }
 
-    public SqlBuilder getDashboardConTaskDataBuilder() {
-        SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.append("CREATE GLOBAL TEMPORARY TABLE MV_CONNECTIONDATA on commit preserve rows\n" +
-                "AS ");
-        sqlBuilder.append("SELECT\n" +
+    public String getDashboardConTaskDataQuery() {
+        return "CREATE GLOBAL TEMPORARY TABLE MV_CONNECTIONDATA on commit preserve rows\n" +
+                "AS " +
+                "SELECT\n" +
                 "       ct.lastsession,\n" +
                 "       dev.devicetype,\n" +
                 "       grdesc.mrid,\n" +
@@ -368,9 +362,9 @@ public class DashboardBreakdownSqlBuilder {
                 "  --\n" +
                 "       JOIN DDC_DEVICE    dev ON ct.device = dev.id\n" +
                 "  --\n" +
-                "  LEFT JOIN MTG_ED_GROUP grdesc\n" +
-                " ON exists(select * from MTG_ENUM_ED_IN_GROUP where group_id = grdesc.id and enddevice_id = dev.meterid) or " +
-                " exists(select * from DYNAMIC_GROUP_DATA where group_id = grdesc.id and device_id = dev.id) " +
+                "       LEFT JOIN MTG_ED_GROUP grdesc\n" +
+                "       ON exists(select * from MTG_ENUM_ED_IN_GROUP where group_id = grdesc.id and enddevice_id = dev.meterid)" +
+                "       OR exists(select * from DYNAMIC_GROUP_DATA where group_id = grdesc.id and device_id = dev.id)" +
                 "  --\n" +
                 "       LEFT JOIN\n" +
                 "                 ( SELECT comsession\n" +
@@ -389,12 +383,11 @@ public class DashboardBreakdownSqlBuilder {
                 "                          GROUP BY connectiontask\n" +
                 "\t                      )\tctsFromCtes\n" +
                 "       ON ct.id = ctsFromCtes.connectiontask\n" +
-                "  WHERE ct.obsolete_date  is null");
-        return sqlBuilder;
+                "  WHERE ct.obsolete_date  is null";
     }
 
     public String getDashboardConTaskBreakdownDataQuery() {
-        String conTaskBreakdownQuery = "insert into DASHBOARD_CONTASKBREAKDOWN\n" +
+        return "insert into DASHBOARD_CONTASKBREAKDOWN\n" +
                 "       (grouperby, devicetype, mrid, item, taskstatus, count)\n" +
                 "WITH\n" +
                 "--\n" +
@@ -426,11 +419,10 @@ public class DashboardBreakdownSqlBuilder {
                 "SELECT 'DeviceType', devicetype, mrid, devicetype, taskStatus, nvl ( sum ( counter ) , 0 )\n" +
                 "  FROM alldata\n" +
                 " GROUP BY devicetype, mrid, taskStatus";
-        return conTaskBreakdownQuery;
     }
 
     public String getDashboardConTypeHeatMapDataQuery() {
-        String conTypeHeatMapDataQuery = "insert into DASHBOARD_CONTYPEHEATMAP\n" +
+        return "insert into DASHBOARD_CONTYPEHEATMAP\n" +
                 "       ( connectiontypepluggableclass, devicetype, mrid, comportpool, completeSucces,\n" +
                 "         atLeastOneFailure, failureSetupError, failureBroken, failureInterrupted,\n" +
                 "         failureNot_Execute)\n" +
@@ -447,12 +439,10 @@ public class DashboardBreakdownSqlBuilder {
                 "  FROM MV_CONNECTIONDATA\n" +
                 " WHERE IS_MV_ConnectionTypeHeatMap = 1\n" +
                 " GROUP BY connectiontypepluggableclass, devicetype, mrid, comportpool";
-
-        return conTypeHeatMapDataQuery;
     }
 
     public String getDashboardConTaskLastSessionSuccessIndicatorCountDataQuery() {
-        String conTaskLastSessionSuccessIndicatorCountDataQuery = "insert into DASHBOARD_CTLCSSUCINDCOUNT\n" +
+        return "insert into DASHBOARD_CTLCSSUCINDCOUNT\n" +
                 "       (devicetype, mrid, lastSessionSuccessIndicator, count)\n" +
                 "SELECT devicetype,\n" +
                 "       mrid,\n" +
@@ -461,12 +451,10 @@ public class DashboardBreakdownSqlBuilder {
                 "  FROM MV_CONNECTIONDATA\n" +
                 " WHERE IS_MV_CTLCSSucIndCount = 1\n" +
                 " GROUP BY devicetype, mrid, lastSessionSuccessIndicator";
-
-        return conTaskLastSessionSuccessIndicatorCountDataQuery;
     }
 
     public String getDashboardConTaskLastSessionWithAtLeastOneFailedTaskCountDataQuery() {
-        String conTaskLastSessionWithAtLeastOneFailedTaskCountDataQuery = "insert into DASHBOARD_CTLCSWITHATLSTONEFT\n" +
+        return "insert into DASHBOARD_CTLCSWITHATLSTONEFT\n" +
                 "       (devicetype, mrid, count)\n" +
                 "SELECT devicetype,\n" +
                 "       mrid,\n" +
@@ -475,13 +463,10 @@ public class DashboardBreakdownSqlBuilder {
                 " WHERE IS_MV_CTLCSWithAtLstOneFT  = 1\n" +
                 "   AND lastsession is not null\n" +
                 " GROUP BY devicetype, mrid";
-
-        return conTaskLastSessionWithAtLeastOneFailedTaskCountDataQuery;
     }
 
-    public SqlBuilder getDynamicGroupDataBuilder() {
-        SqlBuilder builder = new SqlBuilder();
-        builder.append("CREATE GLOBAL TEMPORARY TABLE DYNAMIC_GROUP_DATA on commit preserve rows AS ( ");
+    public String getDynamicGroupDataQuery(List<QueryEndDeviceGroup> queryEndDeviceGroupList) {
+        SqlBuilder builder = new SqlBuilder("CREATE GLOBAL TEMPORARY TABLE DYNAMIC_GROUP_DATA on commit preserve rows AS ( ");
         String unionAll = "";
         for (QueryEndDeviceGroup group : queryEndDeviceGroupList) {
             builder.append(unionAll);
@@ -492,6 +477,6 @@ public class DashboardBreakdownSqlBuilder {
             unionAll = " union all ";
         }
         builder.closeBracket();
-        return builder;
+        return builder.getText();
     }
 }

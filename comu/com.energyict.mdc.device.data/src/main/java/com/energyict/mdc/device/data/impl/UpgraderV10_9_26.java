@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ */
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -17,13 +20,11 @@ import java.util.Optional;
 import static com.elster.jupiter.orm.Version.version;
 
 public class UpgraderV10_9_26 implements Upgrader {
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
+
     private final DataModel dataModel;
     private final TaskService taskService;
     private final MessageService messageService;
-
-    private final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
-    private static final String DASHBOARD_COUNT_BREAKDOWN_TASK_SCHEDULE = "0 0/3 * * * ?";
-    private static final String DASHBOARD_COUNT_BREAKDOWN_TASK_NAME = "Communication breakdown task";
 
     @Inject
     UpgraderV10_9_26(DataModel dataModel, TaskService taskService, MessageService messageService) {
@@ -65,7 +66,7 @@ public class UpgraderV10_9_26 implements Upgrader {
             DestinationSpec queue = queueTableSpec.createDestinationSpec(destination, DEFAULT_RETRY_DELAY_IN_SECONDS);
             queue.activate();
             queue.subscribe(subscriberKey, DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
-            createTask(DASHBOARD_COUNT_BREAKDOWN_TASK_NAME, DASHBOARD_COUNT_BREAKDOWN_TASK_SCHEDULE, queue);
+            createTask(DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_NAME, DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_SCHEDULE, queue);
         } else {
             boolean notSubscribedYet = destinationSpec.get()
                     .getSubscribers()
@@ -74,18 +75,18 @@ public class UpgraderV10_9_26 implements Upgrader {
             if (notSubscribedYet) {
                 destinationSpec.get().activate();
                 destinationSpec.get().subscribe(subscriberKey, DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
-                createTask(DASHBOARD_COUNT_BREAKDOWN_TASK_NAME, DASHBOARD_COUNT_BREAKDOWN_TASK_SCHEDULE, destinationSpec.get());
+                createTask(DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_NAME, DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_SCHEDULE, destinationSpec.get());
             }
         }
     }
 
     private void createTask(String name, String schedule, DestinationSpec destinationSpec) {
         taskService.newBuilder()
-                .setApplication("MultiSense")
+                .setApplication(DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_APPLICATION)
                 .setName(name)
                 .setScheduleExpressionString(schedule)
                 .setDestination(destinationSpec)
-                .setPayLoad("Communication Breakdown")
+                .setPayLoad(DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_PAYLOAD)
                 .scheduleImmediately(true)
                 .build();
     }

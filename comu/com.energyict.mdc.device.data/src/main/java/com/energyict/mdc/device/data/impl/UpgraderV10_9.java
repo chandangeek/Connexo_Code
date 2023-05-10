@@ -21,7 +21,6 @@ import com.energyict.mdc.common.tasks.FirmwareManagementTask;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,7 +30,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -85,7 +83,6 @@ public class UpgraderV10_9 implements Upgrader {
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
-        updateJobProcedure();
         try {
             upgradeDDCTable();
         } catch (SQLException e) {
@@ -175,14 +172,6 @@ public class UpgraderV10_9 implements Upgrader {
                 .append("null\n")
                 .append("FROM DUAL\n");
         return query.toString();
-    }
-
-    private void updateJobProcedure() {
-        try {
-            execute(dataModel, InstallerV10_8_1Impl.getStoredProcedureScript("com_task_dashboard_procedure.sql"));
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Errors on update of dashboard related procedures!", e);
-        }
     }
 
     private Long toLong(ResultSet resultSet) throws SQLException {

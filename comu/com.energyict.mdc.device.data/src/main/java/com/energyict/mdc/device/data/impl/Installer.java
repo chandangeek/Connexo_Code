@@ -68,13 +68,12 @@ public class Installer implements FullInstaller {
     private final PrivilegesProviderV10_6 privilegesProviderV10_6;
     private final PrivilegesProviderV10_6_1 privilegesProviderV10_6_1;
     private final TaskService taskService;
-    private final InstallerV10_9_26Impl installerV10_9_26;
 
     @Inject
     public Installer(DataModel dataModel, UserService userService, EventService eventService, MessageService messageService, TaskService taskService,
                      InstallerV10_2Impl installerV10_2, PrivilegesProviderV10_3 privilegesProviderV10_3, PrivilegesProviderV10_4_1 privilegesProviderV10_4_1,
                      PrivilegesProviderV10_6 privilegesProviderV10_6, PrivilegesProviderV10_6_1 privilegesProviderV10_6_1, InstallerV10_7_1Impl installerV10_7_1,
-                     InstallerV10_8_1Impl installerV10_8_1, InstallerV10_9_26Impl installerV10_9_26) {
+                     InstallerV10_8_1Impl installerV10_8_1) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
@@ -88,7 +87,6 @@ public class Installer implements FullInstaller {
         this.privilegesProviderV10_6_1 = privilegesProviderV10_6_1;
         this.installerV10_7_1 = installerV10_7_1;
         this.installerV10_8_1 = installerV10_8_1;
-        this.installerV10_9_26 = installerV10_9_26;
     }
 
     @Override
@@ -145,7 +143,6 @@ public class Installer implements FullInstaller {
         userService.addModulePrivileges(privilegesProviderV10_6_1);
         installerV10_7_1.install(dataModelUpgrader, logger);
         installerV10_8_1.install(dataModelUpgrader, logger);
-        installerV10_9_26.install(dataModelUpgrader, logger);
     }
 
     private void addJupiterEventSubscribers() {
@@ -217,10 +214,10 @@ public class Installer implements FullInstaller {
             queue.activate();
             queue.subscribe(subscriberKey, DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
         } else {
-            boolean notSubscribedYet = !destinationSpecOptional.get()
+            boolean notSubscribedYet = destinationSpecOptional.get()
                     .getSubscribers()
                     .stream()
-                    .anyMatch(spec -> spec.getName().equals(subscriberKey.getKey()));
+                    .noneMatch(spec -> spec.getName().equals(subscriberKey.getKey()));
             if (notSubscribedYet) {
                 destinationSpecOptional.get().activate();
                 destinationSpecOptional.get().subscribe(subscriberKey, DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
@@ -244,9 +241,9 @@ public class Installer implements FullInstaller {
             DestinationSpec jupiterEvents = destinationSpec.get();
             Stream.of(
                             Pair.of(SubscriberTranslationKeys.TEST_COMMUNICATION_COMPLETED_EVENT, whereCorrelationId().isEqualTo("com/energyict/mdc/connectiontask/COMPLETION")))
-                    .filter(subscriber -> !jupiterEvents.getSubscribers()
+                    .filter(subscriber -> jupiterEvents.getSubscribers()
                             .stream()
-                            .anyMatch(s -> s.getName().equals(subscriber.getFirst().getKey())))
+                            .noneMatch(s -> s.getName().equals(subscriber.getFirst().getKey())))
                     .forEach(subscriber -> this.doSubscriber(jupiterEvents, subscriber));
         }
     }
@@ -292,16 +289,14 @@ public class Installer implements FullInstaller {
     }
 
     private void communicationBreakdownTask() {
-        if (!taskService.getRecurrentTask(DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_NAME).isPresent()) {
-            taskService.newBuilder()
-                    .setApplication("MultiSense")
-                    .setName(DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_NAME)
-                    .setScheduleExpressionString(DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_SCHEDULE)
-                    .setDestination(getCommunicationBreakdownDestination())
-                    .setPayLoad("Communication breakdown")
-                    .scheduleImmediately(true)
-                    .build();
-        }
+        taskService.newBuilder()
+                .setApplication(DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_APPLICATION)
+                .setName(DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_NAME)
+                .setScheduleExpressionString(DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_SCHEDULE)
+                .setDestination(getCommunicationBreakdownDestination())
+                .setPayLoad(DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_PAYLOAD)
+                .scheduleImmediately(true)
+                .build();
     }
 
     private DestinationSpec getCommunicationBreakdownDestination() {

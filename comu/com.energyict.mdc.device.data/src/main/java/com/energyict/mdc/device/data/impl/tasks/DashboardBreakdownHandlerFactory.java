@@ -10,58 +10,30 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.tasks.TaskService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import javax.inject.Inject;
 
-@Component(name = "com.energyict.mdc.device.data.impl.tasks.CommunicationDashboardBreakdownHandlerFactory",
-        service = MessageHandlerFactory.class,
-        property = {"subscriber=" + DashboardBreakdownHandlerFactory.DASHBOARD_BREAKDOWN_TASK_SUBSCRIBER,
-                "destination=" + DashboardBreakdownHandlerFactory.DASHBOARD_BREAKDOWN_TASK_DESTINATION},
-        immediate = true)
 public class DashboardBreakdownHandlerFactory implements MessageHandlerFactory {
-
     public static final String DASHBOARD_BREAKDOWN_TASK_DESTINATION = "DshBreakdownTopic";
     public static final String DASHBOARD_BREAKDOWN_TASK_SUBSCRIBER = "DshBreakdownSubscriber";
-    public static final String COMM_DASHBOARD_BREAKDOWN_TASK_DISPLAYNAME = "Dashboard Count Breakdown";
-    public static final String DASHBOARD_COUNT_BREAKDOWN_TASK_SCHEDULE = "0 0/3 * * * ?";
+    public static final String DASHBOARD_BREAKDOWN_TASK_SUBSCRIBER_DISPLAYNAME = "Communication breakdown";
+    public static final String DASHBOARD_COUNT_BREAKDOWN_TASK_SCHEDULE = "0 0/3 * * * ?"; // each 3 minutes
     public static final String DASHBOARD_COUNT_BREAKDOWN_TASK_NAME = "Communication breakdown task";
+    public static final String DASHBOARD_COUNT_BREAKDOWN_TASK_APPLICATION = "MultiSense";
+    public static final String DASHBOARD_COUNT_BREAKDOWN_TASK_PAYLOAD = "Communication breakdown";
 
-    private volatile TaskService taskService;
-    private volatile DeviceDataModelService deviceDataModelService;
-
-    private volatile OrmService ormService;
-
-    public DashboardBreakdownHandlerFactory() {
-        //For OSGI framework purpose
-    }
+    private final TaskService taskService;
+    private final DeviceDataModelService deviceDataModelService;
+    private final OrmService ormService;
 
     @Inject
-    DashboardBreakdownHandlerFactory(OrmService ormService, TaskService taskService, DeviceDataModelService deviceDataModelService) {
-        setTaskService(taskService);
-        setDeviceDataModelService(deviceDataModelService);
-        setOrmService(ormService);
+    public DashboardBreakdownHandlerFactory(DeviceDataModelService deviceDataModelService, OrmService ormService, TaskService taskService) {
+        this.deviceDataModelService = deviceDataModelService;
+        this.ormService = ormService;
+        this.taskService = taskService;
     }
 
     @Override
     public MessageHandler newMessageHandler() {
         return taskService.createMessageHandler(new DashboardBreakdownHandler(deviceDataModelService, ormService));
     }
-
-    @Reference
-    public void setOrmService(OrmService ormService) {
-        this.ormService = ormService;
-    }
-
-    @Reference
-    public final void setTaskService(TaskService taskService) {
-        this.taskService = taskService;
-    }
-
-    @Reference
-    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
-        this.deviceDataModelService = deviceDataModelService;
-    }
-
 }
