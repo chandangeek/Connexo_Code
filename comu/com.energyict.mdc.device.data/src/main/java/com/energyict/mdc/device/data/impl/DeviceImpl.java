@@ -945,7 +945,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             validateMultiplierValue(multiplier);
             Instant now = clock.instant();
             Optional<Instant> startDateMultiplier = from == null ? Optional.of(now) : Optional.of(from);
-            validateStartDateOfNewMultiplier(now, startDateMultiplier);
+            if(this.meter.isPresent()) {
+                validateStartDateOfNewMultiplier(now, startDateMultiplier);  // should not be validated for device creation case
+            }
             SyncDeviceWithKoreForMultiplierChange multiplierChange =
                     new SyncDeviceWithKoreForMultiplierChange(
                             this,
