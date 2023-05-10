@@ -143,8 +143,8 @@ public class AcudGatewayDataPushNotificationParser extends EventPushNotification
 
         byte[] eventData = new byte[inboundFrame.remaining()];
         inboundFrame.get(eventData);
-        byte[] outerStructure = {0x02, 0x01};
-        byte[] data = ProtocolTools.concatByteArrays(outerStructure, eventData);
+        byte[] outerStructure = {0x02, 0x01}; // add root structure for the DataContained
+        byte[] data = ProtocolTools.concatByteArrays(outerStructure, ProtocolTools.getSubArray(eventData, 0, eventData.length - 3)); // remove HDLC frame reserved bytes
 
         DataContainer dataContainer = new DataContainer();
         dataContainer.parseObjectList(data, null);
