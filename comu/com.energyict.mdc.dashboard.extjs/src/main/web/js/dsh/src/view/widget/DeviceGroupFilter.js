@@ -75,12 +75,10 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
             });
 
             store.each(function (item) {
-                if (true) {
                     menu.add({
                         text: Ext.String.htmlEncode(item.get('name')),
                         value: item.get('id')
-                    })
-                }
+                    });
             });
 
             button.setValue(me.router.filter.get('deviceGroup'));

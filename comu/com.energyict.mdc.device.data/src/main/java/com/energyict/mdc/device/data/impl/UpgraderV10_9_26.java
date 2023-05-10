@@ -23,7 +23,7 @@ public class UpgraderV10_9_26 implements Upgrader {
 
     private final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final String DASHBOARD_COUNT_BREAKDOWN_TASK_SCHEDULE = "0 0/3 * * * ?";
-    private static final String DASHBOARD_COUNT_BREAKDOWN_TASK_NAME = "Comm DSH Count Breakdown Task";
+    private static final String DASHBOARD_COUNT_BREAKDOWN_TASK_NAME = "Communication breakdown task";
 
     @Inject
     UpgraderV10_9_26(DataModel dataModel, TaskService taskService, MessageService messageService) {
@@ -35,16 +35,14 @@ public class UpgraderV10_9_26 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, version(10, 9, 26));
-        execute(dataModel, removeJobOnCommTaskDashboardProcedure());
-        execute(dataModel, removeJobOnConTaskDashboardProcedure());
+        execute(dataModel, removeJobOnCommTaskDashboardProcedure(), removeJobOnConTaskDashboardProcedure());
         removeExistingMVConnectionDataTable();
         upgradeSubscriberSpecs();
     }
 
     private void removeExistingMVConnectionDataTable() {
         if (dataModel.doesTableExist("MV_CONNECTIONDATA")) {
-            execute(dataModel, "truncate table MV_CONNECTIONDATA");
-            execute(dataModel, "drop table MV_CONNECTIONDATA");
+            execute(dataModel, "truncate table MV_CONNECTIONDATA", "drop table MV_CONNECTIONDATA");
         }
     }
 

@@ -1,19 +1,18 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.TaskService;
-import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.time.Clock;
 
 @Component(name = "com.energyict.mdc.device.data.impl.tasks.CommunicationDashboardBreakdownHandlerFactory",
         service = MessageHandlerFactory.class,

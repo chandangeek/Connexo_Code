@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.events.EventService;
