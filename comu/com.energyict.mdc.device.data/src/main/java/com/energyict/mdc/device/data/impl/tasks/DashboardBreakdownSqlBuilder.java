@@ -47,8 +47,9 @@ public class DashboardBreakdownSqlBuilder {
                         "   --\n" +
                         "     FROM\tDDC_COMTASKEXEC cte\n" +
                         "   --\n" +
-                        " LEFT JOIN MTG_ED_GROUP grdesc\n" +
-                        " ON exists(select * from MTG_ENUM_ED_IN_GROUP where group_id = grdesc.id and enddevice_id = dev.meterid) or " +
+                        "  JOIN DDC_DEVICE dev ON cte.device = dev.id\n" +
+                        "  LEFT JOIN MTG_ED_GROUP grdesc\n" +
+                        "  ON exists(select * from MTG_ENUM_ED_IN_GROUP where group_id = grdesc.id and enddevice_id = dev.meterid) or " +
                         " exists(select * from DYNAMIC_GROUP_DATA where group_id = grdesc.id and device_id = dev.id)" +
                         "  LEFT OUTER JOIN DDC_CONNECTIONTASK ct\n" +
                         "          ON  cte.connectiontask             = ct.id\n" +
@@ -429,7 +430,7 @@ public class DashboardBreakdownSqlBuilder {
     }
 
     public String getDashboardConTypeHeatMapDataQuery() {
-        String ConTypeHeatMapDataQuery = "insert into DASHBOARD_CONTYPEHEATMAP\n" +
+        String conTypeHeatMapDataQuery = "insert into DASHBOARD_CONTYPEHEATMAP\n" +
                 "       ( connectiontypepluggableclass, devicetype, mrid, comportpool, completeSucces,\n" +
                 "         atLeastOneFailure, failureSetupError, failureBroken, failureInterrupted,\n" +
                 "         failureNot_Execute)\n" +
@@ -447,11 +448,11 @@ public class DashboardBreakdownSqlBuilder {
                 " WHERE IS_MV_ConnectionTypeHeatMap = 1\n" +
                 " GROUP BY connectiontypepluggableclass, devicetype, mrid, comportpool";
 
-        return ConTypeHeatMapDataQuery;
+        return conTypeHeatMapDataQuery;
     }
 
     public String getDashboardConTaskLastSessionSuccessIndicatorCountDataQuery() {
-        String ConTaskLastSessionSuccessIndicatorCountDataQuery = "insert into DASHBOARD_CTLCSSUCINDCOUNT\n" +
+        String conTaskLastSessionSuccessIndicatorCountDataQuery = "insert into DASHBOARD_CTLCSSUCINDCOUNT\n" +
                 "       (devicetype, mrid, lastSessionSuccessIndicator, count)\n" +
                 "SELECT devicetype,\n" +
                 "       mrid,\n" +
@@ -461,7 +462,7 @@ public class DashboardBreakdownSqlBuilder {
                 " WHERE IS_MV_CTLCSSucIndCount = 1\n" +
                 " GROUP BY devicetype, mrid, lastSessionSuccessIndicator";
 
-        return ConTaskLastSessionSuccessIndicatorCountDataQuery;
+        return conTaskLastSessionSuccessIndicatorCountDataQuery;
     }
 
     public String getDashboardConTaskLastSessionWithAtLeastOneFailedTaskCountDataQuery() {

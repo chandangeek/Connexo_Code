@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.tasks.TaskService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 
@@ -30,19 +31,27 @@ public class DashboardBreakdownHandlerFactory implements MessageHandlerFactory {
     private volatile TaskService taskService;
     private volatile DeviceDataModelService deviceDataModelService;
 
+    private volatile OrmService ormService;
+
     public DashboardBreakdownHandlerFactory() {
         //For OSGI framework purpose
     }
 
     @Inject
-    DashboardBreakdownHandlerFactory(TaskService taskService, DeviceDataModelService deviceDataModelService) {
+    DashboardBreakdownHandlerFactory(OrmService ormService, TaskService taskService, DeviceDataModelService deviceDataModelService) {
         setTaskService(taskService);
         setDeviceDataModelService(deviceDataModelService);
+        setOrmService(ormService);
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new DashboardBreakdownHandler(deviceDataModelService));
+        return taskService.createMessageHandler(new DashboardBreakdownHandler(deviceDataModelService, ormService));
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
     }
 
     @Reference

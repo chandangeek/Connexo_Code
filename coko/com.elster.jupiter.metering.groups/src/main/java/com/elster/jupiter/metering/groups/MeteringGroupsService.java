@@ -46,8 +46,6 @@ public interface MeteringGroupsService {
 
     Optional<QueryEndDeviceGroup> findQueryEndDeviceGroup(long id);
 
-    DataMapper<QueryEndDeviceGroup> findQueryEndDeviceGroup();
-
     Optional<EnumeratedEndDeviceGroup> findEnumeratedEndDeviceGroup(long id);
 
     /**

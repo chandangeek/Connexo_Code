@@ -4,13 +4,13 @@
  */
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,17 +26,21 @@ public class DashboardBreakdownHandler implements TaskExecutor {
     private final DeviceDataModelService deviceDataModelService;
 
     private DashboardBreakdownSqlBuilder builder;
+    private OrmService ormService;
     private static final Logger LOGGER = Logger.getLogger(DashboardBreakdownHandler.class.getName());
 
-    public DashboardBreakdownHandler(DeviceDataModelService deviceDataModelService) {
+    public DashboardBreakdownHandler(DeviceDataModelService deviceDataModelService, OrmService ormService) {
         this.deviceDataModelService = deviceDataModelService;
+        this.ormService = ormService;
     }
 
     @Override
     public void execute(TaskOccurrence occurrence) {
         LOGGER.log(Level.FINE, LOGGER.getClass().getName() + " triggered at " + occurrence.getTriggerTime());
-        DeviceDataModelServiceImpl dataModelService = (DeviceDataModelServiceImpl) deviceDataModelService;
-        List<QueryEndDeviceGroup> queryEndDeviceGroupList = dataModelService.getMeteringGroupsService().findQueryEndDeviceGroup().find(); // = find all dynamic device groups
+        List<QueryEndDeviceGroup> queryEndDeviceGroupList = ormService.getDataModel(MeteringGroupsService.COMPONENTNAME)
+                .get()
+                .stream(QueryEndDeviceGroup.class)
+                .select(); // = find all dynamic device groups
         builder = new DashboardBreakdownSqlBuilder(queryEndDeviceGroupList);
         try (Connection connection = deviceDataModelService.dataModel().getConnection(true);
              PreparedStatement dynamicGroup = builder.getDynamicGroupDataBuilder().prepare(connection);

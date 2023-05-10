@@ -192,6 +192,7 @@ public class Installer implements FullInstaller {
         this.createMessageHandler(defaultQueueTableSpec, KeyRenewalHandlerFactory.KEY_RENEWAL_TASK_DESTINATION_NAME, SubscriberTranslationKeys.KEY_RENEWAL_TASK_SUBSCRIBER);
         this.createMessageHandler(defaultQueueTableSpec, MeteringZoneService.BULK_ZONE_QUEUE_DESTINATION, SubscriberTranslationKeys.ZONE_SUBSCRIBER);
         this.createMessageHandler(defaultQueueTableSpec, LoadProfileService.BULK_LOADPROFILE_QUEUE_DESTINATION, SubscriberTranslationKeys.LOADPROFILE_SUBSCRIBER);
+        this.createMessageHandler(defaultQueueTableSpec, DashboardBreakdownHandlerFactory.DASHBOARD_BREAKDOWN_TASK_DESTINATION, SubscriberTranslationKeys.DASHBOARD_BREAKDOWN_TASK_SUBSCRIBER_NAME);
         createPrioritizedMessageHandlers();
     }
 

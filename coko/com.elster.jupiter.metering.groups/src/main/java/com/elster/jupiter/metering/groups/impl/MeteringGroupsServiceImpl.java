@@ -234,11 +234,6 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     }
 
     @Override
-    public DataMapper<QueryEndDeviceGroup> findQueryEndDeviceGroup() {
-        return dataModel.mapper(QueryEndDeviceGroup.class);
-    }
-
-    @Override
     public Query<EndDeviceGroup> getEndDeviceGroupQuery() {
         return queryService.wrap(dataModel.query(EndDeviceGroup.class));
     }
