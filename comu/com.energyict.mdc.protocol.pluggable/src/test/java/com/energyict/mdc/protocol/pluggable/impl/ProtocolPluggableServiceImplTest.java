@@ -43,6 +43,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 import com.energyict.mdc.upl.crypto.HsmProtocolService;
 
+import java.time.Clock;
 import java.util.Optional;
 
 import org.junit.After;
@@ -105,6 +106,8 @@ public class ProtocolPluggableServiceImplTest {
     private DataVaultService dataVaultService;
     @Mock
     private HsmProtocolService hsmProtocolService;
+    @Mock
+    private Clock clock;
     @Mock
     private TransactionService transactionService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -803,7 +806,7 @@ public class ProtocolPluggableServiceImplTest {
 
     private ProtocolPluggableServiceImpl newTestInstance() {
         return new ProtocolPluggableServiceImpl(this.ormService, this.threadPrincipalService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, identificationService, deviceMessageSpecificationService, customPropertySetInstantiatorService, this.customPropertySetService, this.licenseService, this.dataVaultService, this.transactionService, UpgradeModule.FakeUpgradeService
-                .getInstance(), this.hsmProtocolService);
+                .getInstance(), this.hsmProtocolService, this.clock);
     }
 
 }

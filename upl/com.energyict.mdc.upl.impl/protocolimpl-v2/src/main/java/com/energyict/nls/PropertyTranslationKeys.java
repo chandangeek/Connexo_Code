@@ -308,6 +308,11 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_ELSTER_LAST_SEND_DATE("upl.property.v2.elster.lastSendDate", "Last send date"),
     V2_ELSTER_LAST_SEND_DATE_DESCRIPTION("upl.property.v2.elster.lastSendDate.description", "Last send date"),
 
+    V2_POST_GATEWAY_CONFIG_URL_PATH("upl.property.v2.acud.gateway.config.url.path", "Post gateway configuration URL path"),
+    V2_POST_GATEWAY_FIRMWARE_URL_PATH("upl.property.v2.acud.gateway.firmware.url.path", "Post gateway firmware URL path"),
+    V2_POST_GATEWAY_FIRMWARE_PART_SIZE("upl.property.v2.acud.gateway.firmware.part.size", "Maximum gateway firmware file part size"),
+    V2_GET_GATEWAY_FIRMWARE_VERSION_URL_PATH("upl.property.v2.acud.gateway.firmware.version.url.path", "Get gateway firmware version URL path"),
+
     V2_TEST_TIMEOUT("upl.property.v2.test.timeout", "Timeout"),
     V2_TEST_TIMEOUT_DESCRIPTION("upl.property.v2.test.timeout.description", "Timeout"),
     V2_TEST_RETRIES("upl.property.v2.test.retries", "Retries"),

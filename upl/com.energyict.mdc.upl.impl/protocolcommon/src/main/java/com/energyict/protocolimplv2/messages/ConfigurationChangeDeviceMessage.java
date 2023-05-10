@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.gatewayConfigurationJson;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.gatewayConfigurationJsonDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysDayIdAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysDayIdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysFormatDatesAttributeDefaultTranslation;
@@ -977,6 +979,12 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.dateTimeSpec(service, DeviceMessageConstants.startOfConventionalGasDay, DeviceMessageConstants.startOfConventionalGasDayDefaultTranslation));
+        }
+    },
+    WRITE_CONFIGURATION_TEXT(31100, "Write configuration as text") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringTextareaSpec(service, gatewayConfigurationJson, gatewayConfigurationJsonDefaultTranslation));
         }
     };
 
