@@ -24,12 +24,14 @@ public class DashboardBreakdownHandlerFactory implements MessageHandlerFactory {
     public static final String DASHBOARD_BREAKDOWN_TASK_DESTINATION = "DshBreakdownTopic";
     public static final String DASHBOARD_BREAKDOWN_TASK_SUBSCRIBER = "DshBreakdownSubscriber";
     public static final String COMM_DASHBOARD_BREAKDOWN_TASK_DISPLAYNAME = "Dashboard Count Breakdown";
+    public static final String DASHBOARD_COUNT_BREAKDOWN_TASK_SCHEDULE = "0 0/3 * * * ?";
+    public static final String DASHBOARD_COUNT_BREAKDOWN_TASK_NAME = "Communication breakdown task";
 
     private volatile TaskService taskService;
     private volatile DeviceDataModelService deviceDataModelService;
 
     public DashboardBreakdownHandlerFactory() {
-
+        //For OSGI framework purpose
     }
 
     @Inject

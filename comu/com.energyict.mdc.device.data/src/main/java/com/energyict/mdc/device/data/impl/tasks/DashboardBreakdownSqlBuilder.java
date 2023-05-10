@@ -14,7 +14,7 @@ public class DashboardBreakdownSqlBuilder {
         this.queryEndDeviceGroupList = queryEndDeviceGroupList;
     }
 
-    public SqlBuilder getCommProcedure() {
+    public SqlBuilder getDashboardComTaskDataBuilder() {
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.append("INSERT into dashboard_comtask\n" +
                 "       ( querytype, devicetype, mrid, lastsesshighestcompcode, heatmapcount,\n" +
@@ -47,10 +47,9 @@ public class DashboardBreakdownSqlBuilder {
                         "   --\n" +
                         "     FROM\tDDC_COMTASKEXEC cte\n" +
                         "   --\n" +
-                        "          JOIN DDC_DEVICE dev\tON cte.device = dev.id\n" +
-                        "  LEFT JOIN DYNAMIC_GROUP_DATA dyg ON dyg.device_id = dev.id\n" +
-                        "  LEFT JOIN MTG_ENUM_ED_IN_GROUP gr ON gr.enddevice_id = dev.meterid\n" +
-                        "  LEFT JOIN MTG_ED_GROUP grdesc ON dyg.group_id   = grdesc.id OR gr.group_id = grdesc.id    " +
+                        " LEFT JOIN MTG_ED_GROUP grdesc\n" +
+                        " ON exists(select * from MTG_ENUM_ED_IN_GROUP where group_id = grdesc.id and enddevice_id = dev.meterid) or " +
+                        " exists(select * from DYNAMIC_GROUP_DATA where group_id = grdesc.id and device_id = dev.id)" +
                         "  LEFT OUTER JOIN DDC_CONNECTIONTASK ct\n" +
                         "          ON  cte.connectiontask             = ct.id\n" +
                         "              AND ct.comPort                is not null\n" +
@@ -265,7 +264,7 @@ public class DashboardBreakdownSqlBuilder {
         return sqlBuilder;
     }
 
-    public SqlBuilder getConnProcedure() {
+    public SqlBuilder getDashboardConTaskDataBuilder() {
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.append("CREATE GLOBAL TEMPORARY TABLE MV_CONNECTIONDATA on commit preserve rows\n" +
                 "AS ");
@@ -368,9 +367,9 @@ public class DashboardBreakdownSqlBuilder {
                 "  --\n" +
                 "       JOIN DDC_DEVICE    dev ON ct.device = dev.id\n" +
                 "  --\n" +
-                "  LEFT JOIN DYNAMIC_GROUP_DATA dyg ON dyg.device_id = dev.id\n" +
-                "  LEFT JOIN MTG_ENUM_ED_IN_GROUP gr ON gr.enddevice_id = dev.meterid\n" +
-                "  LEFT JOIN MTG_ED_GROUP grdesc ON dyg.group_id = grdesc.id OR gr.group_id = grdesc.id " +
+                "  LEFT JOIN MTG_ED_GROUP grdesc\n" +
+                " ON exists(select * from MTG_ENUM_ED_IN_GROUP where group_id = grdesc.id and enddevice_id = dev.meterid) or " +
+                " exists(select * from DYNAMIC_GROUP_DATA where group_id = grdesc.id and device_id = dev.id) " +
                 "  --\n" +
                 "       LEFT JOIN\n" +
                 "                 ( SELECT comsession\n" +
@@ -393,9 +392,8 @@ public class DashboardBreakdownSqlBuilder {
         return sqlBuilder;
     }
 
-    public SqlBuilder getConnTaskBreakDown() {
-        SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.append("insert into DASHBOARD_CONTASKBREAKDOWN\n" +
+    public String getDashboardConTaskBreakdownDataQuery() {
+        String conTaskBreakdownQuery = "insert into DASHBOARD_CONTASKBREAKDOWN\n" +
                 "       (grouperby, devicetype, mrid, item, taskstatus, count)\n" +
                 "WITH\n" +
                 "--\n" +
@@ -426,13 +424,12 @@ public class DashboardBreakdownSqlBuilder {
                 "--\n" +
                 "SELECT 'DeviceType', devicetype, mrid, devicetype, taskStatus, nvl ( sum ( counter ) , 0 )\n" +
                 "  FROM alldata\n" +
-                " GROUP BY devicetype, mrid, taskStatus");
-        return sqlBuilder;
+                " GROUP BY devicetype, mrid, taskStatus";
+        return conTaskBreakdownQuery;
     }
 
-    public SqlBuilder getDashboardConTypeHeatMapBuilder() {
-        SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.append("insert into DASHBOARD_CONTYPEHEATMAP\n" +
+    public String getDashboardConTypeHeatMapDataQuery() {
+        String ConTypeHeatMapDataQuery = "insert into DASHBOARD_CONTYPEHEATMAP\n" +
                 "       ( connectiontypepluggableclass, devicetype, mrid, comportpool, completeSucces,\n" +
                 "         atLeastOneFailure, failureSetupError, failureBroken, failureInterrupted,\n" +
                 "         failureNot_Execute)\n" +
@@ -448,14 +445,13 @@ public class DashboardBreakdownSqlBuilder {
                 "       sum ( failureNot_Executed )\n" +
                 "  FROM MV_CONNECTIONDATA\n" +
                 " WHERE IS_MV_ConnectionTypeHeatMap = 1\n" +
-                " GROUP BY connectiontypepluggableclass, devicetype, mrid, comportpool");
+                " GROUP BY connectiontypepluggableclass, devicetype, mrid, comportpool";
 
-        return sqlBuilder;
+        return ConTypeHeatMapDataQuery;
     }
 
-    public SqlBuilder getDashboardCtlcsSucIndCount() {
-        SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.append("insert into DASHBOARD_CTLCSSUCINDCOUNT\n" +
+    public String getDashboardConTaskLastSessionSuccessIndicatorCountDataQuery() {
+        String ConTaskLastSessionSuccessIndicatorCountDataQuery = "insert into DASHBOARD_CTLCSSUCINDCOUNT\n" +
                 "       (devicetype, mrid, lastSessionSuccessIndicator, count)\n" +
                 "SELECT devicetype,\n" +
                 "       mrid,\n" +
@@ -463,14 +459,13 @@ public class DashboardBreakdownSqlBuilder {
                 "       count ( * )\n" +
                 "  FROM MV_CONNECTIONDATA\n" +
                 " WHERE IS_MV_CTLCSSucIndCount = 1\n" +
-                " GROUP BY devicetype, mrid, lastSessionSuccessIndicator");
+                " GROUP BY devicetype, mrid, lastSessionSuccessIndicator";
 
-        return sqlBuilder;
+        return ConTaskLastSessionSuccessIndicatorCountDataQuery;
     }
 
-    public SqlBuilder getDashboardCtlcswithatlstoneft() {
-        SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.append("insert into DASHBOARD_CTLCSWITHATLSTONEFT\n" +
+    public String getDashboardConTaskLastSessionWithAtLeastOneFailedTaskCountDataQuery() {
+        String conTaskLastSessionWithAtLeastOneFailedTaskCountDataQuery = "insert into DASHBOARD_CTLCSWITHATLSTONEFT\n" +
                 "       (devicetype, mrid, count)\n" +
                 "SELECT devicetype,\n" +
                 "       mrid,\n" +
@@ -478,29 +473,12 @@ public class DashboardBreakdownSqlBuilder {
                 "  FROM MV_CONNECTIONDATA\n" +
                 " WHERE IS_MV_CTLCSWithAtLstOneFT  = 1\n" +
                 "   AND lastsession is not null\n" +
-                " GROUP BY devicetype, mrid");
+                " GROUP BY devicetype, mrid";
 
-        return sqlBuilder;
+        return conTaskLastSessionWithAtLeastOneFailedTaskCountDataQuery;
     }
 
-    public void appendDynamicDeviceGroup(SqlBuilder builder) {
-        builder.append(" dynamic_gr as (");
-        String unionAll = "";
-        for (QueryEndDeviceGroup group : queryEndDeviceGroupList) {
-            builder.append(unionAll);
-            builder.append("select " + group.getId());
-            // builder.append();
-            builder.append(" as group_id, id as device_id from (");
-            builder.append(new QueryStringifier(group.toFragment()).getQuery());
-            //builder.add(group.toFragment());
-            builder.closeBracket();
-            unionAll = " union all ";
-        }
-        builder.closeBracket();
-        // return builder;
-    }
-
-    public SqlBuilder createGlobalTableForDynamicDeviceGroup() {
+    public SqlBuilder getDynamicGroupDataBuilder() {
         SqlBuilder builder = new SqlBuilder();
         builder.append("CREATE GLOBAL TEMPORARY TABLE DYNAMIC_GROUP_DATA on commit preserve rows AS ( ");
         String unionAll = "";

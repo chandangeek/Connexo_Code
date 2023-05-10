@@ -25,24 +25,24 @@ public class DashboardBreakdownHandler implements TaskExecutor {
 
     private final DeviceDataModelService deviceDataModelService;
 
-    private List<QueryEndDeviceGroup> queryEndDeviceGroupList;
-
     private DashboardBreakdownSqlBuilder builder;
+    private static final Logger LOGGER = Logger.getLogger(DashboardBreakdownHandler.class.getName());
 
     public DashboardBreakdownHandler(DeviceDataModelService deviceDataModelService) {
         this.deviceDataModelService = deviceDataModelService;
     }
 
     @Override
-    public synchronized void execute(TaskOccurrence occurrence) {
+    public void execute(TaskOccurrence occurrence) {
+        LOGGER.log(Level.FINE, LOGGER.getClass().getName() + " triggered at " + occurrence.getTriggerTime());
         DeviceDataModelServiceImpl dataModelService = (DeviceDataModelServiceImpl) deviceDataModelService;
-        queryEndDeviceGroupList = dataModelService.getMeteringGroupsService().findQueryEndDeviceGroup().find(); // = find all dynamic device groups
+        List<QueryEndDeviceGroup> queryEndDeviceGroupList = dataModelService.getMeteringGroupsService().findQueryEndDeviceGroup().find(); // = find all dynamic device groups
         builder = new DashboardBreakdownSqlBuilder(queryEndDeviceGroupList);
-        deleteRequiredDashboardTables();
         try (Connection connection = deviceDataModelService.dataModel().getConnection(true);
-             PreparedStatement dynamicGroup = builder.createGlobalTableForDynamicDeviceGroup().prepare(connection);
-             PreparedStatement comStmnt = builder.getCommProcedure().prepare(connection);
-             PreparedStatement conStmnt = builder.getConnProcedure().prepare(connection)) {
+             PreparedStatement dynamicGroup = builder.getDynamicGroupDataBuilder().prepare(connection);
+             PreparedStatement comStmnt = builder.getDashboardComTaskDataBuilder().prepare(connection);
+             PreparedStatement conStmnt = builder.getDashboardConTaskDataBuilder().prepare(connection)) {
+            deleteRequiredDashboardTables(connection);
             dynamicGroup.execute();
             comStmnt.execute();
             conStmnt.execute();
@@ -50,15 +50,14 @@ public class DashboardBreakdownHandler implements TaskExecutor {
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
-        Logger.getLogger(DashboardBreakdownHandler.class.getName()).log(Level.INFO, "Task executing by CommunicationDashboardBreakdownHandler");
     }
 
     public void updateConnectionTables(Connection connection) {
         try (Statement statement = connection.createStatement()) {
-            statement.execute(builder.getConnTaskBreakDown().toString());
-            statement.execute(builder.getDashboardCtlcswithatlstoneft().toString());
-            statement.execute(builder.getDashboardCtlcsSucIndCount().toString());
-            statement.execute(builder.getDashboardConTypeHeatMapBuilder().toString());
+            statement.execute(builder.getDashboardConTaskBreakdownDataQuery());
+            statement.execute(builder.getDashboardConTaskLastSessionWithAtLeastOneFailedTaskCountDataQuery());
+            statement.execute(builder.getDashboardConTaskLastSessionSuccessIndicatorCountDataQuery());
+            statement.execute(builder.getDashboardConTypeHeatMapDataQuery());
             if (deviceDataModelService.dataModel().doesTableExist("MV_CONNECTIONDATA")) {
                 statement.execute("truncate table MV_CONNECTIONDATA");
                 statement.execute("drop table MV_CONNECTIONDATA");
@@ -73,9 +72,8 @@ public class DashboardBreakdownHandler implements TaskExecutor {
         }
     }
 
-    public void deleteRequiredDashboardTables() {
-        try (Connection connection = deviceDataModelService.dataModel().getConnection(true);
-             Statement statement = connection.createStatement()) {
+    public void deleteRequiredDashboardTables(Connection connection) {
+        try (Statement statement = connection.createStatement()) {
             statement.execute("delete from dashboard_comtask");
             statement.execute("delete from DASHBOARD_CONTASKBREAKDOWN");
             statement.execute("delete from DASHBOARD_CONTYPEHEATMAP");
@@ -86,11 +84,4 @@ public class DashboardBreakdownHandler implements TaskExecutor {
         }
 
     }
-
-    @Override
-    public void postFailEvent(EventService eventService, TaskOccurrence occurrence, String cause) {
-        throw new UnsupportedOperationException("Unsupported operation");
-    }
-
-
 }

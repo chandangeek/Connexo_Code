@@ -54,7 +54,7 @@ public class DashboardBreakdownSqlBuilderTest extends PersistenceIntegrationTest
 
         DashboardBreakdownSqlBuilder sqlBuilder = new DashboardBreakdownSqlBuilder(queryEndDeviceGroups);
 
-        assertEquals(sqlBuilder.createGlobalTableForDynamicDeviceGroup().toString(),
+        assertEquals(sqlBuilder.getDynamicGroupDataBuilder().toString(),
                 "CREATE GLOBAL TEMPORARY TABLE DYNAMIC_GROUP_DATA on commit preserve rows AS ( select 1 as group_id, id as device_id from " +
                         "(select D1.ID from DDC_DEVICE D1 where (D1.ID) IN (select id from (select dev.ID, dev.VERSIONCOUNT, dev.CREATETIME, dev.MODTIME, dev.USERNAME, dev.NAME, dev.SERIALNUMBER, dev.TIMEZONE, dev.MRID, dev.CERTIF_YEAR, dev.DEVICETYPE, dev.DEVICECONFIGID, dev.METERID, dev.BATCH_ID, dev.ESTIMATION_ACTIVE, dev.PASSIVE_CAL, dev.PLANNED_PASSIVE_CAL from  DDC_DEVICE dev where (nvl(dev.name, '') LIKE 'devicenam%' ESCAPE '\\')))))");
     }
