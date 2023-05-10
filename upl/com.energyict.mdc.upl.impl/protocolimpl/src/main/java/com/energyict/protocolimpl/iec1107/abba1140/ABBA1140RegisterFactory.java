@@ -24,6 +24,7 @@ public class ABBA1140RegisterFactory {
     static public final int MAX_MD_REGS=12;
     static public final int NUMBER_OF_HISTORICAL_REGS=24;
     static public final int NUMBER_OF_DAILY_REGS=14;
+    public static final String loadProfileKey = "LoadProfile";
 
     private Map registers = new TreeMap();
     private ProtocolLink protocolLink;

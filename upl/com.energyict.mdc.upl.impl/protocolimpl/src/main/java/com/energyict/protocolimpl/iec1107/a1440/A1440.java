@@ -284,11 +284,11 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
                 this.integerSpec("RS485RtuPlusServer", PropertyTranslationKeys.IEC1107_RS485RTU_PLUS_SERVER),
                 this.integerSpec(PR_LIMIT_MAX_NR_OF_DAYS, PropertyTranslationKeys.IEC1107_LIMIT_MAX_NR_OF_DAYS),
-                this.stringSpec(INVERT_BILLING_ORDER, PropertyTranslationKeys.IEC1107_INVERT_BILLING_ORDER),
-                this.stringSpec(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, PropertyTranslationKeys.IEC1107_USE_EQUIPMENT_IDENTIFIER_AS_SERIAL),
+                this.booleanSpec(INVERT_BILLING_ORDER, PropertyTranslationKeys.IEC1107_INVERT_BILLING_ORDER),
+                this.booleanSpec(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, PropertyTranslationKeys.IEC1107_USE_EQUIPMENT_IDENTIFIER_AS_SERIAL),
                 this.integerSpec("FailOnUnitMismatch", PropertyTranslationKeys.IEC1107_FAIL_ON_UNIT_MISMATCH),
                 this.integerSpec("HalfDuplex", PropertyTranslationKeys.IEC1107_HALF_DUPLEX),
-                this.stringSpec(READ_LOGBOOK_AND_LP_COMBINED, PropertyTranslationKeys.READ_LOGBOOK_AND_LP_COMBINED));
+                this.booleanSpec(READ_LOGBOOK_AND_LP_COMBINED, PropertyTranslationKeys.READ_LOGBOOK_AND_LP_COMBINED));
     }
 
     private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
@@ -297,6 +297,10 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     private PropertySpec stringSpec(String name, TranslationKey translationKey) {
         return this.spec(name, translationKey, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec booleanSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::booleanSpec);
     }
 
     private PropertySpec integerSpec(String name, TranslationKey translationKey) {
@@ -375,7 +379,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2022-09-30$";
+        return "$Date: 2023-04-10$";
     }
 
     @Override
