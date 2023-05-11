@@ -159,10 +159,8 @@ public class ExecuteMasterDataLinkageConfigEndpoint extends AbstractInboundEndPo
 
     private EndPointConfiguration getOutboundEndPointConfiguration(MasterDataLinkageAction action, String url)
             throws FaultMessage {
-        EndPointConfiguration endPointConfig = endPointConfigurationService.findEndPointConfigurations().stream()
+        EndPointConfiguration endPointConfig = endPointConfigurationService.getOutboundEndpointConfigurationByUrl(url)
                 .filter(EndPointConfiguration::isActive)
-                .filter(endPointConfiguration -> !endPointConfiguration.isInbound())
-                .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url)).findFirst()
                 .orElseThrow(faultMessageFactory.createMasterDataLinkageFaultMessageSupplier(action,
                         MessageSeeds.NO_END_POINT_WITH_URL, url));
         if (!webServicesService.isPublished(endPointConfig)) {

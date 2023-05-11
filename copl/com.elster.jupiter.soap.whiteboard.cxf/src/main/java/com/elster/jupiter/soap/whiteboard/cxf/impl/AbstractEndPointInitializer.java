@@ -12,6 +12,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -26,6 +27,7 @@ public class AbstractEndPointInitializer {
     private final Thesaurus thesaurus;
     private final EndPointConfigurationService endPointConfigurationService;
     private final WebServicesService webServicesService;
+    private final WebServiceCallOccurrenceService webServiceCallOccurrenceService;
     private final EventService eventService;
 
     @Inject
@@ -35,6 +37,7 @@ public class AbstractEndPointInitializer {
                                 Thesaurus thesaurus,
                                 EndPointConfigurationService endPointConfigurationService,
                                 WebServicesService webServicesService,
+                                WebServiceCallOccurrenceService webServiceCallOccurrenceService,
                                 EventService eventService) {
         this.transactionService = transactionService;
         this.threadPrincipalService = threadPrincipalService;
@@ -42,6 +45,7 @@ public class AbstractEndPointInitializer {
         this.thesaurus = thesaurus;
         this.endPointConfigurationService = endPointConfigurationService;
         this.webServicesService = webServicesService;
+        this.webServiceCallOccurrenceService = webServiceCallOccurrenceService;
         this.eventService = eventService;
     }
 
@@ -52,6 +56,7 @@ public class AbstractEndPointInitializer {
             inject(AbstractInboundEndPoint.class, endPoint, "userService", userService);
             inject(AbstractInboundEndPoint.class, endPoint, "endPointConfiguration", endPointConfiguration);
             inject(AbstractInboundEndPoint.class, endPoint, "webServicesService", webServicesService);
+            inject(AbstractInboundEndPoint.class, endPoint, "webServiceCallOccurrenceService", webServiceCallOccurrenceService);
         }
         return endPoint;
     }
@@ -61,6 +66,7 @@ public class AbstractEndPointInitializer {
             inject(AbstractOutboundEndPointProvider.class, endPointProvider, "thesaurus", thesaurus);
             inject(AbstractOutboundEndPointProvider.class, endPointProvider, "endPointConfigurationService", endPointConfigurationService);
             inject(AbstractOutboundEndPointProvider.class, endPointProvider, "webServicesService", webServicesService);
+            inject(AbstractOutboundEndPointProvider.class, endPointProvider, "webServiceCallOccurrenceService", webServiceCallOccurrenceService);
             inject(AbstractOutboundEndPointProvider.class, endPointProvider, "eventService", eventService);
         }
         return endPointProvider;

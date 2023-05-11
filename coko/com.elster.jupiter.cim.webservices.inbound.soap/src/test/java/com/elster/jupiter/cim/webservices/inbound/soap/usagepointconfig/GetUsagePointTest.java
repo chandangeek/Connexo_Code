@@ -50,8 +50,6 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -107,18 +105,14 @@ public class GetUsagePointTest extends AbstractMockActivator {
         Field webServiceContextField = AbstractInboundEndPoint.class.getDeclaredField("webServiceContext");
         webServiceContextField.setAccessible(true);
         webServiceContextField.set(executeUsagePointConfigEndpoint, webServiceContext);
-        when(messageContext.get(anyString())).thenReturn(1l);
+        when(messageContext.get(anyString())).thenReturn(1L);
         when(webServiceContext.getMessageContext()).thenReturn(messageContext);
         inject(AbstractInboundEndPoint.class, executeUsagePointConfigEndpoint, "threadPrincipalService", threadPrincipalService);
         inject(AbstractInboundEndPoint.class, executeUsagePointConfigEndpoint, "webServicesService", webServicesService);
+        inject(AbstractInboundEndPoint.class, executeUsagePointConfigEndpoint, "webServiceCallOccurrenceService", webServiceCallOccurrenceService);
         inject(AbstractInboundEndPoint.class, executeUsagePointConfigEndpoint, "transactionService", transactionService);
-        when(transactionService.execute(any())).then(new Answer(){
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return ((ExceptionThrowingSupplier)invocationOnMock.getArguments()[0]).get();
-            }
-        });
-        when(webServicesService.getOngoingOccurrence(1l)).thenReturn(webServiceCallOccurrence);
+        when(transactionService.execute(any())).then(invocationOnMock -> invocationOnMock.getArgumentAt(0, ExceptionThrowingSupplier.class).get());
+        when(webServiceCallOccurrenceService.getOngoingOccurrence(1L)).thenReturn(webServiceCallOccurrence);
         when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.of("ApplicationName"));
         when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.of("Request"));
 

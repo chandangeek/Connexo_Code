@@ -13,6 +13,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -78,23 +79,25 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
     @Mock
     private WebServicesService webServicesService;
     @Mock
+    private WebServiceCallOccurrenceService webServiceCallOccurrenceService;
+    @Mock
     private WebServiceCallOccurrence webServiceCallOccurrence;
     @Mock
     private Thesaurus thesaurus;
     @Mock
     protected OutboundEndPointProvider.RequestSender requestSender;
 
-
     @Before
     public void setup() {
         provider = Mockito.spy(new ReplyMasterDataLinkageConfigServiceProvider());
         String url = "some url";
-        Mockito.when(webServiceCallOccurrence.getId()).thenReturn(1l);
-        Mockito.when(webServicesService.startOccurrence(Matchers.any(EndPointConfiguration.class), Matchers.anyString(), Matchers.anyString())).thenReturn(webServiceCallOccurrence);
+        Mockito.when(webServiceCallOccurrence.getId()).thenReturn(1L);
+        Mockito.when(webServiceCallOccurrenceService.startOccurrence(Matchers.any(EndPointConfiguration.class), Matchers.anyString(), Matchers.anyString())).thenReturn(webServiceCallOccurrence);
         Mockito.when(thesaurus.getSimpleFormat(Matchers.any(MessageSeed.class))).thenReturn(Mockito.mock(NlsMessageFormat.class));
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", thesaurus);
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
-        provider.addMasterDataLinkageConfigPort(masterDataLinkageConfigPort, ImmutableMap.of("url", url, "epcId", 1l));
+        inject(AbstractOutboundEndPointProvider.class, provider, "webServiceCallOccurrenceService", webServiceCallOccurrenceService);
+        provider.addMasterDataLinkageConfigPort(masterDataLinkageConfigPort, ImmutableMap.of("url", url, "epcId", 1L));
         Mockito.when(provider.using(Matchers.anyString())).thenReturn(requestSender);
         Mockito.when(requestSender.toEndpoints(Matchers.any(EndPointConfiguration.class))).thenReturn(requestSender);
         Mockito.when(requestSender.withRelatedAttributes(Matchers.anyObject())).thenReturn(requestSender);

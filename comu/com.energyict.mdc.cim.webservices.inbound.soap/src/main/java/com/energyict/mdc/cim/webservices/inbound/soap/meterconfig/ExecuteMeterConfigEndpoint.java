@@ -220,12 +220,9 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
     private EndPointConfiguration getOutboundEndPointConfiguration(String url) throws FaultMessage {
         EndPointConfiguration endPointConfig = null;
         if (!Checks.is(url).emptyOrOnlyWhiteSpace()) {
-            endPointConfig = endPointConfigurationService.findEndPointConfigurations().stream()
+            endPointConfig = endPointConfigurationService.getOutboundEndpointConfigurationByUrl(url)
                     .filter(EndPointConfiguration::isActive)
-                    .filter(endPointConfiguration -> !endPointConfiguration.isInbound())
-                    .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url)).findFirst()
-                    .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null,
-                            MessageSeeds.NO_END_POINT_WITH_URL, url));
+                    .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.NO_END_POINT_WITH_URL, url));
             if (!webServicesService.isPublished(endPointConfig)) {
                 webServicesService.publishEndPoint(endPointConfig);
             }

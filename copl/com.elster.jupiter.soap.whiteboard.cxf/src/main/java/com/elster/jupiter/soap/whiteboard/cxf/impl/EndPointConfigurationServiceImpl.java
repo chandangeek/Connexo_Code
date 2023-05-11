@@ -15,6 +15,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.util.conditions.Condition;
@@ -65,6 +66,13 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     public Optional<EndPointConfiguration> getEndPointConfiguration(long id) {
         return dataModel.mapper(EndPointConfiguration.class)
                 .getUnique(EndPointConfigurationImpl.Fields.ID.fieldName(), id);
+    }
+
+    @Override
+    public Optional<OutboundEndPointConfiguration> getOutboundEndpointConfigurationByUrl(String url) {
+        return dataModel.stream(OutboundEndPointConfiguration.class)
+                .filter(Where.where(EndPointConfigurationImpl.Fields.URL.fieldName()).isEqualTo(url))
+                .findAny();
     }
 
     @Override

@@ -69,7 +69,7 @@ public class MeterEventCreateRequestConfirmationReceiverTest extends AbstractInb
         values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
                 "1");
 
-        verify(webServicesService).passOccurrence(webServiceCallOccurrence.getId());
+        verify(webServiceCallOccurrenceService).passOccurrence(webServiceCallOccurrence.getId());
         verify(webServiceCallOccurrence).log(LogLevel.INFO, "Confirmed smart meter event creation request with UUID " + REF_UUID + ".");
         verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }

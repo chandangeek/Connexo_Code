@@ -229,7 +229,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
     }
 
     @Test
-    public void testNumberOfReadingsPerMsgEqaulNumberOfReadingsInDataSource() {
+    public void testNumberOfReadingsPerMsgEqualNumberOfReadingsInDataSource() {
         /* We have 3 readings in each data source. Configure number of readings per msg equal to 3.
         * Two messages should be sent */
         when(readingNumberPerMessageProvider.getNumberOfReadingsPerMsg()).thenReturn(3);

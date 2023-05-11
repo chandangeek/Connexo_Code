@@ -25,6 +25,7 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -85,6 +86,8 @@ public abstract class AbstractMockActivator {
     protected EndPointConfigurationService endPointConfigurationService;
     @Mock
     protected WebServicesService webServicesService;
+    @Mock
+    protected WebServiceCallOccurrenceService webServiceCallOccurrenceService;
     @Mock
     protected ServiceCallService serviceCallService;
     @Mock

@@ -35,11 +35,12 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
@@ -95,10 +96,7 @@ public abstract class AbstractMockActivator {
     protected NlsService nlsService;
     @Mock
     protected Clock clock;
-    @Mock
-    protected TransactionService transactionService;
-    @Mock
-    protected TransactionContext transactionContext;
+    protected TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
     @Mock
     protected ThreadPrincipalService threadPrincipalService;
     @Mock
@@ -143,6 +141,8 @@ public abstract class AbstractMockActivator {
     private ServiceCallType serviceCallType;
     @Mock
     protected WebServicesService webServicesService;
+    @Mock
+    protected WebServiceCallOccurrenceService webServiceCallOccurrenceService;
     @Mock
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock
@@ -198,7 +198,6 @@ public abstract class AbstractMockActivator {
 
     private void initMocks() {
         when(nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP)).thenReturn(thesaurus);
-        when(transactionService.getContext()).thenReturn(transactionContext);
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
         when(serviceCallService.findServiceCallType(anyString(), anyString())).thenReturn(Optional.of(serviceCallType));
         mockWebServices(true);

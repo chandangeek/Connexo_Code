@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -158,19 +159,19 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
             finiteStateMachineService.getStateTransitionWebServiceClients().forEach(stateTransitionWebServiceClient -> {
                 String nameService = stateTransitionWebServiceClient.getWebServiceName();
 
-                List<Long> endPointConfigurationIds = currentState.getOnExitEndPointConfigurations().stream()
+                Set<EndPointConfiguration> endPointConfigurations = currentState.getOnExitEndPointConfigurations().stream()
                         .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
                         .filter(endPoint->endPoint.getWebServiceName().equals(nameService))
-                        .map(EndPointConfiguration::getId)
-                        .collect(Collectors.toList());
-                endPointConfigurationIds.addAll(newState.getOnEntryEndPointConfigurations().stream()
+                        .filter(EndPointConfiguration::isActive)
+                        .collect(Collectors.toSet());
+                endPointConfigurations.addAll(newState.getOnEntryEndPointConfigurations().stream()
                         .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
                         .filter(endPoint->endPoint.getWebServiceName().equals(nameService))
-                        .map(EndPointConfiguration::getId)
-                        .collect(Collectors.toList()));
+                        .filter(EndPointConfiguration::isActive)
+                        .collect(Collectors.toSet()));
 
-                if(!endPointConfigurationIds.isEmpty()) {
-                    stateTransitionWebServiceClient.call(Long.valueOf(id), endPointConfigurationIds, newState.getName(), effectiveDate);
+                if(!endPointConfigurations.isEmpty()) {
+                    stateTransitionWebServiceClient.call(Long.parseLong(id), endPointConfigurations, newState.getName(), effectiveDate);
                 }
             });
         }

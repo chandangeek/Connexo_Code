@@ -8,11 +8,11 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.AbstractEndPointInitializer;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.IllegalWebServiceCallOccurrenceStateException;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.ManagedEndpoint;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
-import com.elster.jupiter.soap.whiteboard.cxf.impl.IllegalWebServiceCallOccurrenceStateException;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import org.apache.cxf.annotations.SchemaValidation;
@@ -39,7 +39,7 @@ public final class InboundSoapEndPoint implements ManagedEndpoint {
     private final Provider<AuthorizationInInterceptor> authorizationInInterceptorProvider;
     private final Provider<AccessLogFeature> accessLogFeatureProvider;
     private final AbstractEndPointInitializer endPointInitializer;
-    private final WebServicesService webServicesService;
+    private final WebServiceCallOccurrenceService webServiceCallOccurrenceService;
 
     private Server endpoint;
     private TracingFeature tracingFeature;
@@ -48,13 +48,13 @@ public final class InboundSoapEndPoint implements ManagedEndpoint {
     public InboundSoapEndPoint(SoapProviderSupportFactory soapProviderSupportFactory, @Named("LogDirectory") String logDirectory,
                                Provider<AuthorizationInInterceptor> authorizationInInterceptorProvider,
                                Provider<AccessLogFeature> accessLogFeatureProvider, AbstractEndPointInitializer endPointInitializer,
-                               WebServicesService webServicesService) {
+                               WebServiceCallOccurrenceService webServiceCallOccurrenceService) {
         this.soapProviderSupportFactory = soapProviderSupportFactory;
         this.logDirectory = logDirectory;
         this.authorizationInInterceptorProvider = authorizationInInterceptorProvider;
         this.accessLogFeatureProvider = accessLogFeatureProvider;
         this.endPointInitializer = endPointInitializer;
-        this.webServicesService = webServicesService;
+        this.webServiceCallOccurrenceService = webServiceCallOccurrenceService;
     }
 
     InboundSoapEndPoint init(InboundSoapEndPointProvider endPointProvider, InboundEndPointConfiguration endPointConfiguration) {
@@ -100,7 +100,7 @@ public final class InboundSoapEndPoint implements ManagedEndpoint {
     private boolean logFault(Message message, Exception exception) {
         try {
             MessageUtils.findOccurrenceId(message)
-                    .ifPresent(id -> webServicesService.failOccurrence(id, exception));
+                    .ifPresent(id -> webServiceCallOccurrenceService.failOccurrence(id, exception));
         } catch (IllegalWebServiceCallOccurrenceStateException e) {
             // means occurrence has already been failed and removed from context; so just ignore
         }

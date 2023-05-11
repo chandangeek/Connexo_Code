@@ -9,7 +9,6 @@
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
         <version>20.0.0-Kratos-SNAPSHOT</version>
-
     </parent>
 
     <artifactId>mdc.device.lifecycle.config.rest</artifactId>
@@ -129,10 +128,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.cim.webservices.outbound.soap</artifactId>
         </dependency>
 
         <!-- Testing -->

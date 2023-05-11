@@ -3,13 +3,6 @@
  */
 package com.elster.jupiter.cim.webservices.outbound.soap.meterreadings;
 
-import ch.iec.tc57._2011.meterreadings.MeterReadings;
-import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsEventMessageType;
-import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsResponseMessageType;
-import ch.iec.tc57._2011.schema.message.HeaderType;
-import ch.iec.tc57._2011.schema.message.ReplyType;
-import ch.iec.tc57._2011.sendmeterreadings.FaultMessage;
-import ch.iec.tc57._2011.sendmeterreadings.MeterReadingsPort;
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
@@ -25,33 +18,43 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.BulkWebServiceCallResult;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
+import ch.iec.tc57._2011.meterreadings.MeterReadings;
+import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsEventMessageType;
+import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsResponseMessageType;
+import ch.iec.tc57._2011.schema.message.HeaderType;
+import ch.iec.tc57._2011.schema.message.ReplyType;
+import ch.iec.tc57._2011.sendmeterreadings.FaultMessage;
+import ch.iec.tc57._2011.sendmeterreadings.MeterReadingsPort;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.common.collect.SetMultimap;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -80,6 +83,8 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
     private EndPointConfigurationService endPointConfigurationService;
     @Mock
     private WebServicesService webServicesService;
+    @Mock
+    private WebServiceCallOccurrenceService webServiceCallOccurrenceService;
     @Mock
     private WebServiceCallOccurrence webServiceCallOccurrence;
     @Mock
@@ -111,22 +116,23 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
     @Before
     public void setup() {
         provider = spy(new SendMeterReadingsProviderImpl());
-        when(webServiceCallOccurrence.getId()).thenReturn(1l);
-        when(webServicesService.startOccurrence(any(EndPointConfiguration.class), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrence.getId()).thenReturn(1L);
+        when(webServiceCallOccurrenceService.startOccurrence(any(EndPointConfiguration.class), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
         when(thesaurus.getSimpleFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
+        inject(AbstractOutboundEndPointProvider.class, provider, "webServiceCallOccurrenceService", webServiceCallOccurrenceService);
         inject(AbstractOutboundEndPointProvider.class, provider, "endPointConfigurationService", endPointConfigurationService);
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", thesaurus);
-        when(webServiceCallOccurrence.getId()).thenReturn(1l);
+        when(webServiceCallOccurrence.getId()).thenReturn(1L);
         when(thesaurus.getSimpleFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
-        Map<String, Object> properties = ImmutableMap.of("url", "some_url", "epcId", 1l);
+        Map<String, Object> properties = ImmutableMap.of("url", "some_url", "epcId", 1L);
         provider.addMeterReadingsPort(meterReadingsPort, properties);
         when(provider.using(anyString())).thenReturn(requestSender);
         when(requestSender.toEndpoints(endPointConfiguration)).thenReturn(requestSender);
-        Map responseMap = new HashMap();
-        responseMap.put(endPointConfiguration, response);
+        BulkWebServiceCallResult result = mock(BulkWebServiceCallResult.class);
+        doReturn(Optional.of(response)).when(result).getResponse(endPointConfiguration);
         when(requestSender.withRelatedAttributes(any())).thenReturn(requestSender);
-        when(requestSender.send(any())).thenReturn(responseMap);
+        when(requestSender.send(any())).thenReturn(result);
         mockMeter();
     }
 
