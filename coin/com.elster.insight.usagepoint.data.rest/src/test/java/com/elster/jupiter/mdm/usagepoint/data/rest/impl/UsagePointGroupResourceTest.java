@@ -26,7 +26,6 @@ import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.rest.util.StatusCode;
-import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
@@ -100,9 +99,9 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
     @Mock
     private Finder<UsagePoint> finder;
     @Mock
-    private SearchBuilder<UsagePoint> searchBuilder;
-    @Mock
     private Query<UsagePointGroup> usagePointGroupQuery;
+    @Mock
+    private Query<QueryUsagePointGroup> queryUsagePointGroupQuery;
     @Captor
     private ArgumentCaptor<List<SearchablePropertyCondition>> searchablePropertyConditionsCaptor;
 
@@ -113,14 +112,14 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
 
     @Test
     public void testGetQueryUsagePointGroup() throws Exception {
-        when(meteringGroupsService.getQueryUsagePointGroupQuery()).thenReturn(usagePointGroupQuery);
+        when(meteringGroupsService.getQueryUsagePointGroupQuery()).thenReturn(queryUsagePointGroupQuery);
         QueryUsagePointGroup usagePointGroup = mock(QueryUsagePointGroup.class);
         when(usagePointGroup.getId()).thenReturn(13L);
         when(usagePointGroup.getName()).thenReturn("South region");
         when(usagePointGroup.getMRID()).thenReturn("LAPOPKLQKS");
         when(usagePointGroup.isDynamic()).thenReturn(true);
-        List<UsagePointGroup> usagePointGroups = Collections.singletonList(usagePointGroup);
-        when(usagePointGroupQuery.select(anyObject(), anyObject())).thenReturn(usagePointGroups);
+        List<QueryUsagePointGroup> usagePointGroups = Collections.singletonList(usagePointGroup);
+        when(queryUsagePointGroupQuery.select(anyObject(), anyObject())).thenReturn(usagePointGroups);
 
         String response = target("/usagepointgroups").queryParam("type", "QueryUsagePointGroup").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);

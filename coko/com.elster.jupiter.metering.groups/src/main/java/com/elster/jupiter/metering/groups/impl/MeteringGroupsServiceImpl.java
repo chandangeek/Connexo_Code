@@ -243,16 +243,16 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     }
 
     @Override
-    public Query<EndDeviceGroup> getQueryEndDeviceGroupQuery() {
-        Query<EndDeviceGroup> endDeviceGroupQuery = queryService.wrap(dataModel.query(EndDeviceGroup.class));
-        endDeviceGroupQuery.setRestriction(where("class").isEqualTo(QueryEndDeviceGroup.TYPE_IDENTIFIER).and(where("label").isEqualTo("MDC")));
+    public Query<QueryEndDeviceGroup> getQueryEndDeviceGroupQuery() {
+        Query<QueryEndDeviceGroup> endDeviceGroupQuery = queryService.wrap(dataModel.query(QueryEndDeviceGroup.class));
+        endDeviceGroupQuery.setRestriction(where("class").isEqualTo(QueryEndDeviceGroup.TYPE_IDENTIFIER));
         return endDeviceGroupQuery;
     }
 
     @Override
-    public Query<UsagePointGroup> getQueryUsagePointGroupQuery() {
-        Query<UsagePointGroup> usagePointGroupQuery = queryService.wrap(dataModel.query(UsagePointGroup.class));
-        usagePointGroupQuery.setRestriction(where("class").isEqualTo(QueryUsagePointGroup.TYPE_IDENTIFIER).and(where("label").isEqualTo("MDM")));
+    public Query<QueryUsagePointGroup> getQueryUsagePointGroupQuery() {
+        Query<QueryUsagePointGroup> usagePointGroupQuery = queryService.wrap(dataModel.query(QueryUsagePointGroup.class));
+        usagePointGroupQuery.setRestriction(where("class").isEqualTo(QueryUsagePointGroup.TYPE_IDENTIFIER));
         return usagePointGroupQuery;
     }
 

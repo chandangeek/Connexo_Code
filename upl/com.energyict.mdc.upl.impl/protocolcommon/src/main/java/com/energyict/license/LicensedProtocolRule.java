@@ -426,6 +426,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     CREST_SENSOR(352, "com.energyict.protocolimplv2.coap.crest.CrestSensor"),
 
     MERLIN_WATER_OUTBOUND(353, "com.energyict.protocolimplv2.water.merlin.MerlinOutboundProtocol"),
+    EM620(354, "com.energyict.protocolimplv2.dlms.itron.em620.EM620"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),

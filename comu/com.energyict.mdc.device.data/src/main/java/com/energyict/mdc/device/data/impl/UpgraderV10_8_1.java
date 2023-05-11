@@ -9,7 +9,6 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
-import java.util.logging.Logger;
 
 public class UpgraderV10_8_1 implements Upgrader {
     private final DataModel dataModel;
@@ -37,6 +36,6 @@ public class UpgraderV10_8_1 implements Upgrader {
                 "alter table DDC_COMTASKEXECJOURNALENTRY drop column MOD_DATE"
         );
         execute(dataModel, "CREATE INDEX IX_CONNECTIONTASK_IDASC ON DDC_CONNECTIONTASK (COMPORTPOOL, NEXTEXECUTIONTIMESTAMP, mod(ID, 100), ID)");
-        installerV10_8_1.prepareDashboard(Logger.getAnonymousLogger());
+        installerV10_8_1.prepareDashboard();
     }
 }

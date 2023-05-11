@@ -15,6 +15,12 @@ Ext.define('Mdc.store.StaticGroupDevices', {
         reader: {
             type: 'json',
             root: 'searchResults'
+        },
+        actionMethods: {
+            create: 'POST',
+            read: 'POST',
+            update: 'PUT',
+            destroy: 'DELETE'
         }
     }
 });

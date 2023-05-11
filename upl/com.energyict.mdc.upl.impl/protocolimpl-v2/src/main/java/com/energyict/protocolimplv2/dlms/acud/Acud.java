@@ -73,7 +73,7 @@ public abstract class Acud extends AbstractDlmsProtocol {
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     private static final ObisCode FIRMWARE_VERSION_OBIS_CODE = ObisCode.fromString("0.0.0.2.0.255");
 
-    private HHUSignOnV2 hhuSignOnV2;
+    protected HHUSignOnV2 hhuSignOnV2;
     private AcudRegisterFactory registerFactory;
     private AcudLogBookFactory logBookFactory;
     private AcudLoadProfileDataReader loadProfileDataReader;
@@ -112,7 +112,7 @@ public abstract class Acud extends AbstractDlmsProtocol {
         setDlmsSession(new AcudDlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOnV2, getDlmsSessionProperties().getDeviceId()));
     }
 
-    private HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
+    protected HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
         HHUSignOnV2 hhuSignOn = new IEC1107HHUSignOn(serialPortComChannel, getDlmsSessionProperties());
         hhuSignOn.setMode(HHUSignOn.MODE_MANUFACTURER_SPECIFIC_SEVCD);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
