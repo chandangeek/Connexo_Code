@@ -75,6 +75,7 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
         EndDeviceGroup endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(getSearchablePropertyValues())
                 .setName(getName())
                 .setSearchDomain(findDeviceSearchDomain())
+                .setLabel("MDC")
                 .setMRID("MDC:" + getName())
                 .setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider")
                 .create();

@@ -21,6 +21,7 @@ import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandler
 import com.energyict.mdc.device.data.impl.pki.tasks.certrenewal.CertificateRenewalHandlerFactory;
 import com.energyict.mdc.device.data.impl.pki.tasks.crlrequest.CrlRequestHandlerFactory;
 import com.energyict.mdc.device.data.impl.pki.tasks.keyrenewal.KeyRenewalHandlerFactory;
+import com.energyict.mdc.device.data.impl.tasks.DashboardBreakdownHandlerFactory;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -54,7 +55,9 @@ public enum SubscriberTranslationKeys implements TranslationKey {
     CRL_REQUEST_TASK_SUBSCRIBER(CrlRequestHandlerFactory.CRL_REQUEST_TASK_SUBSCRIBER, CrlRequestHandlerFactory.CRL_REQUEST_TASK_DISPLAY_NAME),
     IPV6ADDRESS_SUBSCRIBER("IPv6AddressSubscriber", "Handle events for IPv6 address change"),
     ZONE_SUBSCRIBER(MeteringZoneService.BULK_ZONE_QUEUE_SUBSCRIBER, MeteringZoneService.BULK_ZONE_QUEUE_DISPLAYNAME),
-    LOADPROFILE_SUBSCRIBER(LoadProfileService.BULK_LOADPROFILE_QUEUE_SUBSCRIBER, LoadProfileService.BULK_LOADPROFILE_QUEUE_DISPLAYNAME);
+    LOADPROFILE_SUBSCRIBER(LoadProfileService.BULK_LOADPROFILE_QUEUE_SUBSCRIBER, LoadProfileService.BULK_LOADPROFILE_QUEUE_DISPLAYNAME),
+    DASHBOARD_BREAKDOWN_TASK_SUBSCRIBER_NAME(DashboardBreakdownHandlerFactory.DASHBOARD_BREAKDOWN_TASK_SUBSCRIBER, DashboardBreakdownHandlerFactory.DASHBOARD_BREAKDOWN_TASK_SUBSCRIBER_DISPLAYNAME);
+
 
     private String key;
     private String defaultFormat;

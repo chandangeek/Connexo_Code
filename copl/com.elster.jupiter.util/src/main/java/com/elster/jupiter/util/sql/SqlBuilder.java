@@ -101,7 +101,7 @@ public final class SqlBuilder implements SqlFragment {
                 from += part.size();
                 devicesProcessed += part.size();
                 if (devicesProcessed < total) {
-                    builder.append(" OR ");
+                    append(" OR ");
                 }
             }
         }
@@ -111,9 +111,9 @@ public final class SqlBuilder implements SqlFragment {
         append(" IN (");
         for (Iterator<? extends HasId> it = idsList.iterator(); it.hasNext(); ) {
             HasId value = it.next();
-            builder.append(value.getId());
+            addLong(value.getId());
             if (it.hasNext()) {
-                builder.append(",");
+                append(",");
             }
         }
         append(")");
@@ -285,7 +285,6 @@ public final class SqlBuilder implements SqlFragment {
         public int bind(PreparedStatement statement, int position) throws SQLException {
             statement.setObject(position, value);
             return position + 1;
-
         }
     }
 

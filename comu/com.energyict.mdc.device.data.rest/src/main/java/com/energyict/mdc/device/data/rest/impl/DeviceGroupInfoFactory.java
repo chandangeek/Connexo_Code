@@ -22,7 +22,7 @@ public class DeviceGroupInfoFactory {
         return deviceGroupInfo;
     }
 
-    public List<DeviceGroupInfo> from(List<EndDeviceGroup> endDeviceGroups) {
+    public List<DeviceGroupInfo> from(List<? extends EndDeviceGroup> endDeviceGroups) {
         return endDeviceGroups.stream()
                 .map(this::basicFrom)
                 .collect(Collectors.toList());

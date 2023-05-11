@@ -9,7 +9,6 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.metering.groups.GroupEventData;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.groups.impl.search.UsagePointGroupSearchableProperty;
 import com.elster.jupiter.nls.Layer;
@@ -55,7 +54,6 @@ public class UsagePointGroupDeletionVetoEventHandler implements TopicHandler {
         UsagePointGroup usagePointGroup = (UsagePointGroup) eventSource.getGroup();
 
         this.meteringGroupsService.getQueryUsagePointGroupQuery().select(Condition.TRUE).stream()
-                .map(QueryUsagePointGroup.class::cast)
                 .flatMap(queryUsagePointGroup -> queryUsagePointGroup.getSearchablePropertyValues().stream())
                 .filter(searchablePropertyValue ->
                         UsagePointGroupSearchableProperty.PROPERTY_NAME.equals(searchablePropertyValue.getProperty().getName())

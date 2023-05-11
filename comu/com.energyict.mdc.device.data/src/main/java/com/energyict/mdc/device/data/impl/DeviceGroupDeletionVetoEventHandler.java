@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.metering.groups.GroupEventData;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -57,7 +56,6 @@ public class DeviceGroupDeletionVetoEventHandler implements TopicHandler {
         EndDeviceGroup endDeviceGroup = (EndDeviceGroup) eventSource.getGroup();
 
         this.meteringGroupsService.getQueryEndDeviceGroupQuery().select(Condition.TRUE).stream()
-                .map(QueryEndDeviceGroup.class::cast)
                 .flatMap(deviceGroup -> deviceGroup.getSearchablePropertyValues().stream())
                 .filter(searchablePropertyValue ->
                         DeviceGroupSearchableProperty.PROPERTY_NAME.equals(searchablePropertyValue.getProperty().getName())

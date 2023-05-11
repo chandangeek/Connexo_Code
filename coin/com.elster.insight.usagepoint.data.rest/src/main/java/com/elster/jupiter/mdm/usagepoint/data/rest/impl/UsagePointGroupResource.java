@@ -97,10 +97,10 @@ public class UsagePointGroupResource {
             Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL})
     public PagedInfoList getUsagePointGroups(@QueryParam("type") String typeName, @BeanParam JsonQueryFilter filter,
                                              @BeanParam JsonQueryParameters queryParameters) {
-        Query<UsagePointGroup> query = getUsagePointGroupQueryByType(typeName);
+        Query<? extends UsagePointGroup> query = getUsagePointGroupQueryByType(typeName);
         Condition condition = buildCondition(filter);
         Order order = Order.ascending("upper(name)");
-        List<UsagePointGroup> usagePointGroups;
+        List<? extends UsagePointGroup> usagePointGroups;
         Optional<Integer> start = queryParameters.getStart();
         Optional<Integer> limit = queryParameters.getLimit();
         if (start.isPresent() && limit.isPresent()) {
@@ -215,7 +215,7 @@ public class UsagePointGroupResource {
         return Response.ok().entity(ImmutableMap.of("numberOfSearchResults", numberOfSearchResults)).build();
     }
 
-    private Query<UsagePointGroup> getUsagePointGroupQueryByType(@QueryParam("type") String typeName) {
+    private Query<? extends UsagePointGroup> getUsagePointGroupQueryByType(@QueryParam("type") String typeName) {
         if (QueryUsagePointGroup.class.getSimpleName().equalsIgnoreCase(typeName)) {
             return meteringGroupsService.getQueryUsagePointGroupQuery();
         } else {
