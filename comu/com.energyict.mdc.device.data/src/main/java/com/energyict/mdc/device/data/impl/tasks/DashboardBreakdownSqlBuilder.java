@@ -468,13 +468,17 @@ public class DashboardBreakdownSqlBuilder {
     public String getDynamicGroupDataQuery(List<QueryEndDeviceGroup> queryEndDeviceGroupList) {
         SqlBuilder builder = new SqlBuilder("CREATE GLOBAL TEMPORARY TABLE DYNAMIC_GROUP_DATA on commit preserve rows AS ( ");
         String unionAll = "";
-        for (QueryEndDeviceGroup group : queryEndDeviceGroupList) {
-            builder.append(unionAll);
-            builder.append("select " + group.getId());
-            builder.append(" as group_id, id as device_id from (");
-            builder.append(new QueryStringifier(group.toFragment()).getQuery());
-            builder.closeBracket();
-            unionAll = " union all ";
+        if (queryEndDeviceGroupList.isEmpty()) {
+            builder.append("select 0 as group_id, 0 as device_id from dual where rownum < 1");
+        } else {
+            for (QueryEndDeviceGroup group : queryEndDeviceGroupList) {
+                builder.append(unionAll);
+                builder.append("select " + group.getId());
+                builder.append(" as group_id, id as device_id from (");
+                builder.append(new QueryStringifier(group.toFragment()).getQuery());
+                builder.closeBracket();
+                unionAll = " union all ";
+            }
         }
         builder.closeBracket();
         return builder.getText();
