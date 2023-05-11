@@ -7,8 +7,6 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.util.conditions.Where;
-import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionEndPointConfigurationInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionEndPointConfigurationInfoFactory;
 
@@ -22,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class TransitionEndPointConfigurationResource {
@@ -43,23 +42,17 @@ public class TransitionEndPointConfigurationResource {
     @Transactional
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response getAvailableStateChangeEndpoints(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParams) {
-        List<String> serviceNames = finiteStateMachineService.getStateTransitionWebServiceClients()
+    public Response getAvailableStateChangeEndPointConfigurations(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParams) {
+        Set<String> serviceNames = finiteStateMachineService.getStateTransitionWebServiceClients()
                 .stream()
-                .map(webservice->webservice.getWebServiceName())
-                .collect(Collectors.toList());
+                .map(StateTransitionWebServiceClient::getWebServiceName)
+                .collect(Collectors.toSet());
 
-        List<TransitionEndPointConfigurationInfo> transitionEndPointConfigurationInfos = endPointConfigurationService.streamEndPointConfigurations()
-                .filter(Where.where("webServiceName").in(serviceNames))
+        List<TransitionEndPointConfigurationInfo> transitionEndPointConfigurationInfoList = endPointConfigurationService.findEndPointConfigurations(serviceNames).stream()
                 .filter(EndPointConfiguration::isActive)
                 .filter(outbound -> !outbound.isInbound())
-                .filter(endPointConfiguration ->
-                        endPointConfiguration.getWebServiceName().equals(StateTransitionWebServiceClient.WS_NAME)
-                                || endPointConfiguration.getWebServiceName().equals(ReplyMeterConfigWebService.NAME)
-                )
                 .map(transitionEndPointConfigurationInfoFactory::from)
-                .sorted((e1, e2) -> e1.name.compareToIgnoreCase(e2.name))
                 .collect(Collectors.toList());
-        return Response.ok(PagedInfoList.fromCompleteList("stateChangeEndPointConfigurations", transitionEndPointConfigurationInfos, queryParams)).build();
+        return Response.ok(PagedInfoList.fromCompleteList("stateChangeEndPointConfigurations", transitionEndPointConfigurationInfoList, queryParams)).build();
     }
 }

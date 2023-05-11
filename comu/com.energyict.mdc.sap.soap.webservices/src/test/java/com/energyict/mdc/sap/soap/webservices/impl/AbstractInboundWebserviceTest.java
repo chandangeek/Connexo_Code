@@ -12,6 +12,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.AbstractEndPointInitializer;
 import com.elster.jupiter.transaction.TransactionService;
@@ -54,6 +55,8 @@ public abstract class AbstractInboundWebserviceTest {
     @Mock
     protected WebServicesService webServicesService;
     @Mock
+    protected WebServiceCallOccurrenceService webServiceCallOccurrenceService;
+    @Mock
     protected EndPointConfigurationService endPointConfigurationService;
     @Mock
     protected EventService eventService;
@@ -82,6 +85,7 @@ public abstract class AbstractInboundWebserviceTest {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
                 bind(WebServicesService.class).toInstance(webServicesService);
+                bind(WebServiceCallOccurrenceService.class).toInstance(webServiceCallOccurrenceService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
                 bind(EventService.class).toInstance(eventService);
                 bind(WebServiceContext.class).toInstance(webServiceContext);
@@ -101,7 +105,7 @@ public abstract class AbstractInboundWebserviceTest {
 
         long occurrenceId = webServiceCallOccurrence.getId();
         when(messageContext.get(WebServiceCallOccurrence.MESSAGE_CONTEXT_OCCURRENCE_ID)).thenReturn(occurrenceId);
-        when(webServicesService.getOngoingOccurrence(occurrenceId)).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrenceService.getOngoingOccurrence(occurrenceId)).thenReturn(webServiceCallOccurrence);
         when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.empty());
         when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.empty());
         return provider;
@@ -122,7 +126,7 @@ public abstract class AbstractInboundWebserviceTest {
                 .isInstanceOf(exceptionClass)
                 .hasMessage(message);
         ArgumentCaptor<? extends Exception> captor = ArgumentCaptor.forClass(exceptionClass);
-        verify(webServicesService).failOccurrence(eq(webServiceCallOccurrence.getId()), captor.capture());
+        verify(webServiceCallOccurrenceService).failOccurrence(eq(webServiceCallOccurrence.getId()), captor.capture());
         assertThat(captor.getValue().getLocalizedMessage()).isEqualTo(message);
     }
 }

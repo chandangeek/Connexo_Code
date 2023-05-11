@@ -120,6 +120,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_USE_UNDEFINED_AS_TIME_DEVIATION("upl.property.v2.dlms.USE_UNDEFINED_AS_TIME_DEVIATION", "Use undefined as time deviation"),
     V2_USE_FIXED_OBJECT_LIST("upl.property.v2.dlms.USE_FIXED_OBJECT_LIST", "Use fixed object list"),
     V2_SUPPORTS_HUNDRETHS_TIMEFIELD("upl.property.v2.dlms.SUPPORTS_HUNDRETHS_TIMEFIELD", "Supports hundredths timefield"),
+    V2_DLMS_USE_HARDCODED_OBJECT_LIST("upl.property.v2.dlms.useHardcodedObjectList", "Use hardcoded object list"),
     V2_DLMS_VALIDATE_CACHED_FRAMECOUNTER_DESCRIPTION("upl.property.v2.dlms.validateCachedFramecounter.description", "Validate cached framecounter"),
     V2_DLMS_USE_CACHED_FRAMECOUNTER("upl.property.v2.dlms.useCachedFrameCounter", "Use cached framecounter"),
     V2_VALIDATE_LOAD_PROFILE_CHANNELS("upl.property.v2.dlms.VALIDATE_LOAD_PROFILE_CHANNELS", "Validate load profile channels"),
@@ -307,6 +308,11 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_ELSTER_MIRROR_LOGICAL_DEVICE_ID_DESCRIPTION("upl.property.v2.elster.mirrorLogicalDeviceId.description", "Mirror logical device id"),
     V2_ELSTER_LAST_SEND_DATE("upl.property.v2.elster.lastSendDate", "Last send date"),
     V2_ELSTER_LAST_SEND_DATE_DESCRIPTION("upl.property.v2.elster.lastSendDate.description", "Last send date"),
+
+    V2_POST_GATEWAY_CONFIG_URL_PATH("upl.property.v2.acud.gateway.config.url.path", "Post gateway configuration URL path"),
+    V2_POST_GATEWAY_FIRMWARE_URL_PATH("upl.property.v2.acud.gateway.firmware.url.path", "Post gateway firmware URL path"),
+    V2_POST_GATEWAY_FIRMWARE_PART_SIZE("upl.property.v2.acud.gateway.firmware.part.size", "Maximum gateway firmware file part size"),
+    V2_GET_GATEWAY_FIRMWARE_VERSION_URL_PATH("upl.property.v2.acud.gateway.firmware.version.url.path", "Get gateway firmware version URL path"),
 
     V2_TEST_TIMEOUT("upl.property.v2.test.timeout", "Timeout"),
     V2_TEST_TIMEOUT_DESCRIPTION("upl.property.v2.test.timeout.description", "Timeout"),

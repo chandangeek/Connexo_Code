@@ -13,9 +13,9 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.Checks;
 
@@ -32,7 +32,6 @@ import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -150,12 +149,9 @@ public class ExecuteUsagePointConfigEndpoint extends AbstractInboundEndPoint imp
     }
 
     private EndPointConfiguration getOutboundEndPointConfiguration(Action action, String url) throws FaultMessage {
-        EndPointConfiguration endPointConfig = endPointConfigurationService.findEndPointConfigurations().stream()
+        EndPointConfiguration endPointConfig = endPointConfigurationService.getOutboundEndpointConfigurationByUrl(url)
                 .filter(EndPointConfiguration::isActive)
-                .filter(endPointConfiguration -> !endPointConfiguration.isInbound())
-                .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url)).findFirst()
-                .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(action.getBasicSeed(),
-                        MessageSeeds.NO_END_POINT_WITH_URL, url));
+                .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(action.getBasicSeed(), MessageSeeds.NO_END_POINT_WITH_URL, url));
         if (!webServicesService.isPublished(endPointConfig)) {
             webServicesService.publishEndPoint(endPointConfig);
         }

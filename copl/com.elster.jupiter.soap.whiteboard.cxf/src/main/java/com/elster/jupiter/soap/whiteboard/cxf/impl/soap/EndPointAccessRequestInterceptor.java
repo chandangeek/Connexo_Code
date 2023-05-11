@@ -8,6 +8,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
 import com.elster.jupiter.transaction.TransactionService;
@@ -25,17 +26,19 @@ import org.apache.cxf.phase.Phase;
 public class EndPointAccessRequestInterceptor extends AbstractPhaseInterceptor<Message> {
     private final TransactionService transactionService;
     private final WebServicesService webServicesService;
+    private final WebServiceCallOccurrenceService webServiceCallOccurrenceService;
     private final EndPointConfiguration endPointConfiguration;
 
     public EndPointAccessRequestInterceptor(EndPointConfiguration endPointConfiguration,
                                             TransactionService transactionService,
-                                            WebServicesService webServicesService) {
+                                            WebServicesService webServicesService,
+                                            WebServiceCallOccurrenceService webServiceCallOccurrenceService) {
         super(endPointConfiguration.isInbound() ? Phase.RECEIVE : Phase.PRE_STREAM);
         this.transactionService = transactionService;
         this.webServicesService = webServicesService;
+        this.webServiceCallOccurrenceService = webServiceCallOccurrenceService;
         this.endPointConfiguration = endPointConfiguration;
     }
-
 
     @Override
     public void handleMessage(Message message) throws Fault {
@@ -43,7 +46,7 @@ public class EndPointAccessRequestInterceptor extends AbstractPhaseInterceptor<M
             if (endPointConfiguration.isInbound()) {
                 String payload = MessageUtils.getIncomingPayload(message);
                 if (payload != null) {
-                    long id = webServicesService.startOccurrence(endPointConfiguration,
+                    long id = webServiceCallOccurrenceService.startOccurrence(endPointConfiguration,
                             MessageUtils.getRequestName(payload),
                             getApplicationName(endPointConfiguration),
                             PayloadSaveStrategy.NEVER != endPointConfiguration.getPayloadSaveStrategy() ? payload : null)
@@ -53,7 +56,7 @@ public class EndPointAccessRequestInterceptor extends AbstractPhaseInterceptor<M
             } else if (PayloadSaveStrategy.NEVER != endPointConfiguration.getPayloadSaveStrategy()) {
                 long id = MessageUtils.getOccurrenceId(message);
                 MessageUtils.executeOnOutgoingPayloadAvailable(message, payload -> {
-                    WebServiceCallOccurrence occurrence = webServicesService.getOngoingOccurrence(id);
+                    WebServiceCallOccurrence occurrence = webServiceCallOccurrenceService.getOngoingOccurrence(id);
                     occurrence.setPayload(payload);
                     transactionService.runInIndependentTransaction(occurrence::save);
                 });

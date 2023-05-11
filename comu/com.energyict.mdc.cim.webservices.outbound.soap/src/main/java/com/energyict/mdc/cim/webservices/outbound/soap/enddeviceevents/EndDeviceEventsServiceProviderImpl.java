@@ -161,12 +161,13 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
             if (!endDeviceEvents.getEndDeviceEvent().isEmpty()) {
                 endDeviceEventsPayload.setEndDeviceEvents(endDeviceEvents);
                 responseMessage.setPayload(endDeviceEventsPayload);
-                Map<EndPointConfiguration, ?> response = using("createdEndDeviceEvents")
+                Optional<?> response = using("createdEndDeviceEvents")
                         .withRelatedAttributes(values)
                         .toEndpoints(endPointConfiguration)
-                        .send(responseMessage);
+                        .send(responseMessage)
+                        .getResponse(endPointConfiguration);
 
-                if (!extractResult((EndDeviceEventsResponseMessageType) response.get(endPointConfiguration)).filter(ReplyType.Result.OK::equals).isPresent()) {
+                if (!extractResult((EndDeviceEventsResponseMessageType) response.orElse(null)).filter(ReplyType.Result.OK::equals).isPresent()) {
                     throw new MessageSendingFailed(thesaurus, endPointConfiguration);
                 }
             }
@@ -260,6 +261,7 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
             sender = sender.toEndpoints(requestedEndPoints);
         }
         Set<EndPointConfiguration> processedEndPoints = sender.send(message)
+                .getEndpointsWithResponses()
                 .entrySet()
                 .stream()
                 .filter(entry -> extractResult((EndDeviceEventsResponseMessageType) entry.getValue()).filter(ReplyType.Result.OK::equals).isPresent())

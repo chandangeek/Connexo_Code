@@ -12,7 +12,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 
@@ -30,8 +29,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -83,23 +80,17 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         Field webServiceContextField = AbstractInboundEndPoint.class.getDeclaredField("webServiceContext");
         webServiceContextField.setAccessible(true);
         webServiceContextField.set(endpoint, webServiceContext);
-        when(messageContext.get(anyString())).thenReturn(1l);
+        when(messageContext.get(anyString())).thenReturn(1L);
         when(webServiceContext.getMessageContext()).thenReturn(messageContext);
         inject(AbstractInboundEndPoint.class, endpoint, "threadPrincipalService", threadPrincipalService);
         inject(AbstractInboundEndPoint.class, endpoint, "webServicesService", webServicesService);
+        inject(AbstractInboundEndPoint.class, endpoint, "webServiceCallOccurrenceService", webServiceCallOccurrenceService);
         inject(AbstractInboundEndPoint.class, endpoint, "transactionService", transactionService);
-        when(transactionService.execute(any())).then(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return ((ExceptionThrowingSupplier) invocationOnMock.getArguments()[0]).get();
-            }
-        });
-        when(webServicesService.getOngoingOccurrence(1l)).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrenceService.getOngoingOccurrence(1L)).thenReturn(webServiceCallOccurrence);
         when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.of("ApplicationName"));
         when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.of("Request"));
         message = getValidMessage().build();
         // common mocks
-        when(transactionService.getContext()).thenReturn(transactionContext);
         when(linkageHandler.forMessage(any(MasterDataLinkageConfigRequestMessageType.class)))
                 .thenReturn(linkageHandler);
         when(violationException.getLocalizedMessage()).thenReturn(VIOLATION_EXCEPTION_MESSAGE);

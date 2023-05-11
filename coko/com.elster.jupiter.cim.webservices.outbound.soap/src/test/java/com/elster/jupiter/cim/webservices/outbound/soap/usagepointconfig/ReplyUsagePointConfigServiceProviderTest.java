@@ -3,13 +3,31 @@
  */
 package com.elster.jupiter.cim.webservices.outbound.soap.usagepointconfig;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
+import com.elster.jupiter.cim.webservices.outbound.soap.FailedUsagePointOperation;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
+import com.elster.jupiter.util.exception.MessageSeed;
+
+import ch.iec.tc57._2011.replyusagepointconfig.FaultMessage;
+import ch.iec.tc57._2011.replyusagepointconfig.UsagePointConfigPort;
+import ch.iec.tc57._2011.schema.message.ReplyType;
+import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigEventMessageType;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -30,30 +48,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.elster.jupiter.cim.webservices.outbound.soap.FailedUsagePointOperation;
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.CimUsagePointAttributeNames;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
-import com.elster.jupiter.util.exception.MessageSeed;
-
-import ch.iec.tc57._2011.replyusagepointconfig.FaultMessage;
-import ch.iec.tc57._2011.replyusagepointconfig.UsagePointConfigPort;
-import ch.iec.tc57._2011.schema.message.ReplyType;
-import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigEventMessageType;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReplyUsagePointConfigServiceProviderTest {
@@ -74,7 +76,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
     private static final Map<String, Object> PROPS = new HashMap<>();
     static {
         PROPS.put(URL, ENDPOINT_CONFIG_URL);
-        PROPS.put("epcId", 1l);
+        PROPS.put("epcId", 1L);
         FAILED_OP.setErrorCode(ERROR_CODE);
         FAILED_OP.setErrorMessage(ERROR_MESSAGE);
         FAILED_OP.setUsagePointMrid(ERR_UP_MRID);
@@ -88,25 +90,20 @@ public class ReplyUsagePointConfigServiceProviderTest {
 
     @Mock
     private WebServicesService webServicesService;
-
+    @Mock
+    private WebServiceCallOccurrenceService webServiceCallOccurrenceService;
     @Mock
     private CustomPropertySetService customPropertySetService;
-
     @Mock
     private EndPointConfiguration endPointConfiguration;
-
     @Mock
     private UsagePoint usagePoint;
-
     @Mock
     private UsagePointConfigPort usagePointConfigPort;
-
     @Mock
     private ServiceCategory serviceCategory;
-
     @Mock
     private State state;
-
     @Mock
     private UsagePointCustomPropertySetExtension usagepointCustomPropertySetExtension;
     @Mock
@@ -119,11 +116,12 @@ public class ReplyUsagePointConfigServiceProviderTest {
     @Before
     public void setUp() {
         testable = spy(new ReplyUsagePointConfigServiceProvider());
-        when(webServiceCallOccurrence.getId()).thenReturn(1l);
-        when(webServicesService.startOccurrence(any(EndPointConfiguration.class), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrence.getId()).thenReturn(1L);
+        when(webServiceCallOccurrenceService.startOccurrence(any(EndPointConfiguration.class), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
         when(thesaurus.getSimpleFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
         inject(AbstractOutboundEndPointProvider.class, testable, "thesaurus", thesaurus);
         inject(AbstractOutboundEndPointProvider.class, testable, "webServicesService", webServicesService);
+        inject(AbstractOutboundEndPointProvider.class, testable, "webServiceCallOccurrenceService", webServiceCallOccurrenceService);
         testable.setClock(Clock.fixed(NOW, ZoneId.systemDefault()));
         testable.setCustomPropertySetService(customPropertySetService);
         testable.addUsagePointConfigPort(usagePointConfigPort, PROPS);

@@ -56,6 +56,8 @@ public interface EndPointConfigurationService {
      */
     Optional<EndPointConfiguration> getEndPointConfiguration(long id);
 
+    Optional<OutboundEndPointConfiguration> getOutboundEndpointConfigurationByUrl(String url);
+
     List<EndPointConfiguration> getEndPointConfigurationsForWebService(String webServiceName);
 
     /**

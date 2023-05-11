@@ -4,23 +4,18 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.metering.CimUsagePointAttributeNames;
-
-import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
@@ -36,7 +31,6 @@ import ch.iec.tc57._2011.getenddeviceeventsmessage.EndDeviceEventsPayloadType;
 import ch.iec.tc57._2011.getenddeviceeventsmessage.EndDeviceEventsResponseMessageType;
 import ch.iec.tc57._2011.getenddeviceeventsmessage.GetEndDeviceEventsRequestMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
 import com.google.common.collect.SetMultimap;
@@ -153,12 +147,8 @@ public class GetEndDeviceEventsEndpoint extends AbstractInboundEndPoint implemen
     }
 
     private EndPointConfiguration getOutboundEndPointConfiguration(String url) throws FaultMessage {
-        EndPointConfiguration endPointConfig = endPointConfigurationService.findEndPointConfigurations()
-                .stream()
+        EndPointConfiguration endPointConfig = endPointConfigurationService.getOutboundEndpointConfigurationByUrl(url)
                 .filter(EndPointConfiguration::isActive)
-                .filter(endPointConfiguration -> !endPointConfiguration.isInbound())
-                .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url))
-                .findFirst()
                 .orElseThrow(messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.NO_END_POINT_WITH_URL, url));
         if (!webServicesService.isPublished(endPointConfig)) {
             webServicesService.publishEndPoint(endPointConfig);

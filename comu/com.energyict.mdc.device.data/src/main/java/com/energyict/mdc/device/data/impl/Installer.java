@@ -30,6 +30,7 @@ import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandler
 import com.energyict.mdc.device.data.impl.pki.tasks.certrenewal.CertificateRenewalHandlerFactory;
 import com.energyict.mdc.device.data.impl.pki.tasks.crlrequest.CrlRequestHandlerFactory;
 import com.energyict.mdc.device.data.impl.pki.tasks.keyrenewal.KeyRenewalHandlerFactory;
+import com.energyict.mdc.device.data.impl.tasks.DashboardBreakdownHandlerFactory;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -128,6 +129,11 @@ public class Installer implements FullInstaller {
                 this::createKeyRenewalTask,
                 logger
         );
+        doTry(
+                "Communication breakdown task",
+                this::communicationBreakdownTask,
+                logger
+        );
 
         installerV10_2.install(dataModelUpgrader, logger);
         userService.addModulePrivileges(installerV10_2);
@@ -144,12 +150,12 @@ public class Installer implements FullInstaller {
         if (destinationSpec.isPresent()) {
             DestinationSpec jupiterEvents = destinationSpec.get();
             Stream.of(
-                    Pair.of(SubscriberTranslationKeys.IPV6ADDRESS_SUBSCRIBER, whereCorrelationId().isEqualTo(EventType.DEVICE_UPDATED_IPADDRESSV6.topic())),
-                    Pair.of(SubscriberTranslationKeys.COMTASK_ENABLEMENT_CONNECTION, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),
-                    Pair.of(SubscriberTranslationKeys.COMTASK_ENABLEMENT_PRIORITY, whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/comtaskenablement/PRIORITY_UPDATED")),
-                    Pair.of(SubscriberTranslationKeys.COMTASK_ENABLEMENT_STATUS, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),
-                    Pair.of(SubscriberTranslationKeys.METER_READING_EVENT, whereCorrelationId().isEqualTo("com/elster/jupiter/metering/meterreading/CREATED")
-                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/connectiontask/COMPLETION"))))
+                            Pair.of(SubscriberTranslationKeys.IPV6ADDRESS_SUBSCRIBER, whereCorrelationId().isEqualTo(EventType.DEVICE_UPDATED_IPADDRESSV6.topic())),
+                            Pair.of(SubscriberTranslationKeys.COMTASK_ENABLEMENT_CONNECTION, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),
+                            Pair.of(SubscriberTranslationKeys.COMTASK_ENABLEMENT_PRIORITY, whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/comtaskenablement/PRIORITY_UPDATED")),
+                            Pair.of(SubscriberTranslationKeys.COMTASK_ENABLEMENT_STATUS, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),
+                            Pair.of(SubscriberTranslationKeys.METER_READING_EVENT, whereCorrelationId().isEqualTo("com/elster/jupiter/metering/meterreading/CREATED")
+                                    .or(whereCorrelationId().isEqualTo("com/energyict/mdc/connectiontask/COMPLETION"))))
                     .filter(subscriber -> !jupiterEvents.getSubscribers()
                             .stream()
                             .anyMatch(s -> s.getName().equals(subscriber.getFirst().getKey())))
@@ -183,6 +189,7 @@ public class Installer implements FullInstaller {
         this.createMessageHandler(defaultQueueTableSpec, KeyRenewalHandlerFactory.KEY_RENEWAL_TASK_DESTINATION_NAME, SubscriberTranslationKeys.KEY_RENEWAL_TASK_SUBSCRIBER);
         this.createMessageHandler(defaultQueueTableSpec, MeteringZoneService.BULK_ZONE_QUEUE_DESTINATION, SubscriberTranslationKeys.ZONE_SUBSCRIBER);
         this.createMessageHandler(defaultQueueTableSpec, LoadProfileService.BULK_LOADPROFILE_QUEUE_DESTINATION, SubscriberTranslationKeys.LOADPROFILE_SUBSCRIBER);
+        this.createMessageHandler(defaultQueueTableSpec, DashboardBreakdownHandlerFactory.DASHBOARD_BREAKDOWN_TASK_DESTINATION, SubscriberTranslationKeys.DASHBOARD_BREAKDOWN_TASK_SUBSCRIBER_NAME);
         createPrioritizedMessageHandlers();
     }
 
@@ -207,10 +214,10 @@ public class Installer implements FullInstaller {
             queue.activate();
             queue.subscribe(subscriberKey, DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
         } else {
-            boolean notSubscribedYet = !destinationSpecOptional.get()
+            boolean notSubscribedYet = destinationSpecOptional.get()
                     .getSubscribers()
                     .stream()
-                    .anyMatch(spec -> spec.getName().equals(subscriberKey.getKey()));
+                    .noneMatch(spec -> spec.getName().equals(subscriberKey.getKey()));
             if (notSubscribedYet) {
                 destinationSpecOptional.get().activate();
                 destinationSpecOptional.get().subscribe(subscriberKey, DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
@@ -233,10 +240,10 @@ public class Installer implements FullInstaller {
         if (destinationSpec.isPresent()) {
             DestinationSpec jupiterEvents = destinationSpec.get();
             Stream.of(
-                    Pair.of(SubscriberTranslationKeys.TEST_COMMUNICATION_COMPLETED_EVENT, whereCorrelationId().isEqualTo("com/energyict/mdc/connectiontask/COMPLETION")))
-                    .filter(subscriber -> !jupiterEvents.getSubscribers()
+                            Pair.of(SubscriberTranslationKeys.TEST_COMMUNICATION_COMPLETED_EVENT, whereCorrelationId().isEqualTo("com/energyict/mdc/connectiontask/COMPLETION")))
+                    .filter(subscriber -> jupiterEvents.getSubscribers()
                             .stream()
-                            .anyMatch(s -> s.getName().equals(subscriber.getFirst().getKey())))
+                            .noneMatch(s -> s.getName().equals(subscriber.getFirst().getKey())))
                     .forEach(subscriber -> this.doSubscriber(jupiterEvents, subscriber));
         }
     }
@@ -281,4 +288,21 @@ public class Installer implements FullInstaller {
         }
     }
 
+    private void communicationBreakdownTask() {
+        taskService.newBuilder()
+                .setApplication(DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_APPLICATION)
+                .setName(DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_NAME)
+                .setScheduleExpressionString(DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_SCHEDULE)
+                .setDestination(getCommunicationBreakdownDestination())
+                .setPayLoad(DashboardBreakdownHandlerFactory.DASHBOARD_COUNT_BREAKDOWN_TASK_PAYLOAD)
+                .scheduleImmediately(true)
+                .build();
+    }
+
+    private DestinationSpec getCommunicationBreakdownDestination() {
+        return messageService.getDestinationSpec(DashboardBreakdownHandlerFactory.DASHBOARD_BREAKDOWN_TASK_DESTINATION).orElseGet(() ->
+                messageService.getQueueTableSpec("MSG_RAWQUEUETABLE")
+                        .get()
+                        .createDestinationSpec(DashboardBreakdownHandlerFactory.DASHBOARD_BREAKDOWN_TASK_DESTINATION, DEFAULT_RETRY_DELAY_IN_SECONDS));
+    }
 }

@@ -19,6 +19,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.BulkWebServiceCallResult;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
@@ -212,7 +213,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 TimeSeriesWrapper<TS> timeSeriesWrapper = timeSeriesWrapperList.remove(0);
                 timeSeriesWrapperListToSend.add(timeSeriesWrapper);
 
-                timeSeriesNumber = timeSeriesNumber + key.get();
+                timeSeriesNumber += key.get();
                 if (timeSeriesWrapperList.isEmpty()) {
                     keys.remove(key.get());
                 }
@@ -248,12 +249,11 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
 
             MSG message = createMessageFromTimeSeries(timeSeriesList, uuid, values, now);
             if (message != null) {
-                Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
+                BulkWebServiceCallResult result = using(getMessageSenderMethod())
                         .toEndpoints(endPointConfiguration)
                         .withRelatedAttributes(values)
-                        .send(message)
-                        .keySet();
-                if (!processedEndpoints.contains(endPointConfiguration)) {
+                        .send(message);
+                if (!result.isSuccessful(endPointConfiguration)) {
                     throw SAPWebServiceException.endpointsNotProcessed(thesaurus, endPointConfiguration);
                 }
                 Optional.ofNullable(timeout)

@@ -91,7 +91,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     private volatile SoapProviderSupportFactory soapProviderSupportFactory;
     private volatile OrmService ormService;
 
-    private volatile List<ServiceRegistration> registrations = new ArrayList<>();
+    private final List<ServiceRegistration<?>> registrations = new ArrayList<>();
 
     private volatile WebServicesServiceImpl webServicesService;
     private volatile EndPointConfigurationServiceImpl endPointConfigurationService;
@@ -210,6 +210,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
 
     @Reference
     public void setConfiguration(WhiteBoardConfigurationProvider provider) {
+        // explicit dependency on provider
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -261,7 +262,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
             logDirectory = System.getProperty("java.io.tmpdir");
         }
         if (!logDirectory.endsWith(File.separator)) {
-            logDirectory = logDirectory + File.separator;
+            logDirectory += File.separator;
         }
 
         HttpServlet servlet = new ServletWrapper(new CXFNonSpringServlet(), threadPrincipalService);
@@ -272,8 +273,8 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
         }
 
         endPointConfigurationService = new EndPointConfigurationServiceImpl(dataModel, eventService);
-        webServiceCallOccurrenceService = new WebServiceCallOccurrenceServiceImpl(dataModel, nlsService);
-        webServicesService = new WebServicesServiceImpl(dataModel, eventService, transactionService, clock, thesaurus, endPointConfigurationService, webServiceCallOccurrenceService);
+        webServiceCallOccurrenceService = new WebServiceCallOccurrenceServiceImpl(dataModel, transactionService, clock, thesaurus, nlsService);
+        webServicesService = new WebServicesServiceImpl(dataModel, eventService, endPointConfigurationService);
         this.dataModel.register(this.getModule(logDirectory));
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME),

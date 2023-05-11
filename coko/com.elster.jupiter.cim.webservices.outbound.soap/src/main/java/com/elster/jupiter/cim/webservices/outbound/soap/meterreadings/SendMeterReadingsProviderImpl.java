@@ -122,10 +122,6 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
         return SendMeterReadingsProvider.NAME;
     }
 
-    public String getWebServiceName() {
-        return getName();
-    }
-
     @Override
     public String getSupportedDataType() {
         return DataExportService.STANDARD_READING_DATA_TYPE;
@@ -164,12 +160,13 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
                     }
                 });
 
-                Map<EndPointConfiguration, ?> response = using(method)
+                Optional<?> response = using(method)
                         .withRelatedAttributes(values)
                         .toEndpoints(endPointConfiguration)
-                        .send(message);
+                        .send(message)
+                        .getResponse(endPointConfiguration);
 
-                if (response.get(endPointConfiguration) == null || ReplyType.Result.OK != ((MeterReadingsResponseMessageType) response.get(endPointConfiguration)).getReply().getResult()) {
+                if (!response.isPresent() || ReplyType.Result.OK != ((MeterReadingsResponseMessageType) response.get()).getReply().getResult()) {
                     throw new MessageSendingFailed(thesaurus, endPointConfiguration);
                 }
             }
@@ -213,6 +210,7 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
         }
     }
 
+    @Override
     public boolean call(MeterReadings meterReadings, HeaderType header, EndPointConfiguration endPointConfiguration) {
         String method;
         MeterReadingsEventMessageType message = createMeterReadingsEventMessage(meterReadings, header);
@@ -247,13 +245,13 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
             });
         });
 
-        Map<EndPointConfiguration, ?> response = using(method)
+        Optional<?> response = using(method)
                 .toEndpoints(endPointConfiguration)
                 .withRelatedAttributes(values)
-                .send(message);
-        return response != null
-                && response.get(endPointConfiguration) != null
-                && ReplyType.Result.OK == ((MeterReadingsResponseMessageType) response.get(endPointConfiguration)).getReply().getResult();
+                .send(message)
+                .getResponse(endPointConfiguration);
+        return response.isPresent()
+                && ReplyType.Result.OK == ((MeterReadingsResponseMessageType) response.get()).getReply().getResult();
     }
 
     protected MeterReadingsEventMessageType createMeterReadingsEventMessage(MeterReadings meterReadings, HeaderType header) {

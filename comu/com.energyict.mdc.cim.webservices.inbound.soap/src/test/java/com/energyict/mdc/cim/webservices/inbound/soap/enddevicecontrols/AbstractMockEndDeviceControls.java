@@ -19,7 +19,6 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
-import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ScheduleStrategy;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.EndDeviceControlsDomainExtension;
@@ -61,8 +60,6 @@ import java.util.stream.Stream;
 import org.junit.Before;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -142,14 +139,9 @@ public abstract class AbstractMockEndDeviceControls extends AbstractMockActivato
         when(webServiceContext.getMessageContext()).thenReturn(messageContext);
         inject(AbstractInboundEndPoint.class, executeEndDeviceControlsEndpoint, "threadPrincipalService", threadPrincipalService);
         inject(AbstractInboundEndPoint.class, executeEndDeviceControlsEndpoint, "webServicesService", webServicesService);
+        inject(AbstractInboundEndPoint.class, executeEndDeviceControlsEndpoint, "webServiceCallOccurrenceService", webServiceCallOccurrenceService);
         inject(AbstractInboundEndPoint.class, executeEndDeviceControlsEndpoint, "transactionService", transactionService);
-        when(transactionService.execute(any())).then(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return ((ExceptionThrowingSupplier) invocationOnMock.getArguments()[0]).get();
-            }
-        });
-        when(webServicesService.getOngoingOccurrence(1L)).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrenceService.getOngoingOccurrence(1L)).thenReturn(webServiceCallOccurrence);
         when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.of("ApplicationName"));
         when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.of("Request"));
 

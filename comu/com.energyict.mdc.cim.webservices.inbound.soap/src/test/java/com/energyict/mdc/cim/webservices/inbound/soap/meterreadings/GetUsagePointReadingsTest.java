@@ -43,7 +43,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
@@ -118,8 +117,6 @@ import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.DataSourceTypeName.LOAD_PROFILE;
 import static com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.DataSourceTypeName.REGISTER_GROUP;
@@ -463,18 +460,13 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         Field webServiceContextField = AbstractInboundEndPoint.class.getDeclaredField("webServiceContext");
         webServiceContextField.setAccessible(true);
         webServiceContextField.set(executeMeterReadingsEndpoint, webServiceContext);
-        when(messageContext.get(anyString())).thenReturn(1l);
+        when(messageContext.get(anyString())).thenReturn(1L);
         when(webServiceContext.getMessageContext()).thenReturn(messageContext);
         inject(AbstractInboundEndPoint.class, executeMeterReadingsEndpoint, "threadPrincipalService", threadPrincipalService);
         inject(AbstractInboundEndPoint.class, executeMeterReadingsEndpoint, "webServicesService", webServicesService);
+        inject(AbstractInboundEndPoint.class, executeMeterReadingsEndpoint, "webServiceCallOccurrenceService", webServiceCallOccurrenceService);
         inject(AbstractInboundEndPoint.class, executeMeterReadingsEndpoint, "transactionService", transactionService);
-        when(transactionService.execute(any())).then(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return ((ExceptionThrowingSupplier) invocationOnMock.getArguments()[0]).get();
-            }
-        });
-        when(webServicesService.getOngoingOccurrence(1l)).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrenceService.getOngoingOccurrence(1L)).thenReturn(webServiceCallOccurrence);
         when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.of("ApplicationName"));
         when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.of("Request"));
         when(clock.instant()).thenReturn(JUNE_1ST.toInstant());

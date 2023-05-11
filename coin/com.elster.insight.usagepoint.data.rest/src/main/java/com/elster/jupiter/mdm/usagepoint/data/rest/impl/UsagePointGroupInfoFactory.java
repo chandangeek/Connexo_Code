@@ -27,7 +27,7 @@ public class UsagePointGroupInfoFactory {
         return usagePointGroupInfo;
     }
 
-    public List<UsagePointGroupInfo> from(List<UsagePointGroup> usagePointGroups) {
+    public List<UsagePointGroupInfo> from(List<? extends UsagePointGroup> usagePointGroups) {
         return usagePointGroups.stream()
                 .map(this::from)
                 .collect(Collectors.toList());

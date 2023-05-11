@@ -175,7 +175,7 @@ public class DlmsSession implements ProtocolLink {
      * <p>
      * Note that this is the ASN.1 DER encoded version of the X.509 v3 certificate.
      */
-    private byte[] getCallingAEQualifier() {
+    protected byte[] getCallingAEQualifier() {
         if (getProperties().isGeneralSigning() || getProperties().getAuthenticationSecurityLevel() == DlmsSecuritySuite1And2Support.AuthenticationAccessLevelIds.ECDSA_AUTHENTICATION.getAccessLevel()) {
             if (getProperties().getSecurityProvider() instanceof GeneralCipheringSecurityProvider) {
                 GeneralCipheringSecurityProvider generalCipheringSecurityProvider = (GeneralCipheringSecurityProvider) getProperties().getSecurityProvider();

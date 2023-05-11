@@ -262,7 +262,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     @Override
     public void cancel() {
         log(LogLevel.INFO, "Cancelling web service call occurrence.");
-        webServicesService.cancelOccurrence(this.id);
+        webServiceCallOccurrenceService.cancelOccurrence(this.id);
     }
 
     @Override

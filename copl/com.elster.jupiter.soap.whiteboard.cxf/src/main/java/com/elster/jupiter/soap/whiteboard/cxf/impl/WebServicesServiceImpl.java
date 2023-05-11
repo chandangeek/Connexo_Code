@@ -4,7 +4,6 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
@@ -18,34 +17,23 @@ import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.InboundRestEndPointFactoryImpl;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.OutboundRestEndPointFactoryImpl;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.soap.InboundSoapEndPointFactoryImpl;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.soap.OutboundSoapEndPointFactoryImpl;
-import com.elster.jupiter.transaction.TransactionService;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 
 import javax.inject.Inject;
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.elster.jupiter.soap.whiteboard.cxf.impl.MessageSeeds.WEB_SERVICE_CALL_OCCURRENCE_IS_ALREADY_IN_STATE;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -53,41 +41,26 @@ import static java.util.stream.Collectors.toList;
  */
 public class WebServicesServiceImpl implements WebServicesService {
     private static final Logger LOGGER = Logger.getLogger("WebServicesServiceImpl");
-    private static final long OCCURRENCES_EXPIRE_AFTER_MINUTES = 30;
 
     private final DataModel dataModel;
     private final EventService eventService;
-    private final TransactionService transactionService;
-    private final Clock clock;
-    private final Thesaurus thesaurus;
     private final EndPointConfigurationService endPointConfigurationService;
-    private final WebServiceCallOccurrenceService webServiceCallOccurrenceService;
 
-    private Map<String, EndPointFactory> webServices = new ConcurrentHashMap<>();
+    private final Map<String, EndPointFactory<?>> webServices = new ConcurrentHashMap<>();
     private final Map<EndPointConfiguration, ManagedEndpoint> endpoints = new ConcurrentHashMap<>();
-    private Cache<Long, WebServiceCallOccurrence> occurrences;
 
     @Inject
     WebServicesServiceImpl(DataModel dataModel,
                            EventService eventService,
-                           TransactionService transactionService,
-                           Clock clock,
-                           Thesaurus thesaurus,
-                           EndPointConfigurationService endPointConfigurationService,
-                           WebServiceCallOccurrenceService webServiceCallOccurrenceService) {
+                           EndPointConfigurationService endPointConfigurationService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
-        this.transactionService = transactionService;
-        this.clock = clock;
-        this.thesaurus = thesaurus;
         this.endPointConfigurationService = endPointConfigurationService;
-        this.webServiceCallOccurrenceService = webServiceCallOccurrenceService;
-        this.occurrences = CacheBuilder.newBuilder().expireAfterWrite(OCCURRENCES_EXPIRE_AFTER_MINUTES, TimeUnit.MINUTES).build();
     }
 
     @Override
     public Optional<WebService> getWebService(String webServiceName) {
-        final EndPointFactory endPointFactory = webServices.get(webServiceName);
+        final EndPointFactory<?> endPointFactory = webServices.get(webServiceName);
         if (endPointFactory != null) {
             return Optional.of(new WebService() {
                 @Override
@@ -200,7 +173,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public void publishEndPoint(EndPointConfiguration endPointConfiguration) {
-        EndPointFactory endPointFactory = webServices.get(endPointConfiguration.getWebServiceName());
+        EndPointFactory<?> endPointFactory = webServices.get(endPointConfiguration.getWebServiceName());
         if (endPointFactory != null) {
             try {
                 ManagedEndpoint managedEndpoint = endPointFactory.createEndpoint(endPointConfiguration);
@@ -246,7 +219,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public boolean isInbound(String webServiceName) {
-        EndPointFactory endPointFactory = webServices.get(webServiceName);
+        EndPointFactory<?> endPointFactory = webServices.get(webServiceName);
         if (endPointFactory != null) {
             return endPointFactory.isInbound();
         } else {
@@ -301,7 +274,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public List<PropertySpec> getWebServicePropertySpecs(String webServiceName) {
-        final EndPointFactory endPointFactory = webServices.get(webServiceName);
+        final EndPointFactory<?> endPointFactory = webServices.get(webServiceName);
         if (endPointFactory != null) {
             EndPointProvider provider = endPointFactory.getEndPointProvider();
             if (provider instanceof EndPointProp) {
@@ -326,105 +299,6 @@ public class WebServicesServiceImpl implements WebServicesService {
         } catch (Exception ex) {
             // exception suppressed
         }
-    }
-
-    // TODO: move to another service maybe
-
-    @Override
-    public WebServiceCallOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application) {
-        WebServiceCallOccurrence tmp = transactionService.executeInIndependentTransaction(
-                () -> endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), requestName, application));
-        occurrences.put(tmp.getId(), tmp);
-        return tmp;
-    }
-
-    @Override
-    public WebServiceCallOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application, String payload) {
-        WebServiceCallOccurrence tmp = transactionService.executeInIndependentTransaction(
-                () -> endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), requestName, application, payload));
-        occurrences.put(tmp.getId(), tmp);
-        return tmp;
-    }
-
-    @Override
-    public WebServiceCallOccurrence passOccurrence(long id) {
-        occurrences.invalidate(id);
-        return transactionService.executeInIndependentTransaction(() -> {
-            WebServiceCallOccurrence tmp = lockOccurrenceOrThrowException(id);
-            tmp.log(LogLevel.INFO, "Request completed successfully.");
-            tmp.setEndTime(clock.instant());
-            validateOngoingStatus(tmp);
-            if (PayloadSaveStrategy.ALWAYS != tmp.getEndPointConfiguration().getPayloadSaveStrategy()) {
-                tmp.setPayload(null);
-            }
-            tmp.setStatus(WebServiceCallOccurrenceStatus.SUCCESSFUL);
-            tmp.save();
-            return tmp;
-        });
-    }
-
-    @Override
-    public WebServiceCallOccurrence failOccurrence(long id, String message) {
-        return failOccurrence(id, message, null);
-    }
-
-    @Override
-    public WebServiceCallOccurrence failOccurrence(long id, Exception exception) {
-        return failOccurrence(id, exception.getLocalizedMessage(), exception);
-    }
-
-    @Override
-    public WebServiceCallOccurrence failOccurrence(long id, String message, Exception exception) {
-        occurrences.invalidate(id);
-        return transactionService.executeInIndependentTransaction(() -> {
-            WebServiceCallOccurrence tmp = lockOccurrenceOrThrowException(id);
-            if (exception == null) {
-                tmp.log(LogLevel.SEVERE, message);
-            } else {
-                tmp.log(message, exception);
-            }
-            tmp.setEndTime(clock.instant());
-            validateOngoingStatus(tmp);
-            tmp.setStatus(WebServiceCallOccurrenceStatus.FAILED);
-            tmp.save();
-            return tmp;
-        });
-    }
-
-    @Override
-    public WebServiceCallOccurrence cancelOccurrence(long id) {
-        occurrences.invalidate(id);
-        return transactionService.executeInIndependentTransaction(() -> {
-            WebServiceCallOccurrence tmp = lockOccurrenceOrThrowException(id);
-            tmp.log(LogLevel.INFO, "Request has been cancelled.");
-            tmp.setEndTime(clock.instant());
-            validateOngoingStatus(tmp);
-            tmp.setStatus(WebServiceCallOccurrenceStatus.CANCELLED);
-            tmp.save();
-            return tmp;
-        });
-    }
-
-    private void validateOngoingStatus(WebServiceCallOccurrence occurrence) {
-        WebServiceCallOccurrenceStatus status = occurrence.getStatus();
-        if (status != WebServiceCallOccurrenceStatus.ONGOING) {
-            throw new IllegalWebServiceCallOccurrenceStateException(thesaurus, WEB_SERVICE_CALL_OCCURRENCE_IS_ALREADY_IN_STATE, status.translate(thesaurus));
-        }
-    }
-
-    private WebServiceCallOccurrence lockOccurrenceOrThrowException(long id) {
-        return webServiceCallOccurrenceService.findAndLockWebServiceCallOccurrence(id)
-                .orElseThrow(() -> new IllegalStateException("Web service call occurrence isn't present."));
-    }
-
-    @Override
-    public WebServiceCallOccurrence getOngoingOccurrence(long id) {
-        WebServiceCallOccurrence tmp = occurrences.getIfPresent(id);
-        if (tmp == null) {
-            tmp = webServiceCallOccurrenceService.getWebServiceCallOccurrence(id)
-                    .orElseThrow(() -> new IllegalStateException("Web service call occurrence isn't present."));
-        }
-        return tmp;
     }
 
     @Override
