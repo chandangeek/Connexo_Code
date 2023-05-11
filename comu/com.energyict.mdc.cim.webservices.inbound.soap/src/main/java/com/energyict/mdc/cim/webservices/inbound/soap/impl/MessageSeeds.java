@@ -87,7 +87,7 @@ public enum MessageSeeds implements MessageSeed {
     END_DEVICE_IDENTIFIER_MISSING(2002, "EndDeviceIdentifierMissing", "At least one of ''mRID'' or ''Name'' must be specified in the request."),
     INVALID_OR_EMPTY_TIME_PERIOD(2003, "InvalidOrEmptyTimePeriod",
             "Can''t construct a valid time period: provided start ''{0}'' is after or coincides with the end ''{1}''."),
-    DEVICE_OR_GROUP_IDENTIFIER_MISSING(2004, "deviceOrGroupIdentifierMissing", "At least one of the values should be specified: ''mRID''/''serial number''''Name'' of a device or ''Name'' of a device group."),
+    DEVICE_OR_GROUP_IDENTIFIER_MISSING(2004, "deviceOrGroupIdentifierMissing", "At least one of the values should be specified: ''mRID''/''serial number''/''Name'' of a device or ''Name'' of a device group."),
 
     // created/closed end device events
     INVALID_CREATED_END_DEVICE_EVENTS(3001, "InvalidCreatedEndDeviceEvents", "Invalid CreatedEndDeviceEvents is received"),
@@ -163,7 +163,7 @@ public enum MessageSeeds implements MessageSeed {
     END_DEVICES_WITH_SERIAL_NUMBER_AND_MRID_NOT_FOUND(6047, "DevicesWithSerialNumberAndMridNotFound", "Couldn''t find device(s) with serial number(s) ''{0}'' and MRID(s) ''{1}''.", Level.WARNING),
     END_DEVICES_WITH_SERIAL_NUMBER_AND_NAME_NOT_FOUND(6048, "DevicesWithSerialNumberAndNamesNotFound", "Couldn''t find device(s) with serial number(s) ''{0}'' and name(s) ''{1}''.", Level.WARNING),
     END_DEVICES_WITH_MRID_AND_NAME_NOT_FOUND(6049, "DevicesWithMridAndNamesNotFound", "Couldn''t find device(s) with MRID(s) ''{0}'' and name(s) ''{1}''.", Level.WARNING),
-    MORE_DEVICES_WITH_SAME_SERIAL_NUMBER(1015, "MoreDevicesForSerialNumber", "More then one device found for serialNumber ''{0}''"),
+    MORE_DEVICES_WITH_SAME_SERIAL_NUMBER(6050, "MoreDevicesForSerialNumber", "More than one device found for serialNumber ''{0}''"),
 
     // master data linkage
     NO_METER_WITH_MRID(7001, "NoMeterWithMRID", "No meter or gateway is found by MRID ''{0}''."),

@@ -131,7 +131,6 @@ public class EndDeviceEventsBuilder {
             EndDeviceEventRecordBuilder builder = endDevice.addEventRecord(eventType, createdDate, getLogBook(endDevice).getId());
 
             mrid.ifPresent(builder::setmRID);
-            serialNumber.ifPresent(builder::setSerialNumber);
             builder.setSeverity(severity);
             name.ifPresent(builder::setName);
 
@@ -311,14 +310,20 @@ public class EndDeviceEventsBuilder {
     }
 
     private EndDevice getEndDevice(Optional<String> endDeviceMrid, Optional<String> endDeviceSerialNumber, Optional<String> endDeviceName) throws FaultMessage {
-        return endDeviceMrid.isPresent() ?
-                meteringService.findEndDeviceByMRID(endDeviceMrid.get())
-                        .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_MRID, endDeviceMrid.get())) :
-                endDeviceSerialNumber.isPresent() ?
-                        meteringService.findEndDeviceBySerialNumber(endDeviceSerialNumber.get())
-                                .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_SERIAL_NUMBER, endDeviceSerialNumber.get())):
-                meteringService.findEndDeviceByName(endDeviceName.get())
-                        .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_NAME, endDeviceName.get()));
+        if (endDeviceMrid.isPresent()) {
+            return meteringService.findEndDeviceByMRID(endDeviceMrid.get())
+                    .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_MRID, endDeviceMrid.get()));
+        } else if (endDeviceName.isPresent()) {
+            return meteringService.findEndDeviceByName(endDeviceName.get())
+                    .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_NAME, endDeviceName.get()));
+        }
+        List<EndDevice> endDevices = meteringService.findEndDevicesBySerialNumber(endDeviceSerialNumber.get());
+        if (endDevices.size() > 1) {
+            throw faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.MORE_DEVICES_WITH_SAME_SERIAL_NUMBER, endDeviceSerialNumber.get()).get();
+        } else if (endDevices.isEmpty()) {
+            throw faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_SERIAL_NUMBER, endDeviceSerialNumber.get()).get();
+        }
+        return endDevices.get(0);
     }
 
     private LogBook getLogBook(EndDevice endDevice) throws FaultMessage {
@@ -340,12 +345,8 @@ public class EndDeviceEventsBuilder {
                         logBookObisCode, endDevice.getId()));
     }
 
-    private Device findDeviceForEndDevice(EndDevice endDevice) throws FaultMessage {
+    private Device findDeviceForEndDevice(EndDevice endDevice) {
         long deviceId = Long.parseLong(endDevice.getAmrId());
-        List<Device> foundDevices = deviceService.findDevicesBySerialNumber(endDevice.getSerialNumber());
-        if (foundDevices.size() > 1) {
-            throw faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NAME_AND_SERIAL_MUST_BE_UNIQUE, END_DEVICE_EVENT_ITEM).get();
-        }
         return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
     }
 

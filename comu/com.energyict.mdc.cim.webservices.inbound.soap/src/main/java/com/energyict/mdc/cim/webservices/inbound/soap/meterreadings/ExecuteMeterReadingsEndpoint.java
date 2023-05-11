@@ -4,6 +4,40 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterreadings;
 
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingTypeFilter;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ScheduleStrategy;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.masterdata.MasterDataService;
+
 import ch.iec.tc57._2011.getmeterreadings.DataSource;
 import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
 import ch.iec.tc57._2011.getmeterreadings.EndDevice;
@@ -23,40 +57,6 @@ import ch.iec.tc57._2011.meterreadings.MeterReadings;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
-import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
-import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.CimAttributeNames;
-import com.elster.jupiter.metering.CimUsagePointAttributeNames;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingTypeFilter;
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
-import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ScheduleStrategy;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
-import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.masterdata.LoadProfileType;
-import com.energyict.mdc.common.masterdata.RegisterGroup;
-import com.energyict.mdc.common.tasks.ComTaskExecution;
-import com.energyict.mdc.common.tasks.ConnectionTask;
-import com.energyict.mdc.common.tasks.LoadProfilesTask;
-import com.energyict.mdc.common.tasks.MessagesTask;
-import com.energyict.mdc.common.tasks.RegistersTask;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.masterdata.MasterDataService;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -74,6 +74,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -994,7 +995,11 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 .select(where("obsoleteTime").isNull().and(where("mRID").in(new ArrayList<>(mRIDs))
                         .or(where("serialNumber").in(new ArrayList<>(serialNumbers))).or(where("name").in(new ArrayList<>(names)))));
         if (!serialNumbers.isEmpty()) {
-            if (existedMeters.size() > 1){
+            Set<String> existedMetersSerialNumbers = new LinkedHashSet<>();
+            for (com.elster.jupiter.metering.Meter existedMeter : existedMeters) {
+                existedMetersSerialNumbers.add(existedMeter.getSerialNumber());
+            }
+            if (existedMeters.size() > existedMetersSerialNumbers.size()) {
                 throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MORE_DEVICES_WITH_SAME_SERIAL_NUMBER).get();
             }
         }

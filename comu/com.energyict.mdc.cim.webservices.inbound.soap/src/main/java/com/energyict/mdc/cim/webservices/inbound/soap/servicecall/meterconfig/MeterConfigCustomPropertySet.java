@@ -147,7 +147,7 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(MeterConfigDomainExtension.FieldNames.METER_SERIAL_NUMBER.javaName(), TranslationKeys.METER_MRID)
+                        .named(MeterConfigDomainExtension.FieldNames.METER_SERIAL_NUMBER.javaName(), TranslationKeys.METER_SERIAL_NUMBER)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
@@ -246,7 +246,7 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
             table.column(MeterConfigDomainExtension.FieldNames.METER_SERIAL_NUMBER.databaseName())
                     .varChar()
                     .map(MeterConfigDomainExtension.FieldNames.METER_SERIAL_NUMBER.javaName())
-                    .since(version(10, 9, 24))
+                    .since(version(10, 9, 25))
                     .add();
             table.column(MeterConfigDomainExtension.FieldNames.METER_NAME.databaseName())
                     .varChar()

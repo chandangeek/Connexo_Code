@@ -88,9 +88,15 @@ public class EndDeviceControlsServiceCallHandler implements ServiceCallHandler {
                     failServiceCall(serviceCall, extension, MessageSeeds.NO_DEVICE_WITH_MRID, extension.getDeviceMrid());
                     return;
                 }
-            } else if (extension.getDeviceSerialNumber() != null) {
+            } else if (extension.getDeviceName() != null) {
+                optionalDevice = deviceService.findDeviceByName(extension.getDeviceName());
+                if (!optionalDevice.isPresent()) {
+                    failServiceCall(serviceCall, extension, MessageSeeds.NO_DEVICE_WITH_NAME, extension.getDeviceName());
+                    return;
+                }
+            } else {
                 List<Device> devices = deviceService.findDevicesBySerialNumber(extension.getDeviceSerialNumber());
-                if (devices.size()>1){
+                if (devices.size() > 1) {
                     failServiceCall(serviceCall, extension, MessageSeeds.MORE_DEVICES_WITH_SAME_SERIAL_NUMBER, extension.getDeviceSerialNumber());
                     return;
                 }
@@ -98,12 +104,6 @@ public class EndDeviceControlsServiceCallHandler implements ServiceCallHandler {
                 optionalDevice = devices.stream().findFirst();
                 if (!optionalDevice.isPresent()) {
                     failServiceCall(serviceCall, extension, MessageSeeds.NO_DEVICE_WITH_SERIAL_NUMBER, extension.getDeviceSerialNumber());
-                    return;
-                }
-            } else {
-                optionalDevice = deviceService.findDeviceByName(extension.getDeviceName());
-                if (!optionalDevice.isPresent()) {
-                    failServiceCall(serviceCall, extension, MessageSeeds.NO_DEVICE_WITH_NAME, extension.getDeviceName());
                     return;
                 }
             }

@@ -46,8 +46,6 @@ public interface EndDeviceEventRecord extends EndDeviceEvent {
 
     void setmRID(String mRID);
 
-    void setSerialNumber(String serialNumber);
-
     void setName(String name);
 
     void setProcessingFlags(long processingFlags);

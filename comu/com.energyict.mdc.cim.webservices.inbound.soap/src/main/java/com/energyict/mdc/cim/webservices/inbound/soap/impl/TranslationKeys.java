@@ -50,7 +50,6 @@ public enum TranslationKeys implements TranslationKey {
     ACTUAL_END_DATE("actualEndDate", "Actual end date"),
     END_DEVICE_NAME("endDevice.name", "Device name"),
     END_DEVICE_MRID("endDevice.mrid", "Device mrid"),
-    END_DEVICE_SERIAL_NUMBER("endDevice.serialNumber", "Device serial number"),
     RESPONSE_STATUS("responseStatus", "Response status"),
     PGMR_CPS("GM1.name", "Parent get meter readings custom property set"),
     SGMR_CPS("GM2.name", "SubParent get meter readings custom property set"),

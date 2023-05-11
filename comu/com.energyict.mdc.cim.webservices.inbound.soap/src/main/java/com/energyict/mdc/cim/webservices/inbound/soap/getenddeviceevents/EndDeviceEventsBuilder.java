@@ -98,8 +98,8 @@ public class EndDeviceEventsBuilder {
     /*
      * Filtering by end device identifier - mRID or name or serial number.
      * If mRID is specified, find end device by mRid (name and serial number is skipped and is not validated).
-     * If serial number is specified, find end device by serial number.
      * If name is specified, find end device by name.
+     * If serial number is specified, find end device by serial number.
      * Otherwise, this meter tag is skipped.
      */
     public Set<String> getMeterIdentifiers(List<Meter> meters) {

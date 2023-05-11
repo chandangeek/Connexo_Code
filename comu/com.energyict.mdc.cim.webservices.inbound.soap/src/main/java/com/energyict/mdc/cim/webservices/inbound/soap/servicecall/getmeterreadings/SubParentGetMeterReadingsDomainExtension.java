@@ -85,8 +85,8 @@ public class SubParentGetMeterReadingsDomainExtension extends AbstractPersistent
         return endDeviceSerialNumber;
     }
 
-    public void setEndDeviceSerialNumber(String endDevice) {
-        this.endDeviceSerialNumber = endDevice;
+    public void setEndDeviceSerialNumber(String endDeviceSerialNumber) {
+        this.endDeviceSerialNumber = endDeviceSerialNumber;
     }
 
     @Override

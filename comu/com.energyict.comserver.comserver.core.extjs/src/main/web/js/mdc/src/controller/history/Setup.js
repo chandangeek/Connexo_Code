@@ -2773,7 +2773,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 action: 'showCommunicationSchedulesCloneView',
                                 callback: function (route) {
                                     this.getApplication().on('loadCommunicationSchedule', function (record) {
-                                        route.setTitle(Uni.I18n.translate('general.cloneX', 'MDC', "Clone '{0}'", record.get('name'), false));
+                                        route.setTitle(Uni.I18n.translate('general.clonex', 'MDC', "Clone '{0}'", record.get('name'), false));
                                         return true;
                                     }, {single: true});
                                     return this;

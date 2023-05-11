@@ -135,7 +135,7 @@ public class SubParentGetMeterReadingsCustomPropertySet implements CustomPropert
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_SERIAL_NUMBER.javaName(), TranslationKeys.END_DEVICE_SERIAL_NUMBER)
+                        .named(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_SERIAL_NUMBER.javaName(), TranslationKeys.DEVICE_SERIAL_NUMBER)
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .finish()
@@ -198,7 +198,7 @@ public class SubParentGetMeterReadingsCustomPropertySet implements CustomPropert
                     .map(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_SERIAL_NUMBER.javaName())
                     .notNull()
                     .installValue("'-'")
-                    .since(version(10, 9, 24))
+                    .since(version(10, 9, 25))
                     .add();
         }
 

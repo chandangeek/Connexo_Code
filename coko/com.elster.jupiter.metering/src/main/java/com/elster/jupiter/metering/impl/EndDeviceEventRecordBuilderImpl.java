@@ -58,12 +58,6 @@ public class EndDeviceEventRecordBuilderImpl implements EndDeviceEventRecordBuil
     }
 
     @Override
-    public EndDeviceEventRecordBuilder setSerialNumber(String serialNumber) {
-        underConstruction.setSerialNumber(serialNumber);
-        return this;
-    }
-
-    @Override
     public EndDeviceEventRecordBuilder setName(String name) {
         underConstruction.setName(name);
         return this;

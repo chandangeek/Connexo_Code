@@ -62,7 +62,6 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
 
     private String name;
     private String mRID;
-    private String serialNumber;
     private String description;
     private String aliasName;
     private String reason;
@@ -204,7 +203,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
 
     @Override
     public String getSerialNumber() {
-        return serialNumber;
+        return endDevice.get().getSerialNumber();
     }
 
     @Override
@@ -310,11 +309,6 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     @Override
     public void setmRID(String mRID) {
         this.mRID = mRID;
-    }
-
-    @Override
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
     }
 
     @Override

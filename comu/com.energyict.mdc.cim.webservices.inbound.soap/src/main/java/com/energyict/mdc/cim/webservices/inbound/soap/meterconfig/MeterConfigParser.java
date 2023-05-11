@@ -124,7 +124,7 @@ public class MeterConfigParser {
     private List<SharedCommunicationSchedule> extractSharedCommunicationSchedules(Meter meter) throws FaultMessage {
         List<SharedCommunicationSchedule> result = new ArrayList<>();
         if (meter.getSharedCommunicationSchedules() != null) {
-            result=meter.getSharedCommunicationSchedules().getSharedCommunicationSchedule();
+            result = meter.getSharedCommunicationSchedules().getSharedCommunicationSchedule();
         }
         return result;
     }

@@ -91,11 +91,6 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
     }
 
     @Override
-    public void setSerialNumber(String serialNumber) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void setName(String name) {
         throw new UnsupportedOperationException();
     }
@@ -242,7 +237,7 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public String getSerialNumber() {
-        return null;
+        return endDevice.getSerialNumber();
     }
 
     @Override
