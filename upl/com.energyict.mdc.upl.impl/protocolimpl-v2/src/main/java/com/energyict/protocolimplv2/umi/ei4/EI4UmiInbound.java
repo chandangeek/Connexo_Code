@@ -113,7 +113,7 @@ public class EI4UmiInbound implements BinaryInboundDeviceProtocol {
     }
 
     private void readRemoteDeviceUmiId() {
-        UmiSessionProperties properties = new UmiPropertiesBuilder().sourceUmiId(UmiSession.thisUmiId).build();
+        UmiSessionProperties properties = new UmiPropertiesBuilder().sourceUmiId(UmiSession.thisUmiId).destinationUmiId(UmiSession.destinationHostUmiId).build();
         IUmiSession session = new UmiSession(comChannel, properties);
         try {
             ResultCode result = session.startSession();

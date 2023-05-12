@@ -83,7 +83,7 @@ public class AppPacketSecurityS2Test {
                 .encryptionScheme(SecurityScheme.ASYMMETRIC)
                 .respSignatureSchemeRequest(SecurityScheme.NO_SECURITY)
                 .sourceUmiId(new UmiId("9991253571665920"))
-                .destinationUmiId(UmiSession.destinationUmiId)
+                .destinationUmiId(UmiSession.destinationModemUmiId)
                 .ownPrivateKey(UmiSessionS2UtilsTest.getLocalKey())
                 .ownCertificate(UmiSessionS2UtilsTest.getLocalCert()));;
 
