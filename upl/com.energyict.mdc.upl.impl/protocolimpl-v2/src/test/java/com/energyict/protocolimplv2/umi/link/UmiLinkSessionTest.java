@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ */
 package com.energyict.protocolimplv2.umi.link;
 
 import com.energyict.protocolimplv2.umi.connection.UmiConnection;
@@ -10,8 +13,9 @@ import static org.junit.Assert.assertEquals;
 
 public class UmiLinkSessionTest {
 
-@Mock
-UmiConnection connection;
+    @Mock
+    UmiConnection connection;
+
     @Test
     public void getDestinationIdTest() {
         UmiLinkSession umiLinkSession = new UmiLinkSession(connection);
