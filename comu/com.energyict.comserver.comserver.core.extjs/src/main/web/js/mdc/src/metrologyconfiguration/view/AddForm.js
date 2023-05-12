@@ -33,7 +33,8 @@ Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
                 name: 'name',
                 itemId: 'mc-name-textfield',
                 fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                required: true
+                required: true,
+                vtype: 'checkForBlacklistCharacters',
             },
             {
                 xtype: 'textareafield',

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 /**
@@ -18,14 +19,40 @@ Ext.define('Uni.view.form.field.Vtypes', {
         this.validateEan18String();
         this.validateReadingtype();
         this.validateImageFileExtension();
+        this.validateForBlacklistCharacters();
     },
 
-    validateImageFileExtension: function() {
+    validateForBlacklistCharacters: function () {
+        var me = this;
+        Ext.apply(Ext.form.VTypes, {
+            checkForBlacklistCharacters: function (value, field) {
+                return !(/[<>?&%':;|*]/.test(value));
+            },
+            checkForBlacklistCharactersText: Uni.I18n.translate('validation.blackListCharacters', 'UNI', 'Invalid characters')
+        });
+
+        Ext.apply(Ext.form.VTypes, {
+            checkURLForBlacklistCharacters: function (value, field) {
+                return !(/[<>|]/.test(value));
+            },
+            checkURLForBlacklistCharactersText: Uni.I18n.translate('validation.blackListCharacters', 'UNI', 'Invalid characters')
+        });
+
+        Ext.apply(Ext.form.VTypes, {
+            checkForPathBlacklistCharacters: function (value, field) {
+                return !(/[<>&%';|*]/.test(value));
+            },
+            checkForPathBlacklistCharactersText: Uni.I18n.translate('validation.blackListCharacters', 'UNI', 'Invalid characters')
+        });
+    },
+
+    validateImageFileExtension: function () {
+        var me = this;
         Ext.apply(Ext.form.field.VTypes, {
-            image:  function(v) {
+            image: function (v) {
                 return /^.*\.(jpg|JPG|png|PNG)$/.test(v);
             },
-            imageText: Uni.I18n.translate('validation.invalidFileFormat', 'UNI', 'Invalid file format')
+            imageText: Uni.I18n.translate('validation.invalidFileFormat', 'UNI', 'Invalid file format.')
         });
     },
 
@@ -34,7 +61,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
         var me = this;
         var message = null;
         Ext.apply(Ext.form.field.VTypes, {
-            readingtype:  function(v) {
+            readingtype: function (v) {
                 return /^\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+\.\d+$/.test(v);
             },
             readingtypeText: 'Invalid reading type syntax',
@@ -50,7 +77,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
             nonemptystring: function (val) {
                 message = null;
                 //check value
-                if ((val==null || val==undefined || val=='')) {
+                if ((val == null || val == undefined || val == '')) {
                     return false;
                 }
                 if (val.trim().length == 0) {
@@ -128,6 +155,4 @@ Ext.define('Uni.view.form.field.Vtypes', {
         var next10 = (((sum - 1) / 10) + 1) * 10;
         return next10 - sum;
     }
-
-
 });

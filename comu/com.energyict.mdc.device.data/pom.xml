@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>20.0.0-Kratos-SNAPSHOT</version>
+        <version>21.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc.device.data</artifactId>
@@ -254,7 +254,7 @@
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
-            <version>1.3.1</version>
+            <version>1.3.3</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

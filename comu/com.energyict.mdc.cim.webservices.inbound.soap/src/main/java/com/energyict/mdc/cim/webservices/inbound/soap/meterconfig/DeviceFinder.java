@@ -12,6 +12,8 @@ import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 
 import javax.inject.Inject;
 
+import java.util.List;
+
 public class DeviceFinder {
 
     private final DeviceService deviceService;
@@ -19,20 +21,34 @@ public class DeviceFinder {
 
     @Inject
     public DeviceFinder(DeviceService deviceService,
-                         MeterConfigFaultMessageFactory faultMessageFactory) {
+                        MeterConfigFaultMessageFactory faultMessageFactory) {
         this.deviceService = deviceService;
         this.faultMessageFactory = faultMessageFactory;
     }
 
-    public Device findDevice(String mrid, String deviceName) throws FaultMessage {
-        Device device = (mrid != null && !mrid.isEmpty()) ? findDeviceByMRID(mrid, deviceName) :
-                deviceService.findDeviceByName(deviceName)
-                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(deviceName, MessageSeeds.NO_DEVICE_WITH_NAME, deviceName));
-        return device;
+    public Device findDevice(String mrid, String serialNumber, String deviceName) throws FaultMessage {
+        return (mrid != null && !mrid.isEmpty()) ? findDeviceByMRID(mrid, deviceName) :
+                (deviceName != null && !deviceName.isEmpty()) ? findDeviceByName(deviceName) :
+                        findDeviceBySerialNumber(serialNumber, deviceName);
     }
 
     private Device findDeviceByMRID(String mrid, String deviceName) throws FaultMessage {
         return deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(deviceName, MessageSeeds.NO_DEVICE_WITH_MRID, mrid));
+    }
+
+    private Device findDeviceByName(String deviceName) throws FaultMessage {
+        return deviceService.findDeviceByName(deviceName)
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(deviceName, MessageSeeds.NO_DEVICE_WITH_NAME, deviceName));
+    }
+
+    private Device findDeviceBySerialNumber(String serialNumber, String deviceName) throws FaultMessage {
+        List<Device> devices = deviceService.findDevicesBySerialNumber(serialNumber);
+        if (devices.size() > 1) {
+            throw faultMessageFactory.meterConfigFaultMessageSupplier(deviceName, MessageSeeds.MORE_DEVICES_WITH_SAME_SERIAL_NUMBER, serialNumber).get();
+        } else if (devices.isEmpty()) {
+            throw faultMessageFactory.meterConfigFaultMessageSupplier(deviceName, MessageSeeds.NO_DEVICE_WITH_SERIAL_NUMBER, serialNumber).get();
+        }
+        return devices.get(0);
     }
 }

@@ -149,7 +149,8 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                         required: true,
                         fieldLabel: Uni.I18n.translate('general.name', 'DLC', 'Name'),
                         enforceMaxLength: true,
-                        maxLength: 80
+                        maxLength: 80,
+                        vtype: 'checkForBlacklistCharacters'
                     },
                     {
                         xtype: 'fieldcontainer',

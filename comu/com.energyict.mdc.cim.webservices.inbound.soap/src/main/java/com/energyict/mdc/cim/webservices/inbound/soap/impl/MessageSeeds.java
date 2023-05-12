@@ -30,6 +30,7 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_TOO_LONG(12, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
     MISSING_ENDPOINT(13, "MissingEndpoint", "Endpoint for {0} isn''t found by URL ''{1}''."),
     UNSUPPORTED_VALUE_GENERAL(14, "UnsupportedValueGeneral", "Unsupported value for ''{0}''."),
+    MISSING_MRID_OR_NAME_OR_SERIALNUMBER_FOR_ELEMENT(15, "MissingMridOrNameOrSerialNumberForElement", "Either element ''mRID'' or ''Names'' or ''serialNumber'' is required under ''{0}'' for identification purpose."),
 
     // meter config
     UNABLE_TO_CREATE_DEVICE(1001, "UnableToCreateDevice", "Unable to create device"),
@@ -79,13 +80,14 @@ public enum MessageSeeds implements MessageSeed {
     SOCKET_TIMEOUT_EXCEPTION(1046, "SocketTimeoutException", "The ping has timed out."),
     PING_ERROR(1047, "PingError", "An error occurred during ping: ''{0}''."),
     UNSUPPORTED_PING_VALUE(1048, "UnsupportedPingValue", "Element ''Ping'' contains unsupported value ''{0}''. Must be one of: ''Yes'' or ''No''."),
-    
+    SCHEDULE_FOR_METER_NOT_FOUND(1049, "ScheduleForMeterNotFound", "Schedule ''{0}'' not found."),
+
     // get end device events
     UNABLE_TO_GET_END_DEVICE_EVENTS(2001, "UnableToGetEndDeviceEvents", "Unable to get end device events"),
     END_DEVICE_IDENTIFIER_MISSING(2002, "EndDeviceIdentifierMissing", "At least one of ''mRID'' or ''Name'' must be specified in the request."),
     INVALID_OR_EMPTY_TIME_PERIOD(2003, "InvalidOrEmptyTimePeriod",
             "Can''t construct a valid time period: provided start ''{0}'' is after or coincides with the end ''{1}''."),
-    DEVICE_OR_GROUP_IDENTIFIER_MISSING(2004, "deviceOrGroupIdentifierMissing", "At least one of the values should be specified: ''mRID''/''Name'' of a device or ''Name'' of a device group."),
+    DEVICE_OR_GROUP_IDENTIFIER_MISSING(2004, "deviceOrGroupIdentifierMissing", "At least one of the values should be specified: ''mRID''/''serial number''/''Name'' of a device or ''Name'' of a device group."),
 
     // created/closed end device events
     INVALID_CREATED_END_DEVICE_EVENTS(3001, "InvalidCreatedEndDeviceEvents", "Invalid CreatedEndDeviceEvents is received"),
@@ -116,7 +118,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_PURPOSES_WITH_NAMES(6002, "NoPurposesWithNames", "No metrology purposes are found for names: {0}."),
     END_DEVICES_WITH_MRID_NOT_FOUND(6004, "DevicesWithMridNotFound", "Couldn''t find device(s) with MRID(s) ''{0}''.", Level.WARNING),
     END_DEVICES_WITH_NAME_NOT_FOUND(6005, "DevicesWithNamesNotFound", "Couldn''t find device(s) with name(s) ''{0}''.", Level.WARNING),
-    END_DEVICES_NOT_FOUND(6006, "DevicesNotFound", "Couldn''t find device(s) with MRID(s) ''{0}'' and name(s) ''{1}''.", Level.WARNING),
+    END_DEVICES_NOT_FOUND(6006, "DevicesNotFound", "Couldn''t find device(s) with MRID(s) ''{0}'', serial number(s) ''{1}'' and name(s) ''{2}''.", Level.WARNING),
     NO_END_DEVICES(6007, "NoDevices", "No devices have been found."),
     NO_READING_TYPES(6008, "NoReadingTypes", "No reading types have been found."),
     READING_TYPES_WITH_MRID_NOT_FOUND(6009, "ReadingTypesWithMridNotFound", "Reading type(s) with MRID(s) ''{0}'' is(are) not found in the system.", Level.WARNING),
@@ -157,6 +159,11 @@ public enum MessageSeeds implements MessageSeed {
             "Running the communication task with priority on device ''{0}'' for register groups ''{1}'' isn''t possible, since there are no priority connections allowed on its communication port pool.", Level.WARNING),
     NO_PRIORITY_COM_TASK_EXECUTION_FOR_LOAD_PROFILES(6045, "NoPriorityComTaskExecutionForLoadProfiles",
             "Running the communication task with priority for load profile device messages on device ''{0}'' isn''t possible, since there are no priority connections allowed on its communication port pool.", Level.WARNING),
+    END_DEVICES_WITH_SERIAL_NUMBER_NOT_FOUND(6046, "DevicesWithSerialNumberNotFound", "Couldn''t find device(s) by serial number(s) ''{0}''.", Level.WARNING),
+    END_DEVICES_WITH_SERIAL_NUMBER_AND_MRID_NOT_FOUND(6047, "DevicesWithSerialNumberAndMridNotFound", "Couldn''t find device(s) with serial number(s) ''{0}'' and MRID(s) ''{1}''.", Level.WARNING),
+    END_DEVICES_WITH_SERIAL_NUMBER_AND_NAME_NOT_FOUND(6048, "DevicesWithSerialNumberAndNamesNotFound", "Couldn''t find device(s) with serial number(s) ''{0}'' and name(s) ''{1}''.", Level.WARNING),
+    END_DEVICES_WITH_MRID_AND_NAME_NOT_FOUND(6049, "DevicesWithMridAndNamesNotFound", "Couldn''t find device(s) with MRID(s) ''{0}'' and name(s) ''{1}''.", Level.WARNING),
+    MORE_DEVICES_WITH_SAME_SERIAL_NUMBER(6050, "MoreDevicesForSerialNumber", "More than one device found for serialNumber ''{0}''"),
 
     // master data linkage
     NO_METER_WITH_MRID(7001, "NoMeterWithMRID", "No meter or gateway is found by MRID ''{0}''."),
@@ -183,8 +190,8 @@ public enum MessageSeeds implements MessageSeed {
     UNABLE_TO_CHANGE_END_DEVICE_CONTROLS(8002, "UnableToChangeEndDeviceControls", "Unable to change end device controls."),
     END_DEVICES_MISSING(8003, "EndDevicesMissing", "End devices are missing under EndDeviceControl[{0}]."),
     COMMAND_CODE_MISSING(8004, "CommandCodeMissing", "The command CIM code is missing under EndDeviceControl[{0}]."),
-    MISSING_MRID_OR_NAME_FOR_END_DEVICE_CONTROL(8005, "MissingMridOrNameForEndDeviceControl",
-            "Either element ''mRID'' or ''Names'' is required under EndDeviceControl[{0}].EndDevices[{1}] for identification purpose."),
+    MISSING_MRID_OR_NAME_OR_SERIALNUMBER_FOR_END_DEVICE_CONTROL(8005, "MissingMridOrNameOrSerialNumberForEndDeviceControl",
+            "Either element ''mRID'' or ''Names'' or ''serialNumber'' is required under EndDeviceControl[{0}].EndDevices[{1}] for identification purpose."),
     RELEASE_DATE_MISSING(8006, "ReleaseDateMissing", "The release date is missing under EndDeviceControl[{0}]."),
     NO_SUCH_END_DEVICE_CONTROL_TYPE_WITH_CIM(8007, "NoSuchEndDeviceControlTypeWithCim", "No end device control type with CIM code ''{0}''."),
     UNSUPPORTED_END_DEVICE_CONTROL_TYPE(8008, "UnsupportedEndDeviceControlType", "End device control type with CIM code ''{0}'' isn''t supported."),
@@ -202,6 +209,7 @@ public enum MessageSeeds implements MessageSeed {
     END_DEVICE_ERROR(8019, "EndDeviceError", "For device {0}: {1}"),
     EDC_SCHEDULE_STRATEGY_NOT_SUPPORTED(8020, "edcScheduleStrategyNotSupported",
             "Schedule strategy ''{0}'' isn''t supported under EndDeviceControl[{1}]. The possible values are: ''Run now'' and ''Run with priority''."),
+    NO_SERVICE_CALL_WITH_DEVICE_SERIAL_NUMBER(8021, "NoServiceCallWithDeviceSerialNumber", "No service call found for device with serial number ''{0}''."),
     ;
 
     private final int number;

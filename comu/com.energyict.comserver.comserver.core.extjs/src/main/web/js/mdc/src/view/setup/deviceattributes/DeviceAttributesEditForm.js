@@ -43,7 +43,8 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 xtype: 'textfield',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.name', 'MDC', 'Name'),
                 required: true,
-                allowBlank: false
+                allowBlank: false,
+                vtype: 'checkForBlacklistCharacters'
             },
             {
                 name: 'mrid',
@@ -74,7 +75,8 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 name: 'serialNumberEdit',
                 itemId: 'serialNumberEdit',
                 xtype: 'textfield',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.serialNumber', 'MDC', 'Serial number')
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.serialNumber', 'MDC', 'Serial number'),
+                vtype: 'checkForBlacklistCharacters'
             },
             {
                 name: 'manufacturer',
@@ -85,7 +87,8 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 name: 'manufacturerEdit',
                 itemId: 'manufacturerEdit',
                 xtype: 'textfield',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.manufacturer', 'MDC', 'Manufacturer')
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.manufacturer', 'MDC', 'Manufacturer'),
+                vtype: 'checkForBlacklistCharacters'
             },
             {
                 name: 'modelNbr',
@@ -96,7 +99,8 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 name: 'modelNbrEdit',
                 itemId: 'modelNbrEdit',
                 xtype: 'textfield',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.modelNbr', 'MDC', 'Model number')
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.modelNbr', 'MDC', 'Model number'),
+                vtype: 'checkForBlacklistCharacters'
             },
             {
                 name: 'modelVersion',
@@ -107,6 +111,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 name: 'modelVersionEdit',
                 itemId: 'modelVersionEdit',
                 xtype: 'textfield',
+                vtype: 'checkForBlacklistCharacters',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.modelVersion', 'MDC', 'Model version')
             },
             {
@@ -183,6 +188,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 name: 'batchEdit',
                 xtype: 'textfield',
                 itemId: 'batchEdit',
+                vtype: 'checkForBlacklistCharacters',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.batch', 'MDC', 'Batch')
             },
             {

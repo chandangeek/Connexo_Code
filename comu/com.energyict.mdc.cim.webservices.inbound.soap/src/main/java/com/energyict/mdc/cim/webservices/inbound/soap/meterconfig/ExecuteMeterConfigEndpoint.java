@@ -341,7 +341,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     List<FaultMessage> faultMessages = new ArrayList<>();
                     meterConfig.getMeter().stream().map(meterConfigParser::asMeterInfo).forEach(meterInfo -> {
                         try {
-                            deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
+                            deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getSerialNumber(), meterInfo.getDeviceName());
                         } catch (FaultMessage e) {
                             faultMessages.add(e);
                         }
@@ -359,12 +359,15 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                                     faultMessageFactory.meterConfigFaultMessage(MessageSeeds.NO_DEVICE, faultMessages, ReplyType.Result.PARTIAL).getFaultInfo().getReply());
                         }
                     }
+                } else if (meterConfig.getMeter().size() > 1) {
+                    throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_DELETE_DEVICE,
+                            MessageSeeds.SYNC_MODE_NOT_SUPPORTED);
                 } else {
                     // call synchronously
                     Meter meter = meterConfig.getMeter().stream().findFirst()
                             .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.EMPTY_LIST, METER_ITEM));
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
-                    Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
+                    Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getSerialNumber(), meterInfo.getDeviceName());
                     deviceDeleter.delete(device);
                     return createResponseMessage(null, Verb.DELETED, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID());
                 }
@@ -389,7 +392,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     List<FaultMessage> faultMessages = new ArrayList<>();
                     meterConfig.getMeter().stream().map(meterConfigParser::asMeterInfo).forEach(meterInfo -> {
                         try {
-                            deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
+                            deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getSerialNumber(), meterInfo.getDeviceName());
                         } catch (FaultMessage e) {
                             faultMessages.add(e);
                         }
@@ -409,12 +412,15 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                                     faultMessageFactory.meterConfigFaultMessage(MessageSeeds.NO_DEVICE, faultMessages, ReplyType.Result.PARTIAL).getFaultInfo().getReply());
                         }
                     }
+                } else if (meterConfig.getMeter().size() > 1) {
+                    throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG,
+                            MessageSeeds.SYNC_MODE_NOT_SUPPORTED);
                 } else {
                     // call synchronously
                     Meter meter = meterConfig.getMeter().stream().findFirst()
                             .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.EMPTY_LIST, METER_ITEM));
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
-                    Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
+                    Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getSerialNumber(), meterInfo.getDeviceName());
                     checkMeterStatusSourceSync(meterConfig.getMeterStatusSource(), device.getName());
                     boolean meterStatusRequired = MeterStatusSource.SYSTEM.getSource().equalsIgnoreCase(meterConfig.getMeterStatusSource());
                     PingResult pingResult = PingResult.NOT_NEEDED;

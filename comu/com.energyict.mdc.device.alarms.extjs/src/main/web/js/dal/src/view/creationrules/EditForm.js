@@ -38,7 +38,8 @@ Ext.define('Dal.view.creationrules.EditForm', {
                     afterrender: function(field) {
                         field.focus(false, 200);
                     }
-                }
+                },
+                vtype: 'checkForBlacklistCharacters'
             },
             {
                 itemId: 'rule-template-container',

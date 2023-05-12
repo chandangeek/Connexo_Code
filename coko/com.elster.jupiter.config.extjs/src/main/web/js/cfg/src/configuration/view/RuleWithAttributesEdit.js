@@ -46,10 +46,11 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesEdit', {
                         name: 'name',
                         disabled: true,
                         listeners: {
-                            afterrender: function(field) {
+                            afterrender: function (field) {
                                 field.labelEl.setOpacity(1);
                             }
-                        }
+                        },
+                        vtype: 'checkForBlacklistCharacters'
                     },
                     {
                         xtype: 'combobox',
@@ -58,7 +59,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesEdit', {
                         itemId: 'rule-type-combo',
                         fieldLabel: me.type === 'validation' ? Uni.I18n.translate('validation.validator', 'CFG', 'Validator') : Uni.I18n.translate('general.estimator', 'CFG', 'Estimator'),
                         listeners: {
-                            afterrender: function(field) {
+                            afterrender: function (field) {
                                 field.labelEl.setOpacity(1);
                             }
                         }

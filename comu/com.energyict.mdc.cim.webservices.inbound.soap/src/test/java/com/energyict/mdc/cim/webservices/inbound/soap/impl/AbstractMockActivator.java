@@ -64,6 +64,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.scheduling.SchedulingService;
 
 import org.osgi.framework.BundleContext;
 
@@ -187,6 +188,8 @@ public abstract class AbstractMockActivator {
     protected EngineConfigurationService engineConfigurationService;
     @Mock
     protected PriorityComTaskService priorityComTaskService;
+    @Mock
+    protected SchedulingService schedulingService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -264,6 +267,7 @@ public abstract class AbstractMockActivator {
         activator.setReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
         activator.setEngineConfigurationService(engineConfigurationService);
         activator.setPriorityComTaskService(priorityComTaskService);
+        activator.setSchedulingService(schedulingService);
         activator.activate(mock(BundleContext.class));
     }
 

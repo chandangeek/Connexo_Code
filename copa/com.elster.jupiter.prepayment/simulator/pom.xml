@@ -8,14 +8,14 @@
 
     <properties>
         <revision>-SNAPSHOT</revision>
-        <jetty.version>9.4.28.v20200408</jetty.version>
+        <jetty.version>9.4.31.v20200723</jetty.version>
         <jersey.version>2.13</jersey.version>
     </properties>
 
     <parent>
         <groupId>com.energyict</groupId>
 		<artifactId>prepayment</artifactId>
-        <version>20.0.0-Kratos-SNAPSHOT</version>
+        <version>21.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>prepayment.simulator</artifactId>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
-            <version>1.4.8</version>
+            <version>1.4.20</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jettison</groupId>

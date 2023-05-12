@@ -39,14 +39,16 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     itemId: 'mdc-security-accessor-name-textfield',
                     fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                     required: true,
-                    allowBlank: false
+                    allowBlank: false,
+                    vtype: 'checkForBlacklistCharacters',
                 },
                 {
                     xtype: 'textareafield',
                     name: 'description',
                     itemId: 'mdc-security-accessor-description-textfield',
                     fieldLabel: Uni.I18n.translate('general.description', 'MDC', 'Description'),
-                    height: 80
+                    height: 80,
+                    vtype: 'checkForBlacklistCharacters',
                 },
                 {
                     xtype: 'radiogroup',
@@ -298,6 +300,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     hidden: true,
                     required: true,
                     allowBlank: false,
+                    maskRe: /[0-9]+/,
                     emptyText: Uni.I18n.translate('securityaccessors.keySizes', 'MDC', 'Input size ...')
                 },
                 {

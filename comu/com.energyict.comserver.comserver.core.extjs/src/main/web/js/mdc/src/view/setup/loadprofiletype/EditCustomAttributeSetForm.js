@@ -30,7 +30,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.EditCustomAttributeSetForm', {
             disabled: true,
             required: true,
             fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-            msgTarget: 'under'
+            msgTarget: 'under',
+            vtype: 'checkForBlacklistCharacters'
         },
         {
             xtype: 'obis-field',

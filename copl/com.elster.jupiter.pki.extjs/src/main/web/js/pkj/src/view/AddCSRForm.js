@@ -34,7 +34,8 @@ Ext.define('Pkj.view.AddCSRForm', {
                 required: true,
                 name: 'alias',
                 itemId: 'pkj-csr-add-form-alias',
-                allowBlank: false
+                allowBlank: false,
+                vtype: 'checkForBlacklistCharacters'
             },
             {
                 xtype: 'fieldcontainer',

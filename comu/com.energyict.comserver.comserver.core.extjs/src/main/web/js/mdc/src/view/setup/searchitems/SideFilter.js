@@ -39,16 +39,18 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                     itemId: 'name',
                     fieldLabel: Uni.I18n.translate('searchItems.name', 'MDC', 'Name'),
                     listeners: {
-                        afterrender: function(field) {
+                        afterrender: function (field) {
                             field.focus(false, 200);
                         }
-                    }
+                    },
+                    vtype: 'checkForBlacklistCharacters'
                 },
                 {
                     xtype: 'textfield',
                     name: 'sn',
                     itemId: 'sn',
-                    fieldLabel: Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number')
+                    fieldLabel: Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number'),
+                    vtype: 'checkForBlacklistCharacters'
                 },
                 {
                     xtype: 'combobox',

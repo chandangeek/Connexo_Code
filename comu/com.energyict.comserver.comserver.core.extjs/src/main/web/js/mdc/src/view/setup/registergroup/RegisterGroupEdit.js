@@ -76,7 +76,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                             afterrender: function (field) {
                                                 field.focus(false, 200);
                                             }
-                                        }
+                                        },
+                                        vtype: 'checkForBlacklistCharacters'
                                     },
                                     {
                                         xtype: 'displayfield',

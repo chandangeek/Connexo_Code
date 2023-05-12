@@ -9,6 +9,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.Ca
 
 import ch.iec.tc57._2011.meterconfig.ConnectionAttributes;
 import ch.iec.tc57._2011.meterconfig.ElectronicAddress;
+import ch.iec.tc57._2011.meterconfig.SharedCommunicationSchedule;
 import ch.iec.tc57._2011.meterconfig.Zone;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -41,9 +42,18 @@ public class MeterInfo {
     private List<CasInfo> customAttributeSets;
     private SecurityInfo securityInfo;
     private List<ConnectionAttributes> connectionAttributes;
+    private List<SharedCommunicationSchedule> sharedCommunicationSchedules;
     private boolean failOnExistentDevice;
 
     public MeterInfo() {
+    }
+
+    public List<SharedCommunicationSchedule> getSharedCommunicationSchedules() {
+        return sharedCommunicationSchedules;
+    }
+
+    public void setSharedCommunicationSchedules(List<SharedCommunicationSchedule> sharedCommunicationSchedules) {
+        this.sharedCommunicationSchedules = sharedCommunicationSchedules;
     }
 
     public String getDeviceName() {

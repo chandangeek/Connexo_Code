@@ -12,13 +12,13 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>copa</artifactId>
-        <version>20.0.0-Kratos-SNAPSHOT</version>
+        <version>21.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <yellowfin.version>8.0</yellowfin.version>
+        <yellowfin.version>9.8.1.3</yellowfin.version>
         <axis.version>1.4</axis.version>
     </properties>
 
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina</artifactId>
-            <version>9.0.34</version>
+            <version>9.0.52</version>
         </dependency>
         <dependency>
             <groupId>com.elster.partners</groupId>

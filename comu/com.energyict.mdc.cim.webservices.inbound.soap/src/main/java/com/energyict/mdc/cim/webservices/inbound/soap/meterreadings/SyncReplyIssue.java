@@ -39,6 +39,7 @@ public class SyncReplyIssue {
 
     // Meters aka EndDevices
     private Set<String> notFoundMRIDs;
+    private Set<String> notFoundSerialNumbers;
     private Set<String> notFoundNames;
     private Set<Meter> existedMeters;
 
@@ -102,6 +103,17 @@ public class SyncReplyIssue {
 
     public void setNotFoundMRIDs(Set<String> notFoundMRIDs) {
         this.notFoundMRIDs = notFoundMRIDs;
+    }
+
+    public Set<String> getNotFoundSerialNumbers() {
+        if (notFoundSerialNumbers == null) {
+            notFoundSerialNumbers = new HashSet<>();
+        }
+        return notFoundSerialNumbers;
+    }
+
+    public void setNotFoundSerialNumbers(Set<String> notFoundSerialNumbers) {
+        this.notFoundSerialNumbers = notFoundSerialNumbers;
     }
 
     public Set<String> getNotFoundNames() {
@@ -373,13 +385,29 @@ public class SyncReplyIssue {
         }
 
         // devices issue
-        if (!notFoundMRIDs.isEmpty() && !notFoundNames.isEmpty()) {
+        if (!notFoundMRIDs.isEmpty() && !notFoundSerialNumbers.isEmpty() && !notFoundNames.isEmpty()) {
             addErrorType(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_NOT_FOUND, null,
+                    combineNotFoundElementMessage(notFoundMRIDs),
+                    combineNotFoundElementMessage(notFoundSerialNumbers),
+                    combineNotFoundElementMessage(notFoundNames)));
+        } else if (!notFoundSerialNumbers.isEmpty() && !notFoundMRIDs.isEmpty()) {
+            addErrorType(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_WITH_SERIAL_NUMBER_AND_MRID_NOT_FOUND, null,
+                    combineNotFoundElementMessage(notFoundSerialNumbers),
+                    combineNotFoundElementMessage(notFoundMRIDs)));
+        } else if (!notFoundSerialNumbers.isEmpty() && !notFoundNames.isEmpty()) {
+            addErrorType(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_WITH_SERIAL_NUMBER_AND_NAME_NOT_FOUND, null,
+                    combineNotFoundElementMessage(notFoundSerialNumbers),
+                    combineNotFoundElementMessage(notFoundNames)));
+        } else if (!notFoundMRIDs.isEmpty() && !notFoundNames.isEmpty()) {
+            addErrorType(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_WITH_MRID_AND_NAME_NOT_FOUND, null,
                     combineNotFoundElementMessage(notFoundMRIDs),
                     combineNotFoundElementMessage(notFoundNames)));
         } else if (!notFoundMRIDs.isEmpty()) {
             addErrorType(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_WITH_MRID_NOT_FOUND, null,
                     combineNotFoundElementMessage(notFoundMRIDs)));
+        } else if (!notFoundSerialNumbers.isEmpty()) {
+            addErrorType(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_WITH_SERIAL_NUMBER_NOT_FOUND, null,
+                    combineNotFoundElementMessage(notFoundSerialNumbers)));
         } else if (!notFoundNames.isEmpty()) {
             addErrorType(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_WITH_NAME_NOT_FOUND, null,
                     combineNotFoundElementMessage(notFoundNames)));

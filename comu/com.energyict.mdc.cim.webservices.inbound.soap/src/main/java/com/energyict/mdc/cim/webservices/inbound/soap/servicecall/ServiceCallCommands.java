@@ -290,6 +290,7 @@ public class ServiceCallCommands {
             meterConfigDomainExtension.setMeter(jsonService.serialize(meterInfo));
         }
         meterConfigDomainExtension.setMeterMrid(meter.getMRID());
+        meterConfigDomainExtension.setMeterSerialNumber(meter.getSerialNumber());
         String deviceName = meterConfigParser.extractName(meter.getNames()).orElse(null);
         meterConfigDomainExtension.setMeterName(deviceName);
         meterConfigDomainExtension.setOperation(operation.getOperation());
@@ -730,6 +731,7 @@ public class ServiceCallCommands {
         SubParentGetMeterReadingsDomainExtension subParentDomainExtension = new SubParentGetMeterReadingsDomainExtension();
         subParentDomainExtension.setEndDeviceName(meter.getName());
         subParentDomainExtension.setEndDeviceMrid(meter.getMRID());
+        subParentDomainExtension.setEndDeviceSerialNumber(meter.getSerialNumber());
 
         ServiceCall subParentServiceCall = parent.newChildCall(serviceCallType).extendedWith(subParentDomainExtension)
                 .create();
@@ -826,6 +828,7 @@ public class ServiceCallCommands {
         EndDeviceControlsDomainExtension domainExtension = new EndDeviceControlsDomainExtension();
         domainExtension.setDeviceMrid(endDeviceMessage.getDeviceMrid());
         domainExtension.setDeviceName(endDeviceMessage.getDeviceName());
+        domainExtension.setDeviceSerialNumber(endDeviceMessage.getDeviceSerialNumber());
         domainExtension.setTriggerDate(endDeviceMessage.getReleaseDate());
 
         subParentServiceCall.newChildCall(serviceCallType)
@@ -883,8 +886,10 @@ public class ServiceCallCommands {
                     .filter(s -> {
                         if (endDeviceMessage.getDeviceMrid() != null) {
                             return endDeviceMessage.getDeviceMrid().equals(s.getDeviceMrid());
-                        } else {
+                        } else if (endDeviceMessage.getDeviceName() != null) {
                             return endDeviceMessage.getDeviceName().equals(s.getDeviceName());
+                        } else {
+                            return endDeviceMessage.getDeviceSerialNumber().equals(s.getDeviceSerialNumber());
                         }
                     })
                     .findFirst();
@@ -897,9 +902,12 @@ public class ServiceCallCommands {
                 if (endDeviceMessage.getDeviceMrid() != null) {
                     errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_SYNC_ERROR, null, endDeviceControlIndex, i,
                             MessageSeeds.NO_SERVICE_CALL_WITH_DEVICE_MRID.translate(thesaurus, endDeviceMessage.getDeviceMrid())));
-                } else {
+                } else if (endDeviceMessage.getDeviceName() != null) {
                     errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_SYNC_ERROR, null, endDeviceControlIndex, i,
                             MessageSeeds.NO_SERVICE_CALL_WITH_DEVICE_NAME.translate(thesaurus, endDeviceMessage.getDeviceName())));
+                } else {
+                    errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_SYNC_ERROR, null, endDeviceControlIndex, i,
+                            MessageSeeds.NO_SERVICE_CALL_WITH_DEVICE_SERIAL_NUMBER.translate(thesaurus, endDeviceMessage.getDeviceSerialNumber())));
                 }
             }
         }

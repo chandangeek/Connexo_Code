@@ -676,6 +676,11 @@ string -->
                     <xs:documentation>A UUID-based name for the object</xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element name="serialNumber" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>A serial number of this identified object.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element name="Name" type="Name" minOccurs="0" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>The Name structure is deprecated. It will be completely

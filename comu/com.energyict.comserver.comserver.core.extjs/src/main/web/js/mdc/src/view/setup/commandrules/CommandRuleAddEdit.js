@@ -52,6 +52,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
                         name: 'name',
                         required: true,
                         width: 500,
+                        vtype: 'checkForBlacklistCharacters',
                         listeners: {
                             afterrender: function (field) {
                                 field.focus(false, 200);

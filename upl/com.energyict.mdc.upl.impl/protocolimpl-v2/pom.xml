@@ -12,11 +12,11 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
-        <version>20.0.0-Kratos-SNAPSHOT</version>
+        <version>21.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <properties>
-        <jackson.version>2.10.5</jackson.version>
+        <jackson.version>2.14.2</jackson.version>
     </properties>
 
     <dependencies>

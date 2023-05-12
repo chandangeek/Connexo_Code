@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>20.0.0-Kratos-SNAPSHOT</version>
+        <version>21.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>offline</artifactId>
@@ -54,7 +54,7 @@
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
-                <version>1.4.197</version>
+                <version>1.4.200</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

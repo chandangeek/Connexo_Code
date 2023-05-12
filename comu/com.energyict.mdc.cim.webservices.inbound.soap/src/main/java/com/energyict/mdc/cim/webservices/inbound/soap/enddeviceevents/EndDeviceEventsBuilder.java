@@ -106,9 +106,10 @@ public class EndDeviceEventsBuilder {
         Asset asset = extractAssetOrThrowException(endDeviceEvent);
         Optional<String> endDeviceMrid = extractDeviceMrid(asset);
         Optional<String> endDeviceName = extractDeviceName(asset);
+        Optional<String> endDeviceSerialNumber = extractDeviceSerialNumber(asset);
 
-        if (!endDeviceMrid.isPresent() && !endDeviceName.isPresent()) {
-            throw faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_EVENT_ITEM).get();
+        if (!endDeviceMrid.isPresent() && !endDeviceName.isPresent() && !endDeviceSerialNumber.isPresent()) {
+            throw faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_MRID_OR_NAME_OR_SERIALNUMBER_FOR_ELEMENT, END_DEVICE_EVENT_ITEM).get();
         }
 
         Optional<String> mrid = extractMrid(endDeviceEvent);
@@ -122,7 +123,7 @@ public class EndDeviceEventsBuilder {
         Optional<Map<String, String>> eventData = extractProperties(endDeviceEvent);
 
         return () -> {
-            EndDevice endDevice = getEndDevice(endDeviceMrid, endDeviceName);
+            EndDevice endDevice = getEndDevice(endDeviceMrid, endDeviceSerialNumber, endDeviceName);
             EndDeviceEventType eventType = meteringService.getEndDeviceEventType(eventTypeCode)
                     .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_END_DEVICE_EVENT_TYPE_WITH_REF, eventTypeCode));
 
@@ -158,15 +159,16 @@ public class EndDeviceEventsBuilder {
         Asset asset = extractAssetOrThrowException(endDeviceEvent);
         Optional<String> endDeviceMrid = extractDeviceMrid(asset);
         Optional<String> endDeviceName = extractDeviceName(asset);
+        Optional<String> endDeviceSerialNumber = extractDeviceSerialNumber(asset);
 
-        if (!endDeviceMrid.isPresent() && !endDeviceName.isPresent()) {
-            throw faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_EVENT_ITEM).get();
+        if (!endDeviceMrid.isPresent() && !endDeviceName.isPresent() && !endDeviceSerialNumber.isPresent()) {
+            throw faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_MRID_OR_NAME_OR_SERIALNUMBER_FOR_ELEMENT, END_DEVICE_EVENT_ITEM).get();
         }
 
         String eventTypeCode = extractEndDeviceFunctionRefOrThrowException(endDeviceEvent);
 
         return () -> {
-            EndDevice endDevice = getEndDevice(endDeviceMrid, endDeviceName);
+            EndDevice endDevice = getEndDevice(endDeviceMrid, endDeviceSerialNumber, endDeviceName);
             IssueStatus issueStatus = issueService.findStatus(IssueStatus.RESOLVED).get();
             User user = (User) threadPrincipalService.getPrincipal();
 
@@ -233,6 +235,11 @@ public class EndDeviceEventsBuilder {
                 .flatMap(Stream::findFirst);
     }
 
+    private Optional<String> extractDeviceSerialNumber(Asset asset) {
+        return Optional.ofNullable(asset.getSerialNumber())
+                .filter(serialNumber -> !Checks.is(serialNumber).emptyOrOnlyWhiteSpace());
+    }
+
     private Optional<String> extractMrid(EndDeviceEvent endDeviceEvent) throws FaultMessage {
         return Optional.ofNullable(endDeviceEvent.getMRID())
                 .filter(mrid -> !Checks.is(mrid).emptyOrOnlyWhiteSpace());
@@ -296,12 +303,21 @@ public class EndDeviceEventsBuilder {
                 .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, END_DEVICE_EVENT_TYPE_ITEM));
     }
 
-    private EndDevice getEndDevice(Optional<String> endDeviceMrid, Optional<String> endDeviceName) throws FaultMessage {
-        return endDeviceMrid.isPresent() ?
-                meteringService.findEndDeviceByMRID(endDeviceMrid.get())
-                        .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_MRID, endDeviceMrid.get())) :
-                meteringService.findEndDeviceByName(endDeviceName.get())
-                        .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_NAME, endDeviceName.get()));
+    private EndDevice getEndDevice(Optional<String> endDeviceMrid, Optional<String> endDeviceSerialNumber, Optional<String> endDeviceName) throws FaultMessage {
+        if (endDeviceMrid.isPresent()) {
+            return meteringService.findEndDeviceByMRID(endDeviceMrid.get())
+                    .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_MRID, endDeviceMrid.get()));
+        } else if (endDeviceName.isPresent()) {
+            return meteringService.findEndDeviceByName(endDeviceName.get())
+                    .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_NAME, endDeviceName.get()));
+        }
+        List<EndDevice> endDevices = meteringService.findEndDevicesBySerialNumber(endDeviceSerialNumber.get());
+        if (endDevices.size() > 1) {
+            throw faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.MORE_DEVICES_WITH_SAME_SERIAL_NUMBER, endDeviceSerialNumber.get()).get();
+        } else if (endDevices.isEmpty()) {
+            throw faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_SERIAL_NUMBER, endDeviceSerialNumber.get()).get();
+        }
+        return endDevices.get(0);
     }
 
     private LogBook getLogBook(EndDevice endDevice) throws FaultMessage {

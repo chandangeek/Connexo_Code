@@ -24,6 +24,7 @@ import ch.iec.tc57._2011.meterconfig.Meter;
 import ch.iec.tc57._2011.meterconfig.MeterMultiplier;
 import ch.iec.tc57._2011.meterconfig.Name;
 import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
+import ch.iec.tc57._2011.meterconfig.SharedCommunicationSchedule;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
 import ch.iec.tc57._2011.meterconfig.Zone;
@@ -64,6 +65,7 @@ public class MeterConfigParser {
         MeterInfo meterInfo = new MeterInfo();
         meterInfo.setDeviceName(extractName(meter.getNames()).orElse(null));
         meterInfo.setmRID(extractMrid(meter).orElse(null));
+        meterInfo.setSerialNumber(extractSerialNumber(meter).orElse(null));
         return meterInfo;
     }
 
@@ -114,8 +116,17 @@ public class MeterConfigParser {
         meterInfo.setDeviceConfigurationName(extractDeviceConfig(meter, endDeviceFunctions));
         meterInfo.setSecurityInfo(extractSecurityInfo(meter));
         meterInfo.setConnectionAttributes(meter.getConnectionAttributes());
+        meterInfo.setSharedCommunicationSchedules(extractSharedCommunicationSchedules(meter));
         FieldMaxLengthValidator.validate(meterInfo);
         return meterInfo;
+    }
+
+    private List<SharedCommunicationSchedule> extractSharedCommunicationSchedules(Meter meter) throws FaultMessage {
+        List<SharedCommunicationSchedule> result = new ArrayList<>();
+        if (meter.getSharedCommunicationSchedules() != null) {
+            result = meter.getSharedCommunicationSchedules().getSharedCommunicationSchedule();
+        }
+        return result;
     }
 
     private List<CasInfo> extractCustomPropertySets(Meter meter) throws FaultMessage {

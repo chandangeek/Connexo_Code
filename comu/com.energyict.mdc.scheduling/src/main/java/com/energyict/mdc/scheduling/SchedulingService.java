@@ -48,4 +48,6 @@ public interface SchedulingService {
 
     public Optional<ComSchedule> findAndLockComScheduleByIdAndVersion(long id, long version);
 
+    public Optional<ComSchedule> findScheduleByName(String comScheduleName);
+
 }

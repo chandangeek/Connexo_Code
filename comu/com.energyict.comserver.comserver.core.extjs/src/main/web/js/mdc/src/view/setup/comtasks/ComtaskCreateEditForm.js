@@ -31,10 +31,11 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                     required: true,
                     width: 500,
                     listeners: {
-                        afterrender: function(field) {
+                        afterrender: function (field) {
                             field.focus(false, 200);
                         }
-                    }
+                    },
+                    vtype: 'checkForBlacklistCharacters'
                 },
                 {
                     xtype: 'checkbox',

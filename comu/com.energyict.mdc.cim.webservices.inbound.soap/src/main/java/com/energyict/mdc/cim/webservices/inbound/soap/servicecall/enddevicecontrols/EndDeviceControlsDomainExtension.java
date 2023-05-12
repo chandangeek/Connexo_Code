@@ -23,6 +23,7 @@ public class EndDeviceControlsDomainExtension extends AbstractPersistentDomainEx
         DOMAIN("serviceCall", "SERVICE_CALL"),
         DEVICE_NAME("deviceName", "DEVICE_NAME"),
         DEVICE_MRID("deviceMrid", "DEVICE_MRID"),
+        DEVICE_SERIAL_NUMBER("deviceSerialNumber", "DEVICE_SERIAL_NUMBER"),
         TRIGGER_DATE("triggerDate", "TRIGGER_DATE"),
         ERROR("error", "ERROR"),
         CANCELLATION_REASON("cancellationReason", "CANCELLATION_REASON");
@@ -50,6 +51,9 @@ public class EndDeviceControlsDomainExtension extends AbstractPersistentDomainEx
     private String deviceName;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String deviceMrid;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String deviceSerialNumber;
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String cancellationReason = CancellationReason.NOT_CANCELLED.getName();
@@ -80,8 +84,16 @@ public class EndDeviceControlsDomainExtension extends AbstractPersistentDomainEx
         return deviceMrid;
     }
 
-    public void setDeviceMrid(String endDevice) {
-        this.deviceMrid = endDevice;
+    public void setDeviceMrid(String deviceMrid) {
+        this.deviceMrid = deviceMrid;
+    }
+
+    public String getDeviceSerialNumber() {
+        return deviceSerialNumber;
+    }
+
+    public void setDeviceSerialNumber(String deviceSerialNumber) {
+        this.deviceSerialNumber = deviceSerialNumber;
     }
 
     public CancellationReason getCancellationReason() {
@@ -105,6 +117,7 @@ public class EndDeviceControlsDomainExtension extends AbstractPersistentDomainEx
         this.serviceCall.set(serviceCall);
         this.setDeviceName((String) propertyValues.getProperty(FieldNames.DEVICE_NAME.javaName()));
         this.setDeviceMrid((String) propertyValues.getProperty(FieldNames.DEVICE_MRID.javaName()));
+        this.setDeviceSerialNumber((String) propertyValues.getProperty(FieldNames.DEVICE_SERIAL_NUMBER.javaName()));
         this.setCancellationReason(CancellationReason.valueFor((String) propertyValues.getProperty(FieldNames.CANCELLATION_REASON.javaName())));
         this.setTriggerDate((Instant) propertyValues.getProperty(FieldNames.TRIGGER_DATE.javaName()));
         this.setError((String) propertyValues.getProperty(FieldNames.ERROR.javaName()));
@@ -114,6 +127,7 @@ public class EndDeviceControlsDomainExtension extends AbstractPersistentDomainEx
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.DEVICE_NAME.javaName(), this.getDeviceName());
         propertySetValues.setProperty(FieldNames.DEVICE_MRID.javaName(), this.getDeviceMrid());
+        propertySetValues.setProperty(FieldNames.DEVICE_SERIAL_NUMBER.javaName(), this.getDeviceSerialNumber());
         propertySetValues.setProperty(FieldNames.CANCELLATION_REASON.javaName(), this.getCancellationReason().getName());
         propertySetValues.setProperty(FieldNames.TRIGGER_DATE.javaName(), this.getTriggerDate());
         propertySetValues.setProperty(FieldNames.ERROR.javaName(), this.getError());

@@ -69,7 +69,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                     afterrender: function (field) {
                                         field.focus(false, 200);
                                     }
-                                }
+                                },
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'combobox',

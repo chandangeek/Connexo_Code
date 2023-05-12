@@ -250,41 +250,46 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
             editPage = me.getRuleSetEditPage(),
             form = btn.up('#rule-set-edit-form'),
             action;
-        form.updateRecord();
-        var record = form.getRecord();
-        record.getId() ? action = 'update' : action = 'create';
-        editPage.setLoading();
-        record.save({
-            action: action,
-            backUrl: me.getRuleSetEditPage().returnLink,
-            failure: function (record, operation) {
-                if (operation.response.status == 400) {
-                    me.showErrorPanel(true);
-                    if (!Ext.isEmpty(operation.response.responseText)) {
-                        var json = Ext.decode(operation.response.responseText, true);
-                        if (json && json.errors) {
-                            form.getForm().markInvalid(json.errors);
+
+        if (form.isValid()) {
+            form.updateRecord();
+            var record = form.getRecord();
+            record.getId() ? action = 'update' : action = 'create';
+            editPage.setLoading();
+            record.save({
+                action: action,
+                backUrl: me.getRuleSetEditPage().returnLink,
+                failure: function (record, operation) {
+                    if (operation.response.status == 400) {
+                        me.showErrorPanel(true);
+                        if (!Ext.isEmpty(operation.response.responseText)) {
+                            var json = Ext.decode(operation.response.responseText, true);
+                            if (json && json.errors) {
+                                form.getForm().markInvalid(json.errors);
+                            }
                         }
                     }
-                }
-            },
-            success: function (record) {
-                var msg = action == 'create' ?
-                    Uni.I18n.translate('estimationrulesets.add.successMsg', 'EST', 'Estimation rule set added') :
-                    Uni.I18n.translate('estimationrulesets.edit.successMsg', 'EST', 'Estimation rule set edited');
+                },
+                success: function (record) {
+                    var msg = action == 'create' ?
+                        Uni.I18n.translate('estimationrulesets.add.successMsg', 'EST', 'Estimation rule set added') :
+                        Uni.I18n.translate('estimationrulesets.edit.successMsg', 'EST', 'Estimation rule set edited');
 
-                me.getApplication().fireEvent('acknowledge', msg);
+                    me.getApplication().fireEvent('acknowledge', msg);
 
-                if (action === 'create') {
-                    me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets/estimationruleset').forward({ruleSetId: record.getId()});
-                } else {
-                    me.navigatePrevious();
+                    if (action === 'create') {
+                        me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets/estimationruleset').forward({ruleSetId: record.getId()});
+                    } else {
+                        me.navigatePrevious();
+                    }
+                },
+                callback: function () {
+                    editPage.setLoading(false);
                 }
-            },
-            callback: function () {
-                editPage.setLoading(false);
-            }
-        })
+            })
+        } else {
+            me.showErrorPanel(true);
+        }
     },
 
     removeAction: function (record) {

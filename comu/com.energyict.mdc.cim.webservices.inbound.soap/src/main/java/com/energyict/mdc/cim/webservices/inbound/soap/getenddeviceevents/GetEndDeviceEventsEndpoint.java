@@ -87,6 +87,9 @@ public class GetEndDeviceEventsEndpoint extends AbstractInboundEndPoint implemen
                     if (meter.getMRID() != null){
                         values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
                     }
+                    if (meter.getSerialNumber() != null){
+                        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
+                    }
 
                 });
                 requestMessage.getRequest().getGetEndDeviceEvents().getUsagePoint().forEach(usp->{

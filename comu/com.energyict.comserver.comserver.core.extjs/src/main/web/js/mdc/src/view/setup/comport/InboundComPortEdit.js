@@ -64,12 +64,13 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'name',
-                                fieldLabel: Uni.I18n.translate('general.name','MDC','Name'),
+                                fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                 listeners: {
                                     afterrender: function (field) {
                                         field.focus(false, 200);
                                     }
-                                }
+                                },
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'combobox',
@@ -84,7 +85,8 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'description',
-                                fieldLabel: 'description'
+                                fieldLabel: 'description',
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'numberfield',
@@ -287,7 +289,8 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'contextPath',
-                                fieldLabel: 'contextPath'
+                                fieldLabel: 'contextPath',
+                                vtype: 'checkURLForBlacklistCharacters'
                             },
                             {
                                 xtype: 'checkbox',
@@ -299,12 +302,14 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'keyStoreFilePath',
-                                fieldLabel: 'keyStoreFilePath'
+                                fieldLabel: 'keyStoreFilePath',
+                                vtype: 'checkForPathBlacklistCharacters'
                             },
                             {
                                 xtype: 'textfield',
                                 name: 'trustStoreFilePath',
-                                fieldLabel: 'trustStoreFilePath'
+                                fieldLabel: 'trustStoreFilePath',
+                                vtype: 'checkForPathBlacklistCharacters'
                             },
                             {
                                 xtype: 'textfield',

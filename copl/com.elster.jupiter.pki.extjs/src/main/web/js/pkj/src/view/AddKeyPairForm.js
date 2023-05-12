@@ -39,7 +39,8 @@ Ext.define('Pkj.view.AddKeyPairForm', {
                 itemId: 'pkj-key-pair-add-form-alias',
                 allowBlank: !me.importMode,
                 anchor: '40%',
-                //hidden: me.importMode
+                //hidden: me.importMode,
+                vtype: 'checkForBlacklistCharacters'
             },
             {
                 xtype: 'combobox',

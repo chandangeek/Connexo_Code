@@ -289,11 +289,13 @@ public class ExecuteEndDeviceControlsEndpoint extends AbstractInboundEndPoint im
                     EndDeviceMessage endDeviceMessage = new EndDeviceMessage();
                     String mrid = getDeviceMrid(endDevice);
                     String name = getDeviceName(endDevice);
-                    if (mrid == null && name == null) {
-                        errorTypes.add(replyTypeFactory.errorType(MessageSeeds.MISSING_MRID_OR_NAME_FOR_END_DEVICE_CONTROL, null, i, j));
+                    String serialNumber = getDeviceSerialNumber(endDevice);
+                    if (mrid == null && name == null && serialNumber == null) {
+                        errorTypes.add(replyTypeFactory.errorType(MessageSeeds.MISSING_MRID_OR_NAME_OR_SERIALNUMBER_FOR_END_DEVICE_CONTROL, null, i, j));
                     } else {
                         endDeviceMessage.setDeviceMrid(mrid);
                         endDeviceMessage.setDeviceName(name);
+                        endDeviceMessage.setDeviceSerialNumber(serialNumber);
                         endDeviceMessage.setReleaseDate(releaseDate);
                         endDeviceControlMessage.addEndDeviceMessage(endDeviceMessage);
                     }
@@ -351,6 +353,13 @@ public class ExecuteEndDeviceControlsEndpoint extends AbstractInboundEndPoint im
                 .map(names -> names.stream().filter(name -> !Checks.is(name.getName()).emptyOrOnlyWhiteSpace())
                         .map(Name::getName))
                 .flatMap(Stream::findFirst)
+                .orElse(null);
+    }
+
+    private String getDeviceSerialNumber(EndDevice endDevice) {
+        return Optional.ofNullable(endDevice)
+                .map(EndDevice::getSerialNumber)
+                .filter(serialNumber -> !Checks.is(serialNumber).emptyOrOnlyWhiteSpace())
                 .orElse(null);
     }
 

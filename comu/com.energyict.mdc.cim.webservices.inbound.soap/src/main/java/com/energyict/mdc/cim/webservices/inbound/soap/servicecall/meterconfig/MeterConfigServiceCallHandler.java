@@ -44,6 +44,7 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.scheduling.SchedulingService;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.schema.message.ErrorType;
@@ -84,6 +85,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private volatile TransactionService transactionService;
     private volatile TopologyService topologyService;
     private volatile ServiceCallService serviceCallService;
+    private volatile SchedulingService schedulingService;
 
     private ReplyTypeFactory replyTypeFactory;
     private MeterConfigFaultMessageFactory messageFactory;
@@ -105,7 +107,8 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
                                          DeviceService deviceService, JsonService jsonService, CustomPropertySetService customPropertySetService,
                                          SecurityManagementService securityManagementService, HsmEnergyService hsmEnergyService,
                                          MeteringTranslationService meteringTranslationService, TransactionService transactionService,
-                                         TopologyService topologyService, ServiceCallService serviceCallService) {
+                                         TopologyService topologyService, ServiceCallService serviceCallService,
+                                         SchedulingService schedulingService) {
         this.batchService = batchService;
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.clock = clock;
@@ -120,6 +123,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         this.transactionService = transactionService;
         this.topologyService = topologyService;
         this.serviceCallService = serviceCallService;
+        this.schedulingService = schedulingService;
     }
 
     @Override
@@ -178,12 +182,12 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
                         lockedServiceCall.requestTransition(DefaultState.SUCCESSFUL);
                         break;
                     case GET:
-                        device = getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
+                        device = getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterSerialNumber(), extensionFor.getMeterName());
                         lockedServiceCall.setTargetObject(device);
                         processMeterStatus(device, lockedServiceCall);
                         break;
                     case DELETE:
-                        device = getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
+                        device = getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterSerialNumber(), extensionFor.getMeterName());
                         lockedServiceCall.setTargetObject(device);
                         getDeviceDeleter().delete(device);
                         lockedServiceCall.requestTransition(DefaultState.SUCCESSFUL);
@@ -396,6 +400,11 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         this.serviceCallService = serviceCallService;
     }
 
+    @Reference
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
+    }
+
     private void postProcessDevice(Device device, MeterInfo meterInfo) {
         webServiceExtension.ifPresent(
                 inboundCIMWebServiceExtension -> inboundCIMWebServiceExtension.extendMeterInfo(device, meterInfo));
@@ -418,7 +427,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private DeviceBuilder getDeviceBuilder() {
         if (deviceBuilder == null) {
             deviceBuilder = new DeviceBuilder(batchService, clock, deviceLifeCycleService, deviceConfigurationService,
-                    deviceService, getMessageFactory(), meteringTranslationService);
+                    deviceService, getMessageFactory(), meteringTranslationService, schedulingService);
         }
         return deviceBuilder;
     }
