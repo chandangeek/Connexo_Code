@@ -26,7 +26,8 @@ import java.util.logging.Logger;
 public class UmiSession implements IUmiSession {
     public static final UmiCode UMI_ID_CODE = new UmiCode("umi.0.0.0.0");
     public static final UmiId thisUmiId = new UmiId("9991253571665924");
-    public static final UmiId destinationUmiId = new UmiId("9991253571665921");
+    public static final UmiId destinationModemUmiId = new UmiId("9991253571665921");
+    public static final UmiId destinationHostUmiId = new UmiId("9991253571665920");
     private static final Logger LOGGER = Logger.getLogger(UmiSession.class.getName());
 
     private UmiConnection connection;
@@ -287,6 +288,7 @@ public class UmiSession implements IUmiSession {
     @Override
     public ResultCode startSession() throws IOException, GeneralSecurityException {
         linkSession.sendUmiResync();
+        linkSession.setDestinationId(properties.getDestinationUmiId());
         if (!linkSession.isSessionEstablished()) {
             return ResultCode.NO_SESSION;
         }

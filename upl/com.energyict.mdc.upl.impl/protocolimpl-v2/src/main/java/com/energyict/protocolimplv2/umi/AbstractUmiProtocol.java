@@ -31,8 +31,6 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_TIMEZONE;
-
 public abstract class AbstractUmiProtocol implements DeviceProtocol, SerialNumberSupport {
     private final PropertySpecService propertySpecService;
     private final CollectedDataFactory collectedDataFactory;
@@ -65,7 +63,7 @@ public abstract class AbstractUmiProtocol implements DeviceProtocol, SerialNumbe
     }
 
     public TimeZone getTimeZone() {
-        return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+        return TimeZone.getTimeZone("UTC");
     }
 
     @Override

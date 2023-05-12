@@ -109,7 +109,7 @@ public class EI4Umi extends AbstractUmiProtocol {
 
     @Override
     public String getVersion() {
-        return "2021-03-05";
+        return "2023-05-10";
     }
 
     @Override
@@ -283,7 +283,7 @@ public class EI4Umi extends AbstractUmiProtocol {
 
         UmiPropertiesBuilder builder = new UmiPropertiesBuilder()
                 .sourceUmiId(UmiSession.thisUmiId)
-                .destinationUmiId(deviceId == null ? UmiSession.destinationUmiId : deviceId)
+                .destinationUmiId(deviceId == null ? UmiSession.destinationModemUmiId : deviceId)
                 .ownCertificate(ownCertificate)
                 .ownPrivateKey(ownPrivateKey);
         umiSession = new UmiSessionS2(comChannel, new UmiSessionPropertiesS2(builder, comModuleCertificate));
@@ -305,7 +305,6 @@ public class EI4Umi extends AbstractUmiProtocol {
         return umiSession;
     }
 
-
     public EndDeviceType getTypeMeter() {
         return typeMeter;
     }
@@ -318,7 +317,6 @@ public class EI4Umi extends AbstractUmiProtocol {
             if (pair.getFirst() != ResultCode.OK) {
                 throw new ProtocolException("Read clock operation failed with the code: " + pair.getFirst());
             }
-
             UmiwanMetrologyClock clock = new UmiwanMetrologyClock(pair.getLast().getValue());
             date = clock.getCurrentDateTime();
         } catch (Exception ex) {
@@ -327,6 +325,7 @@ public class EI4Umi extends AbstractUmiProtocol {
         return date;
     }
 
+    @Override
     public void setTime(Date timeToSet) {
         UmiwanMetrologyClockControl clockControl = new UmiwanMetrologyClockControl(timeToSet, 0, 0);
         try {
@@ -337,7 +336,6 @@ public class EI4Umi extends AbstractUmiProtocol {
         } catch (Exception ex) {
             throw CommunicationException.protocolConnectFailed(ex);
         }
-
     }
 
     /**
@@ -377,6 +375,4 @@ public class EI4Umi extends AbstractUmiProtocol {
     public boolean supportsCommunicationFirmwareVersion() {
         return true;
     }
-
-
 }

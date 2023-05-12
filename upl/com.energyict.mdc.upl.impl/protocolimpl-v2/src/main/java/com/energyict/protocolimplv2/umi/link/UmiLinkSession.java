@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.umi.link;
 
 import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.umi.connection.UmiConnection;
 import com.energyict.protocolimplv2.umi.packet.AppLayerEncryptedPacket;
+import com.energyict.protocolimplv2.umi.types.UmiId;
 import com.energyict.protocolimplv2.umi.util.IData;
 import com.energyict.protocolimplv2.umi.util.LittleEndianData;
 
@@ -29,12 +31,39 @@ public class UmiLinkSession implements IUmiLinkSession {
     private static final int MAX_FRAGMENTED_FRAME_PAYLOAD_LENGTH = 244;
     private static final int MAX_LINK_SEQUENCE_NUMBER = 0xF;
 
+    /**
+     * UmiId 9991253571665921 represents the EI4 modem destination id at the application layer.
+     * It's last digit (1) - is the EI4 modem destination id at the link layer.
+     *
+     * UmiId 9991253571665920 represents the EI4 host destination id at the application layer.
+     * It's last digit (0) - is the EI4 host destination id at the link layer.
+     */
+    private static final String UMI_ID_BASE = "999125357166592";
+    private static final short HOST_LINK_ID = 0;
+    private static final short MODEM_LINK_ID = 1;
+
     public UmiLinkSession(UmiConnection connection) {
         this.connection = connection;
         this.sequenceNumber = 0;
         this.destinationId = 0;
         this.sourceId = 0;
         this.sessionEstablished = false;
+    }
+
+    @Override
+    public void setDestinationId(UmiId destinationUmiId) {
+        this.destinationId = getLinkLayerDestinationIdFromUmiId(destinationUmiId, this.destinationId);
+    }
+
+    @Override
+    public UmiId getDestinationId() {
+        return new UmiId(UMI_ID_BASE + this.destinationId);
+    }
+
+    private short getLinkLayerDestinationIdFromUmiId(UmiId destinationUmiId, short currentDestinationId) {
+        int lastDigitIndex = destinationUmiId.toString().length() - 1;
+        short id = Short.parseShort(String.valueOf(destinationUmiId.toString().charAt(lastDigitIndex)));
+        return id == HOST_LINK_ID || id == MODEM_LINK_ID ? id : currentDestinationId;
     }
 
     public void sendUmiResync() throws IOException {
