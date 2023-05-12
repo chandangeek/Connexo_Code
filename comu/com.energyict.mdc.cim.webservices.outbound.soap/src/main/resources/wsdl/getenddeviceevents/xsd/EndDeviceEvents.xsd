@@ -55,12 +55,6 @@
                 </xs:annotation>
             </xs:element>
 
-            <xs:element name="serialNumber" minOccurs="0" maxOccurs="1" type="xs:string" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.serialNumber">
-                <xs:annotation>
-                    <xs:documentation>A serial number of this identified object.</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-
             <xs:element name="createdDateTime" minOccurs="1" maxOccurs="1" type="xs:dateTime" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ActivityRecord.createdDateTime">
                 <xs:annotation>
                     <xs:documentation>Date and time this activity record has been created (different from the 'status.dateTime', which is the time of a status change of the associated object, if applicable).</xs:documentation>

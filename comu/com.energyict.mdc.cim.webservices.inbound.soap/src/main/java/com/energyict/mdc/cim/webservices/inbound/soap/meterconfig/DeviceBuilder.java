@@ -158,6 +158,9 @@ public class DeviceBuilder {
                 if (foundDevices.isEmpty()) {
                     throw faultMessageSupplier(meter.getDeviceName(),
                             MessageSeeds.NO_DEVICE_WITH_SERIAL_NUMBER, meter.getSerialNumber()).get();
+                } else if (foundDevices.size() > 1) {
+                    throw faultMessageSupplier(meter.getDeviceName(),
+                            MessageSeeds.MORE_DEVICES_WITH_SAME_SERIAL_NUMBER, meter.getSerialNumber()).get();
                 } else {
                     changedDevice = foundDevices.get(0);
                 }

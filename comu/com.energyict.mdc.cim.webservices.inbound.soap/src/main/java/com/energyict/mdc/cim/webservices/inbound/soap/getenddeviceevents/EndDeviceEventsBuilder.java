@@ -110,10 +110,10 @@ public class EndDeviceEventsBuilder {
             Optional<String> name = extractName(meter);
             if (mRID.isPresent()) {
                 identifiers.add(mRID.get());
-            } else if (serialNumber.isPresent()) {
-                identifiers.add(serialNumber.get());
             } else if (name.isPresent()) {
                 identifiers.add(name.get());
+            } else if (serialNumber.isPresent()) {
+                identifiers.add(serialNumber.get());
             }
         });
         return identifiers;

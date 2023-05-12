@@ -74,7 +74,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -991,7 +990,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 .select(where("obsoleteTime").isNull().and(where("mRID").in(new ArrayList<>(mRIDs))
                         .or(where("serialNumber").in(new ArrayList<>(serialNumbers))).or(where("name").in(new ArrayList<>(names)))));
         if (!serialNumbers.isEmpty()) {
-            Set<String> existedMetersSerialNumbers = new LinkedHashSet<>();
+            Set<String> existedMetersSerialNumbers = new HashSet<>();
             for (com.elster.jupiter.metering.Meter existedMeter : existedMeters) {
                 existedMetersSerialNumbers.add(existedMeter.getSerialNumber());
             }
@@ -1191,23 +1190,28 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             FaultMessage {
         final String END_DEVICES_ITEM = END_DEVICE_LIST_ITEM + '[' + index + ']';
         String mRID = endDevice.getMRID();
-        String serialNumber = endDevice.getSerialNumber();
-        if (mRID == null && serialNumber == null) {
+        if (mRID == null) {
             List<Name> names = endDevice.getNames();
-            if (names.size() > 1) {
-                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
-                        MessageSeeds.UNSUPPORTED_LIST_SIZE, END_DEVICES_ITEM + ".Names", 1).get();
+            if (names.isEmpty()) {
+                String serialNumber = endDevice.getSerialNumber();
+                if (serialNumber == null) {
+                    throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
+                            MessageSeeds.MISSING_MRID_OR_NAME_OR_SERIALNUMBER_FOR_ELEMENT, END_DEVICES_ITEM).get();
+                }
+                checkIsEmpty(serialNumber, END_DEVICES_ITEM + ".serialNumber");
+                serialNumbers.add(serialNumber);
+            } else {
+                if (names.size() > 1) {
+                    throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
+                            MessageSeeds.UNSUPPORTED_LIST_SIZE, END_DEVICES_ITEM + ".Names", 1).get();
+                }
+                String name = names.stream()
+                        .findFirst()
+                        .map(Name::getName)
+                        .orElse(null);
+                checkIsEmpty(name, END_DEVICES_ITEM + ".Names[0].name");
+                deviceNames.add(name);
             }
-            String name = names.stream()
-                    .findFirst()
-                    .map(Name::getName)
-                    .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(
-                            MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICES_ITEM));
-            checkIsEmpty(name, END_DEVICES_ITEM + ".Names[0].name");
-            deviceNames.add(name);
-        } else if (mRID == null) {
-            checkIsEmpty(serialNumber, END_DEVICES_ITEM + ".serialNumber");
-            serialNumbers.add(serialNumber);
         } else {
             checkIsEmpty(mRID, END_DEVICES_ITEM + ".mRID");
             mRIDs.add(mRID);

@@ -115,7 +115,6 @@ public class EndDeviceEventsBuilder {
         Optional<String> mrid = extractMrid(endDeviceEvent);
         Instant createdDate = extractCreatedDateOrThrowException(endDeviceEvent);
         String eventTypeCode = extractEndDeviceFunctionRefOrThrowException(endDeviceEvent);
-        Optional<String> serialNumber = extractSerialNumber(endDeviceEvent);
         Optional<String> name = extractName(endDeviceEvent);
         Optional<Status> status = extractStatus(endDeviceEvent);
         Optional<String> reason = extractReason(endDeviceEvent);
@@ -244,11 +243,6 @@ public class EndDeviceEventsBuilder {
     private Optional<String> extractMrid(EndDeviceEvent endDeviceEvent) throws FaultMessage {
         return Optional.ofNullable(endDeviceEvent.getMRID())
                 .filter(mrid -> !Checks.is(mrid).emptyOrOnlyWhiteSpace());
-    }
-
-    private Optional<String> extractSerialNumber(EndDeviceEvent endDeviceEvent) throws FaultMessage {
-        return Optional.ofNullable(endDeviceEvent.getSerialNumber())
-                .filter(serialNumber -> !Checks.is(serialNumber).emptyOrOnlyWhiteSpace());
     }
 
     private Optional<String> extractName(EndDeviceEvent endDeviceEvent) throws FaultMessage {

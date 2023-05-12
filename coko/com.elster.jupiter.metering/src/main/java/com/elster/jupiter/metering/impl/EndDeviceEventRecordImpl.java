@@ -202,11 +202,6 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     }
 
     @Override
-    public String getSerialNumber() {
-        return endDevice.get().getSerialNumber();
-    }
-
-    @Override
     public String getName() {
         return name;
     }

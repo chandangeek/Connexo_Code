@@ -27,17 +27,19 @@ public class DeviceFinder {
     }
 
     public Device findDevice(String mrid, String serialNumber, String deviceName) throws FaultMessage {
-        Device device = (mrid != null && !mrid.isEmpty()) ? findDeviceByMRID(mrid, deviceName) :
-                (deviceName != null && !deviceName.isEmpty()) ?
-                        deviceService.findDeviceByName(deviceName)
-                                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(deviceName, MessageSeeds.NO_DEVICE_WITH_NAME, deviceName)) :
+        return (mrid != null && !mrid.isEmpty()) ? findDeviceByMRID(mrid, deviceName) :
+                (deviceName != null && !deviceName.isEmpty()) ? findDeviceByName(deviceName) :
                         findDeviceBySerialNumber(serialNumber, deviceName);
-        return device;
     }
 
     private Device findDeviceByMRID(String mrid, String deviceName) throws FaultMessage {
         return deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(deviceName, MessageSeeds.NO_DEVICE_WITH_MRID, mrid));
+    }
+
+    private Device findDeviceByName(String deviceName) throws FaultMessage {
+        return deviceService.findDeviceByName(deviceName)
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(deviceName, MessageSeeds.NO_DEVICE_WITH_NAME, deviceName));
     }
 
     private Device findDeviceBySerialNumber(String serialNumber, String deviceName) throws FaultMessage {

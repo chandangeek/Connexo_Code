@@ -236,11 +236,6 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
     }
 
     @Override
-    public String getSerialNumber() {
-        return endDevice.getSerialNumber();
-    }
-
-    @Override
     public String getName() {
         return null;
     }
