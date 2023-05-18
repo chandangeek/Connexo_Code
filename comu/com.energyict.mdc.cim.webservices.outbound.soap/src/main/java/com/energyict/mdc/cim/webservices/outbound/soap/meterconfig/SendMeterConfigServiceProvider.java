@@ -22,7 +22,7 @@ import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigExtendedDataFa
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.outbound.soap.PingResult;
-import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMeterConfigWebService;
+import com.energyict.mdc.cim.webservices.outbound.soap.SendMeterConfigWebService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
@@ -30,8 +30,8 @@ import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
-import ch.iec.tc57._2011.replymeterconfig.MeterConfigPort;
-import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
+import ch.iec.tc57._2011.sendmeterconfig.MeterConfigPort;
+import ch.iec.tc57._2011.sendmeterconfig.SendMeterConfig;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.Name;
@@ -58,14 +58,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.replymeterconfig.provider",
-        service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class, StateTransitionWebServiceClient.class},
+@Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.sendmeterconfig.provider",
+        service = {IssueWebServiceClient.class, SendMeterConfigWebService.class, OutboundSoapEndPointProvider.class, StateTransitionWebServiceClient.class},
         immediate = true,
-        property = {"name=" + ReplyMeterConfigWebService.NAME})
-public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointProvider<MeterConfigPort>
-        implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider, ApplicationSpecific, StateTransitionWebServiceClient {
+        property = {"name=" + SendMeterConfigWebService.NAME})
+public class SendMeterConfigServiceProvider extends AbstractOutboundEndPointProvider<MeterConfigPort>
+        implements IssueWebServiceClient, SendMeterConfigWebService, OutboundSoapEndPointProvider, ApplicationSpecific, StateTransitionWebServiceClient {
     private static final String NOUN = "MeterConfig";
-    private static final String RESOURCE_WSDL = "/wsdl/meterconfig/ReplyMeterConfig.wsdl";
+    private static final String RESOURCE_WSDL = "/wsdl/meterconfig/SendMeterConfig.wsdl";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
@@ -75,14 +75,14 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     private volatile MeterConfigFactory meterConfigFactory;
     private volatile DeviceService deviceService;
 
-    public ReplyMeterConfigServiceProvider() {
+    public SendMeterConfigServiceProvider() {
         // for OSGi purposes
     }
 
     @Inject
-    public ReplyMeterConfigServiceProvider(DeviceService deviceService,
-                                           MeterConfigFactory meterConfigFactory,
-                                           WebServicesService webServicesService) {
+    public SendMeterConfigServiceProvider(DeviceService deviceService,
+                                          MeterConfigFactory meterConfigFactory,
+                                          WebServicesService webServicesService) {
         // for tests
         this();
         setDeviceService(deviceService);
@@ -129,7 +129,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
     @Override
     public Service get() {
-        return new ReplyMeterConfig(this.getClass().getResource(RESOURCE_WSDL));
+        return new SendMeterConfig(this.getClass().getResource(RESOURCE_WSDL));
     }
 
     @Override
@@ -144,7 +144,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
     @Override
     protected String getName() {
-        return ReplyMeterConfigWebService.NAME;
+        return SendMeterConfigWebService.NAME;
     }
 
     /**
@@ -154,7 +154,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     public void call(long id, Set<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate) {
         Optional<Device> device = deviceService.findDeviceByMeterId(id);
         if (device.isPresent()) {
-            logger.info("Handling notifications for ReplyMeterConfig called by StateTransition for device " + device.get().getSerialNumber() + " and state=" + state);
+            logger.info("Handling notifications for SendMeterConfig called by StateTransition for device " + device.get().getSerialNumber() + " and state=" + state);
             if (!triggerCall(device.get(), endPointConfigurations, effectiveDate)) {
                 logger.warning("Failed to send MeterConfig notification about a state transition to some of the configured web service endpoints.");
             }
@@ -255,7 +255,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
                         devicesWithWarnings, expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId);
                 break;
             case GET:
-                method = "replyMeterConfig";
+                method = "sendMeterConfig";
                 message = createStatusResponseMessage(getMeterConfig(successfulDevices, meterStatusRequired),
                         failedDevices, devicesWithWarnings, expectedNumberOfCalls, HeaderType.Verb.REPLY, correlationId);
                 break;

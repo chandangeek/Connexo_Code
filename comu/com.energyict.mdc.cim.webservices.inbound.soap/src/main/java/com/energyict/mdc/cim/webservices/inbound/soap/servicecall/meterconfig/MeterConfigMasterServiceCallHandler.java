@@ -12,7 +12,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.outbound.soap.PingResult;
-import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMeterConfigWebService;
+import com.energyict.mdc.cim.webservices.outbound.soap.SendMeterConfigWebService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
@@ -41,7 +41,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
 
     private volatile DeviceService deviceService;
     private volatile EndPointConfigurationService endPointConfigurationService;
-    private volatile ReplyMeterConfigWebService replyMeterConfigWebService;
+    private volatile SendMeterConfigWebService sendMeterConfigWebService;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -80,12 +80,12 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
     }
 
     @Reference
-    public void addReplyMeterConfigWebServiceClient(ReplyMeterConfigWebService webService) {
-        this.replyMeterConfigWebService = webService;
+    public void addSendMeterConfigWebServiceClient(SendMeterConfigWebService webService) {
+        this.sendMeterConfigWebService = webService;
     }
 
-    public void removeReplyMeterConfigWebServiceClient(ReplyMeterConfigWebService webService) {
-        this.replyMeterConfigWebService = null;
+    public void removeSendMeterConfigWebServiceClient(SendMeterConfigWebService webService) {
+        this.sendMeterConfigWebService = null;
     }
 
     @Reference
@@ -129,7 +129,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
                     .get();
             OperationEnum operation = OperationEnum.getFromString(extensionForChild.getOperation());
             boolean meterStatusRequired = !Strings.isNullOrEmpty(extensionFor.getMeterStatusSource());
-            replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
+            sendMeterConfigWebService.call(endPointConfiguration.get(), operation,
                     getSuccessfullyProcessedDevices(serviceCall),
                     getFailedMeterOperations(serviceCall, false), getFailedMeterOperations(serviceCall, true),
                     getExpectedNumberOfCalls(serviceCall), meterStatusRequired, extensionFor.getCorrelationId());

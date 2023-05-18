@@ -788,8 +788,8 @@
     <xs:simpleType name="Money" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Money">
         <xs:restriction base="xs:decimal"/>
     </xs:simpleType>
-    <xs:element name="ReplyMeterConfig" type="m:MeterConfig"/>
-    <xs:complexType name="ReplyMeterConfig">
+    <xs:element name="SendMeterConfig" type="m:MeterConfig"/>
+    <xs:complexType name="SendMeterConfig">
         <xs:sequence>
             <xs:element name="Customer" type="m:Customer" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="CustomerAccount" type="m:CustomerAccount" minOccurs="0" maxOccurs="unbounded"/>

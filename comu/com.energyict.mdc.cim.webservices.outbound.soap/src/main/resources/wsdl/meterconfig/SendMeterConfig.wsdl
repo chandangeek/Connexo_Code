@@ -4,16 +4,16 @@
   -->
 
 <wsdl:definitions
-        name="ReplyMeterConfig"
-        targetNamespace="http://iec.ch/TC57/2011/ReplyMeterConfig"
-        xmlns:tns="http://iec.ch/TC57/2011/ReplyMeterConfig"
+        name="SendMeterConfig"
+        targetNamespace="http://iec.ch/TC57/2011/SendMeterConfig"
+        xmlns:tns="http://iec.ch/TC57/2011/SendMeterConfig"
         xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
         xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
         xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
         xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:infoMessage="http://iec.ch/TC57/2011/MeterConfigMessage">
     <wsdl:types>
-        <xs:schema targetNamespace="http://iec.ch/TC57/2011/ReplyMeterConfig"
+        <xs:schema targetNamespace="http://iec.ch/TC57/2011/SendMeterConfig"
                    elementFormDefault="qualified">
             <xs:import
                     namespace="http://iec.ch/TC57/2011/MeterConfigMessage"
@@ -41,9 +41,9 @@
         <wsdl:part name="DeletedMeterConfigEventMessage"
                    element="infoMessage:DeletedMeterConfig"/>
     </wsdl:message>
-    <wsdl:message name="ReplyMeterConfigEventMessage">
-        <wsdl:part name="ReplyMeterConfigEventMessage"
-                   element="infoMessage:ReplyMeterConfig"/>
+    <wsdl:message name="SendMeterConfigEventMessage">
+        <wsdl:part name="SendMeterConfigEventMessage"
+                   element="infoMessage:SendMeterConfig"/>
     </wsdl:message>
     <wsdl:message name="ResponseMessage">
         <wsdl:part name="ResponseMessage"
@@ -95,12 +95,12 @@
             <wsdl:fault name="DeletedMeterConfigFault"
                         message="tns:FaultMessage"/>
         </wsdl:operation>
-        <wsdl:operation name="ReplyMeterConfig">
-            <wsdl:input name="ReplyMeterConfigEvent"
-                        message="tns:ReplyMeterConfigEventMessage"/>
-            <wsdl:output name="ReplyMeterConfigResponse"
+        <wsdl:operation name="SendMeterConfig">
+            <wsdl:input name="SendMeterConfigEvent"
+                        message="tns:SendMeterConfigEventMessage"/>
+            <wsdl:output name="SendMeterConfigResponse"
                          message="tns:ResponseMessage"/>
-            <wsdl:fault name="ReplyMeterConfigFault"
+            <wsdl:fault name="SendMeterConfigFault"
                         message="tns:FaultMessage"/>
         </wsdl:operation>
     </wsdl:portType>
@@ -174,24 +174,24 @@
                 <soap:fault name="DeletedMeterConfigFault" use="literal"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="ReplyMeterConfig">
+        <wsdl:operation name="SendMeterConfig">
             <soap:operation
-                    soapAction="http://iec.ch/TC57/2011/MeterConfig/ReplyMeterConfig" style="document"/>
-            <wsdl:input name="ReplyMeterConfigEvent">
+                    soapAction="http://iec.ch/TC57/2011/MeterConfig/SendMeterConfig" style="document"/>
+            <wsdl:input name="SendMeterConfigEvent">
                 <soap:body use="literal"/>
             </wsdl:input>
-            <wsdl:output name="ReplyMeterConfigResponse">
+            <wsdl:output name="SendMeterConfigResponse">
                 <soap:body use="literal"/>
             </wsdl:output>
-            <wsdl:fault name="ReplyMeterConfigFault">
-                <soap:fault name="ReplyMeterConfigFault" use="literal"/>
+            <wsdl:fault name="SendMeterConfigFault">
+                <soap:fault name="SendMeterConfigFault" use="literal"/>
             </wsdl:fault>
         </wsdl:operation>
     </wsdl:binding>
-    <wsdl:service name="ReplyMeterConfig">
+    <wsdl:service name="SendMeterConfig">
         <wsdl:port name="MeterConfig_Port"
                    binding="tns:MeterConfig_Binding">
-            <soap:address location="http://iec.ch/TC57/2011/ReplyMeterConfig"/>
+            <soap:address location="http://iec.ch/TC57/2011/SendMeterConfig"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

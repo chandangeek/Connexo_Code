@@ -18,9 +18,8 @@ Export-Package: com.energyict.mdc.cim.webservices.outbound.soap,\
                 ch.iec.tc57._2011.meterconfig,\
                 ch.iec.tc57._2011.meterconfigmessage,\
                 ch.iec.tc57._2011.receiveenddeviceevents,\
-                ch.iec.tc57._2011.replymeterconfig,\
-                ch.iec.tc57._2011.sendenddeviceevents,\
                 ch.iec.tc57._2011.sendmeterconfig,\
+                ch.iec.tc57._2011.sendenddeviceevents,\
                 ch.iec.tc57._2011.enddevicecontrols,\
                 ch.iec.tc57._2011.enddevicecontrolsmessage,\
                 ch.iec.tc57._2011.executeenddevicecontrols,\

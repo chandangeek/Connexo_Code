@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 @ProviderType
-public interface ReplyMeterConfigWebService {
+public interface SendMeterConfigWebService {
 
-    String NAME = "CIM ReplyMeterConfig";
+    String NAME = "CIM SendMeterConfig";
 
     /**
      * Invoked by the service call when the async inbound WS is completed
