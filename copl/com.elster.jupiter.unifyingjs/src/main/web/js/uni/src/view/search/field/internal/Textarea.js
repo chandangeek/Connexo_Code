@@ -11,13 +11,13 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
   fieldMaxWidth: 600,
   lineHeight: 16,
   lines: 10,
-  maxLength: 19000,
+  maxLength: 1900000,
 
   requires: [
     'Ext.form.field.TextArea'
   ],
 
-  maxCount: 1000,
+  maxCount: 5000,
 
   getField: function() {
     return this.down('#filter-input');
