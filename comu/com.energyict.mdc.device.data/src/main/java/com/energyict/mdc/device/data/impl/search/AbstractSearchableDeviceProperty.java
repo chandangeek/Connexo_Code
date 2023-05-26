@@ -181,7 +181,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
     }
 
     private int getWeeks(TimeDuration timeDuration) {
-        return timeDuration.getSeconds()/(60*60*24*7);
+        return timeDuration.getSeconds() / (60 * 60 * 24 * 7);
     }
 
     private int getMonths(TimeDuration timeDuration) {
@@ -189,7 +189,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
     }
 
     private int getYears(TimeDuration timeDuration) {
-        return timeDuration.getSeconds()/(60*60*24*31*12);
+        return timeDuration.getSeconds() / (60 * 60 * 24 * 31 * 12);
     }
 
     private void addTimeDurationSearchExpansion(int timeUnitCode, long fromValue, long toValue, String prefix) {
@@ -354,6 +354,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
     private static class InFragment extends ProxyAwareSqlFragment implements SqlFragment {
         private final String columnName;
         private final Contains contains;
+        private final int IN_OPERATOR_PARTITION_SIZE = 1000;
 
         private InFragment(ValueBinder valueBinder, String columnName, Contains contains) {
             super(valueBinder);
@@ -374,18 +375,34 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         @Override
         public String getText() {
             StringBuilder textBuilder = new StringBuilder();
-            textBuilder
-                .append(this.columnName)
-                .append(" ")
-                .append(this.contains.getOperator().getSymbol())
-                .append(" (");
-            String separator = "";
-            for (Object each : contains.getCollection()) {
-                textBuilder.append(separator);
-                textBuilder.append("?");
-                separator = ",";
+            int searchValuesSize = contains.getCollection().size();
+            int requiredInOperatorsNumber = ((searchValuesSize - 1) / IN_OPERATOR_PARTITION_SIZE) + 1;
+            if (searchValuesSize > IN_OPERATOR_PARTITION_SIZE) {
+                textBuilder.append("(");
             }
-            textBuilder.append(")");
+            for (int var = 0; var < requiredInOperatorsNumber; var++) {
+                textBuilder
+                        .append(this.columnName)
+                        .append(" ")
+                        .append(this.contains.getOperator().getSymbol())
+                        .append(" (");
+                String separator = "";
+                int number = var == requiredInOperatorsNumber - 1
+                        ? searchValuesSize - var * IN_OPERATOR_PARTITION_SIZE
+                        : IN_OPERATOR_PARTITION_SIZE;
+                for (int i = 0; i < number; i++) {
+                    textBuilder.append(separator);
+                    textBuilder.append("?");
+                    separator = ",";
+                }
+                textBuilder.append(")");
+                if (var < requiredInOperatorsNumber - 1) {
+                    textBuilder.append(" OR ");
+                }
+            }
+            if (searchValuesSize > IN_OPERATOR_PARTITION_SIZE) {
+                textBuilder.append(")");
+            }
             return textBuilder.toString();
         }
     }
