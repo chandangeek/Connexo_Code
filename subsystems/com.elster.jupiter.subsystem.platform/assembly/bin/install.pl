@@ -64,7 +64,7 @@ my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
 
 my $TOMCAT_DIR="tomcat";
 my $TOMCAT_BASE="$CONNEXO_DIR/partners";
-my $TOMCAT_ZIP="tomcat-9.0.52";
+my $TOMCAT_ZIP="tomcat-9.0.75";
 my $CATALINA_BASE="$TOMCAT_BASE/$TOMCAT_DIR";
 my $CATALINA_HOME=$CATALINA_BASE;
 $ENV{"CATALINA_HOME"}=$CATALINA_HOME;
@@ -1216,13 +1216,13 @@ sub activate_sso_filters{
                 unlink("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/uberfire-servlet-security-7.39.0.Final-redhat-00005.jar");
             	copy("$JBOSS_BASE/flow/lib/uberfire-servlet-security-7.39.0.Final-redhat-00005-HW.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/uberfire-servlet-security-7.39.0.Final-redhat-00005-HW.jar");
              }
-            if (-e "$JBOSS_BASE/flow/lib/json-smart-1.3.1.jar") {
-                print "    $JBOSS_BASE/flow/lib/json-smart-1.3.1.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/json-smart-1.3.1.jar\n";
-                copy("$JBOSS_BASE/flow/lib/json-smart-1.3.1.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/json-smart-1.3.1.jar");
+            if (-e "$JBOSS_BASE/flow/lib/json-smart-2.4.11.jar") {
+                print "    $JBOSS_BASE/flow/lib/json-smart-2.4.11.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/json-smart-2.4.11.jar\n";
+                copy("$JBOSS_BASE/flow/lib/json-smart-2.4.11.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/json-smart-2.4.11.jar");
             }
-            if (-e "$JBOSS_BASE/flow/lib/nimbus-jose-jwt-3.10.jar") {
-                print "    $JBOSS_BASE/flow/lib/nimbus-jose-jwt-3.10.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/nimbus-jose-jwt-3.10.jar\n";
-                copy("$JBOSS_BASE/flow/lib/nimbus-jose-jwt-3.10.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/nimbus-jose-jwt-3.10.jar");
+            if (-e "$JBOSS_BASE/flow/lib/nimbus-jose-jwt-9.31.jar") {
+                print "    $JBOSS_BASE/flow/lib/nimbus-jose-jwt-9.31.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/nimbus-jose-jwt-9.31.jar\n";
+                copy("$JBOSS_BASE/flow/lib/nimbus-jose-jwt-9.31.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/nimbus-jose-jwt-9.31.jar");
             }
 
             print "Activating FLOW SSO filter in $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/web.xml\n";
@@ -1235,13 +1235,13 @@ sub activate_sso_filters{
                 print "    $JBOSS_BASE/connexo.filter.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/connexo.filter.jar\n";
                 copy("$TOMCAT_BASE/connexo.filter.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/connexo.filter.jar");
             }
-            if (-e "$JBOSS_BASE/flow/lib/json-smart-1.3.1.jar") {
-                print "    $JBOSS_BASE/flow/lib/json-smart-1.3.1.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/json-smart-1.3.1.jar\n";
-                copy("$JBOSS_BASE/flow/lib/json-smart-1.3.1.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/json-smart-1.3.1.jar");
+            if (-e "$JBOSS_BASE/flow/lib/json-smart-2.4.11.jar") {
+                print "    $JBOSS_BASE/flow/lib/json-smart-2.4.11.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/json-smart-2.4.11.jar\n";
+                copy("$JBOSS_BASE/flow/lib/json-smart-2.4.11.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/json-smart-2.4.11.jar");
             }
-            if (-e "$JBOSS_BASE/flow/lib/nimbus-jose-jwt-3.10.jar") {
-                print "    $JBOSS_BASE/flow/lib/nimbus-jose-jwt-3.10.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/nimbus-jose-jwt-3.10.jar\n";
-                copy("$JBOSS_BASE/flow/lib/nimbus-jose-jwt-3.10.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/nimbus-jose-jwt-3.10.jar");
+            if (-e "$JBOSS_BASE/flow/lib/nimbus-jose-jwt-9.31.jar") {
+                print "    $JBOSS_BASE/flow/lib/nimbus-jose-jwt-9.31.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/nimbus-jose-jwt-9.31.jar\n";
+                copy("$JBOSS_BASE/flow/lib/nimbus-jose-jwt-9.31.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/nimbus-jose-jwt-9.31.jar");
             }
             if (-e "$JBOSS_BASE/flow/log/log4j-1.2-api-2.17.1.jar") {
                 print "    $JBOSS_BASE/flow/log/log4j-1.2-api-2.17.1.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/log4j-1.2-api-2.17.1.jar\n";

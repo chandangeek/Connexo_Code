@@ -4,8 +4,7 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.SignedJWT;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
+
 
 import javax.xml.bind.DatatypeConverter;
 import java.security.KeyFactory;
@@ -15,6 +14,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -59,7 +59,7 @@ public class ConnexoSecurityTokenManager {
                     String issuer = signedJWT.getJWTClaimsSet().getIssuer();
                     Date issueTime = signedJWT.getJWTClaimsSet().getIssueTime();
                     Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-                    long count = (Long) signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
+                    long count = (Long) signedJWT.getJWTClaimsSet().getClaim("cnt");
                     //long tokenNumericTermination = Long.parseLong(signedJWT.getJWTClaimsSet().getJWTID().split("[a-z]")[5]);
 
                     JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) rsaKey);
@@ -116,20 +116,20 @@ public class ConnexoSecurityTokenManager {
                 String user = signedJWT.getJWTClaimsSet().getStringClaim("username");
                 String email = signedJWT.getJWTClaimsSet().getStringClaim("email");
                 List<String> groups = new ArrayList<>();
-                JSONArray roles = (JSONArray) signedJWT.getJWTClaimsSet().getClaim("roles");
+                ArrayList roles = (ArrayList) signedJWT.getJWTClaimsSet().getClaim("roles");
                 if(null == email){
                     email = "NA";
                 }
                 if (roles != null) {
                     for (int i = 0; i < roles.size(); i++) {
-                        JSONObject role = (JSONObject) roles.get(i);
+                        AbstractMap role = (AbstractMap) roles.get(i);
                         if (role != null) {
                             groups.add((String) role.get("name"));
                         }
                     }
                 }
                 List<String> privileges =  new ArrayList<>();
-                JSONArray privilegesObj = (JSONArray)signedJWT.getJWTClaimsSet().getClaim("privileges");
+                ArrayList privilegesObj = (ArrayList) signedJWT.getJWTClaimsSet().getClaim("privileges");
                 if (privilegesObj != null) {
                     for (int i = 0; i < privilegesObj.size(); i++) {
                         String privilege =  privilegesObj.get(i).toString();

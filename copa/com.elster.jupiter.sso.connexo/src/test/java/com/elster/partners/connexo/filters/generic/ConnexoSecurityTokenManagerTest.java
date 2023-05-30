@@ -49,7 +49,7 @@ public class ConnexoSecurityTokenManagerTest {
     public static void generateKeys() throws NoSuchAlgorithmException {
         KeyPairGenerator keyGenerator = KeyPairGenerator.getInstance("RSA");
         SecureRandom random = new SecureRandom();
-        keyGenerator.initialize(1024,random);
+        keyGenerator.initialize(2048,random);
         KeyPair keyPair = keyGenerator.genKeyPair();
         publicKey = (RSAPublicKey) keyPair.getPublic();
         privateKey = (RSAPrivateKey) keyPair.getPrivate();
@@ -63,7 +63,7 @@ public class ConnexoSecurityTokenManagerTest {
     }
 
     @Test
-    public void testVerifyInvalidToken(){
+    public void testVerifyInvalidToken() {
         // Given
         ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance();
         System.setProperty("com.elster.jupiter.token.refresh.maxcount", "100");
@@ -78,7 +78,7 @@ public class ConnexoSecurityTokenManagerTest {
     }
 
     @Test
-    public void testVerifyValidToken() throws JOSEException, NoSuchFieldException, IllegalAccessException {
+    public void testVerifyValidToken() throws JOSEException {
         // Given
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.SECOND, 60);
@@ -241,15 +241,14 @@ public class ConnexoSecurityTokenManagerTest {
     private String createToken(long userId, String user, List<JSONObject> roles, String issuer, long count, Date issueTime, Date expirationTime) throws JOSEException {
         JWSSigner signer = new RSASSASigner(privateKey);
 
-        JWTClaimsSet claimsSet = new JWTClaimsSet();
-        claimsSet.setCustomClaim("username", user);
-        claimsSet.setSubject(Long.toString(userId));
-        claimsSet.setCustomClaim("roles", roles);
-        claimsSet.setIssuer(issuer);
-        claimsSet.setCustomClaim("cnt", count);
-        claimsSet.setJWTID("token" + count);
-        claimsSet.setIssueTime(issueTime);
-        claimsSet.setExpirationTime(expirationTime);
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().claim("username", user)
+                .subject(Long.toString(userId))
+                .claim("roles", roles)
+                .issuer(issuer)
+                .claim("cnt", count)
+                .jwtID("token" + count)
+                .issueTime(issueTime)
+                .expirationTime(expirationTime).build();
 
         SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
 
