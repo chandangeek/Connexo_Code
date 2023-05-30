@@ -293,12 +293,12 @@
                         <configuration>
                             <wsdlDirectory>src/main/resources</wsdlDirectory>
                             <wsdlFiles>
-                                <wsdlFile>wsdl/meterconfig/ReplyMeterConfig.wsdl</wsdlFile>
+                                <wsdlFile>wsdl/meterconfig/SendMeterConfig.wsdl</wsdlFile>
                             </wsdlFiles>
                             <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
                             <bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
                             <keep>true</keep>
-                            <wsdlLocation>wsdl/meterconfig/ReplyMeterConfig.wsdl</wsdlLocation>
+                            <wsdlLocation>wsdl/meterconfig/SendMeterConfig.wsdl</wsdlLocation>
                         </configuration>
                     </execution>
                     <execution>
