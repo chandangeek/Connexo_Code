@@ -42,7 +42,6 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             clipboard = me.getStore('Isu.store.Clipboard'),
-            counterValue,
             record = clipboard.get('creationRuleActionState');
 
         var widget = Ext.widget('issues-creation-rules-edit-action', {

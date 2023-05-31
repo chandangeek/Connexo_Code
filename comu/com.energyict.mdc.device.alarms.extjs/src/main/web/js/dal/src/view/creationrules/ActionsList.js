@@ -43,22 +43,6 @@ Ext.define('Dal.view.creationrules.ActionsList', {
                 header: Uni.I18n.translate('general.description', 'DAL', 'Description'),
                 flex: 1
             },
-            /* {
-                 xtype: 'uni-actioncolumn-remove',
-                 handler: function (grid, rowIndex) {
-                     var store = grid.getStore(),
-                         gridPanel = grid.up(),
-                         emptyMsg = gridPanel.up().down('displayfield');
-
-                     store.removeAt(rowIndex);
-                     if (!store.getCount()) {
-                         Ext.suspendLayouts();
-                         gridPanel.hide();
-                         emptyMsg.show();
-                         Ext.resumeLayouts(true);
-                     }
-                 }
-             }*/
             {
                 xtype: 'uni-actioncolumn',
                 menu: {
