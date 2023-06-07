@@ -26,9 +26,7 @@ public class UpgraderV10_9_27 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, VERSION);
-        if (!ormService.isTest()) {
-            execute(dataModel,
-                    "UPDATE WS_ENDPOINTCFG SET WEBSERVICENAME = 'CIM SendMeterConfig' WHERE WEBSERVICENAME = 'CIM ReplyMeterConfig'");
-        }
+        execute(dataModel,
+                "UPDATE WS_ENDPOINTCFG SET WEBSERVICENAME = 'CIM SendMeterConfig' WHERE WEBSERVICENAME = 'CIM ReplyMeterConfig'");
     }
 }
