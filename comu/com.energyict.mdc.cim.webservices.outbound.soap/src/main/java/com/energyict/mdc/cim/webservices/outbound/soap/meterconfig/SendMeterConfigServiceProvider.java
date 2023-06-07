@@ -255,7 +255,7 @@ public class SendMeterConfigServiceProvider extends AbstractOutboundEndPointProv
                         devicesWithWarnings, expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId);
                 break;
             case GET:
-                method = "sendMeterConfig";
+                method = "replyMeterConfig";
                 message = createStatusResponseMessage(getMeterConfig(successfulDevices, meterStatusRequired),
                         failedDevices, devicesWithWarnings, expectedNumberOfCalls, HeaderType.Verb.REPLY, correlationId);
                 break;

@@ -295,6 +295,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                         .put(UpgraderV10_9.VERSION, UpgraderV10_9.class)
                         .put(UpgraderV10_9_1.VERSION, UpgraderV10_9_1.class)
                         .put(Version.version(10, 9, 19), Upgrader_V10_9_19.class)
+                        .put(Version.version(10, 9, 27), UpgraderV10_9_27.class)
                         .build());
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();
