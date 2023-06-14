@@ -46,7 +46,7 @@ Ext.define('Dal.controller.CreationRuleActionEdit', {
             router: router,
             returnLink: router.getRoute(router.currentRoute.replace('/addaction', '')).buildUrl()
         }),
-            dependenciesCounter = 1,
+            dependenciesCounter = 1
             dependenciesOnLoad = function () {
                 dependenciesCounter--;
                 if (!dependenciesCounter) {

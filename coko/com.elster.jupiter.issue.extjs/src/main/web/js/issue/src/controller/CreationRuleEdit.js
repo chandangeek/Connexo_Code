@@ -35,10 +35,6 @@ Ext.define('Isu.controller.CreationRuleEdit', {
             selector: 'issues-creation-rules-edit'
         },
         {
-            ref: 'actionPage',
-            selector: 'issues-creation-rules-edit-action-form'
-        },
-        {
             ref: 'ruleForm',
             selector: 'issues-creation-rules-edit form'
         },
@@ -66,7 +62,7 @@ Ext.define('Isu.controller.CreationRuleEdit', {
                 click: this.excludeDeviceGroup
             },
             'creation-rule-action-list-menu': {
-                click: this.chooseActionListMenu
+                click: this.chooseActionMenu
             },
         });
     },
@@ -210,18 +206,15 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         router.getRoute(router.currentRoute + '/addexclgroups').forward();
     },
 
-    chooseActionListMenu: function (menu, item) {
+    chooseActionMenu: function (menu, item) {
         var me = this;
         var action = item.action;
         var id = menu.record.getId();
-        var router = this.getController('Uni.controller.history.Router');
-
+        Ext.suspendLayouts();
         switch (action) {
             case 'remove':
-                var me = this,
-                    page = this.getPage();
+                page = this.getPage();
                 var grid = page.down("#issues-creation-rules-actions-grid");
-                Ext.suspendLayouts();
                 if (grid.getStore()) {
                     grid.getStore().remove(menu.record);
                 } else {
@@ -231,7 +224,6 @@ Ext.define('Isu.controller.CreationRuleEdit', {
                     grid.hide();
                     page.down('#issues-creation-rule-no-actions').show()
                 }
-                Ext.resumeLayouts(true);
                 break;
             case 'edit':
                 me.editActionRecord = menu.record;
@@ -247,8 +239,8 @@ Ext.define('Isu.controller.CreationRuleEdit', {
                     grid.remove(menu.record);
                 }
                 me.addAction();
-                //router.getRoute(router.currentRoute + '/addaction').forward();
                 break;
         }
+       Ext.resumeLayouts(true);
     },
 });

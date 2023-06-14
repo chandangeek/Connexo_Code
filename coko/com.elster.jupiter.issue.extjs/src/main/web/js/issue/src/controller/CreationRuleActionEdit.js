@@ -72,14 +72,10 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
 
                             });
                         }
-
                     }
                 }
             };
-        console.log(clipboard.get('creationRuleActionState'));
-
         Ext.util.History.on('change', this.checkRoute, me);
-
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading();
 

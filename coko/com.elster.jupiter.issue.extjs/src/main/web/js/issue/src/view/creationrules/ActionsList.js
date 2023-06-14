@@ -50,7 +50,6 @@ Ext.define('Isu.view.creationrules.ActionsList', {
                     xtype: 'creation-rule-action-list-menu',
                     itemId: 'creation-rule-action-list-menu'
                 }
-
             }
         ]
     }

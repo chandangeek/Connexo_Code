@@ -65,7 +65,7 @@ Ext.define('Dal.controller.CreationRuleEdit', {
                 click: this.addAction
             },
             'alarms-creation-rule-action-list-menu': {
-                click: this.chooseActionListMenu
+                click: this.chooseAlarmActionMenu
             },
         });
     },
@@ -180,8 +180,8 @@ Ext.define('Dal.controller.CreationRuleEdit', {
         }
         me.actionArray = [];
         form.updateRecord();
-        clipboard.set('alarmsCreationRuleState', form.getRecord());
         route = router.getRoute(addRuleActionRoute);
+        clipboard.set('alarmsCreationRuleState', form.getRecord());
         if (clipboard.get('creationRuleActionState')) {
             route.setTitle(Uni.I18n.translate('dataExport.editDestination', 'DAL', 'Edit Action'));
         } else {
@@ -190,7 +190,7 @@ Ext.define('Dal.controller.CreationRuleEdit', {
         route.forward();
     },
 
-    chooseActionListMenu: function (menu, item) {
+    chooseAlarmActionMenu: function (menu, item) {
         var me = this;
         var action = item.action;
         var id = menu.record.getId();
