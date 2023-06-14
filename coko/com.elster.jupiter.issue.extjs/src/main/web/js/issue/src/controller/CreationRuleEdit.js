@@ -15,11 +15,13 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         'Isu.store.CreationRuleReasons',
         'Isu.store.CreationRuleIssueTypes'
     ],
-    
+
     views: [
         'Isu.view.creationrules.Edit',
+        'Isu.view.creationrules.EditAction',
+        'Isu.view.creationrules.EditActionForm'
     ],
-    
+
     models: [
         'Isu.model.CreationRuleAction',
         'Isu.model.CreationRule',
@@ -46,6 +48,8 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         }
     ],
 
+    editActionRecord: null,
+
     init: function () {
         this.control({
             'issues-creation-rules-edit button[action=save]': {
@@ -56,7 +60,10 @@ Ext.define('Isu.controller.CreationRuleEdit', {
             },
             'issues-creation-rules-edit button[action=excludeDeviceGroup]': {
                 click: this.excludeDeviceGroup
-            }
+            },
+            'creation-rule-action-list-menu': {
+                click: this.chooseActionMenu
+            },
         });
     },
 
@@ -88,6 +95,10 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         if (savedData) {
             rule = savedData;
             clipboard.clear('issuesCreationRuleState');
+            if (me.editActionRecord && clipboard.get('creationRuleActionState')) {
+                clipboard.clear('creationRuleActionState');
+                savedData.actionsStore.add(me.editActionRecord);
+            }
             me.loadDependencies(rule.getIssueType(), dependenciesOnLoad);
         } else {
             if (id) {
@@ -166,14 +177,25 @@ Ext.define('Isu.controller.CreationRuleEdit', {
     addAction: function () {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            form = me.getRuleForm();
-
+            addRuleActionRoute = router.currentRoute + '/addaction',
+            route,
+            form = me.getRuleForm(),
+            clipboard = me.getStore('Isu.store.Clipboard');
+        clipboard.set('issuesCreationRuleState', form.getRecord());
+        if (!clipboard.get('creationRuleActionState')) {
+            clipboard.clear("creationRuleActionEdit", false);
+        }
+        me.actionArray = [];
         form.updateRecord();
-        me.getStore('Isu.store.Clipboard').set('issuesCreationRuleState', form.getRecord());
-
-        router.getRoute(router.currentRoute + '/addaction').forward();
+        route = router.getRoute(addRuleActionRoute);
+        if (clipboard.get('creationRuleActionState')) {
+            route.setTitle(Uni.I18n.translate('dataExport.editDestination', 'ISU', 'Edit Action'));
+        } else {
+            route.setTitle(Uni.I18n.translate('dataExport.addDestination', 'ISU', 'Add Action'));
+        }
+        route.forward();
     },
-    
+
     excludeDeviceGroup: function () {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
@@ -182,5 +204,43 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         form.updateRecord();
         me.getStore('Isu.store.Clipboard').set('issuesCreationRuleState', form.getRecord());
         router.getRoute(router.currentRoute + '/addexclgroups').forward();
-    }
+    },
+
+    chooseActionMenu: function (menu, item) {
+        var me = this;
+        var action = item.action;
+        var id = menu.record.getId();
+        Ext.suspendLayouts();
+        switch (action) {
+            case 'remove':
+                page = this.getPage();
+                var grid = page.down("#issues-creation-rules-actions-grid");
+                if (grid.getStore()) {
+                    grid.getStore().remove(menu.record);
+                } else {
+                    grid.remove(menu.record);
+                }
+                if (grid.getStore().count() == 0) {
+                    grid.hide();
+                    page.down('#issues-creation-rule-no-actions').show()
+                }
+                break;
+            case 'edit':
+                me.editActionRecord = menu.record;
+                var page = me.getPage(),
+                    grid = page.down("#issues-creation-rules-actions-grid"),
+                    clipboard = this.getStore('Isu.store.Clipboard');
+                clipboard.set('issuesCreationRuleState', me.getRuleForm().getRecord());
+                if (grid.getStore()) {
+                    grid.getStore().remove(menu.record);
+                    clipboard.set("creationRuleActionState", menu.record);
+                    clipboard.set("creationRuleActionEdit", true);
+                } else {
+                    grid.remove(menu.record);
+                }
+                me.addAction();
+                break;
+        }
+       Ext.resumeLayouts(true);
+    },
 });

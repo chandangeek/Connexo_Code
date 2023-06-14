@@ -54,6 +54,7 @@ Ext.define('Dal.controller.CreationRuleEdit', {
     ],
 
     comboBoxValueForAll: -1,
+    editActionRecord: null,
 
     init: function () {
         this.control({
@@ -62,7 +63,10 @@ Ext.define('Dal.controller.CreationRuleEdit', {
             },
             'alarms-creation-rules-edit button[action=addAction]': {
                 click: this.addAction
-            }
+            },
+            'alarms-creation-rule-action-list-menu': {
+                click: this.chooseAlarmActionMenu
+            },
         });
     },
 
@@ -89,6 +93,10 @@ Ext.define('Dal.controller.CreationRuleEdit', {
         if (savedData) {
             rule = savedData;
             clipboard.clear('alarmsCreationRuleState');
+            if (me.editActionRecord && clipboard.get('creationRuleActionState')) {
+                savedData.actionsStore.add(me.editActionRecord);
+                clipboard.clear('creationRuleActionState');
+            }
             me.loadDependencies(dependenciesOnLoad);
         } else {
             if (id) {
@@ -163,11 +171,62 @@ Ext.define('Dal.controller.CreationRuleEdit', {
     addAction: function () {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            form = me.getRuleForm();
-
+            addRuleActionRoute = router.currentRoute + '/addaction',
+            route,
+            form = me.getRuleForm(),
+            clipboard = me.getStore('Dal.store.Clipboard');
+        if (!clipboard.get('creationRuleActionState')) {
+            clipboard.set("creationRuleActionEdit", false);
+        }
+        me.actionArray = [];
         form.updateRecord();
-        me.getStore('Dal.store.Clipboard').set('alarmsCreationRuleState', form.getRecord());
+        route = router.getRoute(addRuleActionRoute);
+        clipboard.set('alarmsCreationRuleState', form.getRecord());
+        if (clipboard.get('creationRuleActionState')) {
+            route.setTitle(Uni.I18n.translate('dataExport.editDestination', 'DAL', 'Edit Action'));
+        } else {
+            route.setTitle(Uni.I18n.translate('dataExport.addDestination', 'DAL', 'Add Action'));
+        }
+        route.forward();
+    },
 
-        router.getRoute(router.currentRoute + '/addaction').forward();
-    }
+    chooseAlarmActionMenu: function (menu, item) {
+        var me = this;
+        var action = item.action;
+        var id = menu.record.getId();
+        var router = this.getController('Uni.controller.history.Router');
+
+        switch (action) {
+            case 'remove':
+                var me = this,
+                    page = this.getPage();
+                var grid = page.down("#alarms-creation-rules-actions-grid");
+                Ext.suspendLayouts();
+                if (grid.getStore()) {
+                    grid.getStore().remove(menu.record);
+                } else {
+                    grid.remove(menu.record);
+                }
+                if (grid.getStore().count() == 0) {
+                    grid.hide();
+                    page.down('#alarms-creation-rule-no-actions').show()
+                }
+                Ext.resumeLayouts(true);
+                break;
+            case 'edit':
+                me.editActionRecord = menu.record;
+                var grid = me.getActionsGrid(),
+                    clipboard = this.getStore('Dal.store.Clipboard');
+                if (grid.getStore()) {
+                    grid.getStore().remove(menu.record);
+                    clipboard.set("creationRuleActionState", menu.record);
+                    clipboard.set("creationRuleActionEdit", true);
+                } else {
+                    grid.remove(menu.record);
+                }
+                me.addAction();
+                //router.getRoute(router.currentRoute + '/addaction').forward();
+                break;
+        }
+    },
 });

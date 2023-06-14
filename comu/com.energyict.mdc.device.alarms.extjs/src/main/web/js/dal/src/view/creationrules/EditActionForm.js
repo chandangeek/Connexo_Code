@@ -118,7 +118,8 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
                 field = me.down('[name="' + association.associatedName + '"]');
                 try {
                     associatedRecord = record[association.getterName].call(record);
-                } catch (e) {}
+                } catch (e) {
+                }
 
                 if (field && associatedRecord) {
                     field.setValue(associatedRecord.getId());
@@ -174,7 +175,7 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
                 boxLabel: record.get('title'),
                 name: 'phase',
                 inputValue: record.get('uuid'),
-                itemId: 'when-to-perform-radio-button-'+record.get('uuid'),
+                itemId: 'when-to-perform-radio-button-' + record.get('uuid'),
                 afterSubTpl: '<span style="display: inline-block; color: #686868; font-style: italic; margin-left: 19px; margin-top: 6px;">' + record.get('description') + '</span>'
             });
         });
@@ -192,6 +193,10 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
         actionTypesStoreProxy.setExtraParam('createdActions', []);
         Ext.suspendLayouts();
         me.down('[name=type]').reset();
+        if (me.isEdit) {
+            me.down('[name=type]').disable();
+            me.down('[name=phase]').disable();
+        }
         me.down('property-form').loadRecord(Ext.create('Dal.model.Action'));
         me.setLoading();
         var listOfCreatedActionIds = [];
@@ -203,13 +208,13 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
 
         if (listOfCreatedActionIds !== undefined && listOfCreatedActionIds.length !== 0 &&
             (listOfCreatedActionIds[0] !== undefined)) {
-                actionTypesStoreProxy.setExtraParam('createdActions', listOfCreatedActionIds);
+            actionTypesStoreProxy.setExtraParam('createdActions', listOfCreatedActionIds);
         }
 
         actionTypesStoreProxy.setExtraParam('phase', newValue.phase);
-        if ( rule && (issueReasonId = rule.get('reason_id')) ){
+        if (rule && (issueReasonId = rule.get('reason_id'))) {
             actionTypesStoreProxy.extraParams['reason'] = issueReasonId;
-        }else{
+        } else {
             delete actionTypesStoreProxy.extraParams['reason'];
         }
         actionTypesStore.load(function () {
@@ -221,11 +226,11 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
         Ext.resumeLayouts(true);
     },
 
-    onActionChange:  function (combo, newValue) {
+    onActionChange: function (combo, newValue) {
         var me = this,
             action = combo.findRecordByValue(newValue);
 
-        if (action) {
+        if (action && !me.isEdit) {
             me.down('property-form').loadRecord(action);
         }
     }

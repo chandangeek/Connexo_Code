@@ -40,23 +40,35 @@ Ext.define('Dal.controller.CreationRuleActionEdit', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             clipboard = me.getStore('Dal.store.Clipboard'),
-            widget = Ext.widget('alarms-creation-rules-edit-action', {
-                isEdit: false,
-                router: router,
-                returnLink: router.getRoute(router.currentRoute.replace('/addaction', '')).buildUrl()
-            }),
-            dependenciesCounter = 1,
+            record = clipboard.get('creationRuleActionState');
+        widget = Ext.widget('alarms-creation-rules-edit-action', {
+            isEdit: clipboard.get('creationRuleActionEdit') || false,
+            router: router,
+            returnLink: router.getRoute(router.currentRoute.replace('/addaction', '')).buildUrl()
+        }),
+            dependenciesCounter = 1
             dependenciesOnLoad = function () {
                 dependenciesCounter--;
                 if (!dependenciesCounter) {
                     if (widget.rendered) {
-                        widget.down('form').loadRecord(Ext.create('Dal.model.CreationRuleAction'));
-                        me.getStore('Dal.store.CreationRuleActionPhases').load(function (records) {
-                            if (widget.rendered) {
-                                widget.down('alarms-creation-rules-edit-action-form').addPhases(records);
-                                widget.setLoading(false);
-                            }
-                        });
+                        if (!record) {
+                            widget.down('form').loadRecord(Ext.create('Dal.model.CreationRuleAction'));
+                            me.getStore('Dal.store.CreationRuleActionPhases').load(function (records) {
+                                if (widget.rendered) {
+                                    widget.down('alarms-creation-rules-edit-action-form').addPhases(records);
+                                    widget.setLoading(false);
+                                }
+                            });
+                        } else {
+                            me.getStore('Dal.store.CreationRuleActionPhases').load(function (records) {
+                                if (widget.rendered) {
+                                    widget.down('alarms-creation-rules-edit-action-form').addPhases(records);
+                                    widget.down('form').loadRecord(record);
+                                    widget.setLoading(false);
+                                }
+                            });
+                        }
+
                     }
                 }
             };
@@ -95,7 +107,9 @@ Ext.define('Dal.controller.CreationRuleActionEdit', {
 
         Ext.util.History.un('change', me.checkRoute, me);
 
-        if (!Ext.Array.findBy(allowableRoutes, function (item) {return item === currentRoute})) {
+        if (!Ext.Array.findBy(allowableRoutes, function (item) {
+            return item === currentRoute
+        })) {
             me.getStore('Dal.store.Clipboard').clear('alarmsCreationRuleState');
         }
     },

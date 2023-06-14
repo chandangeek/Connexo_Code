@@ -194,6 +194,10 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
         Ext.suspendLayouts();
         me.down('[name=type]').reset();
         me.down('property-form').loadRecord(Ext.create('Isu.model.Action'));
+        if (me.isEdit) {
+            me.down('[name=type]').disable();
+            me.down('[name=phase]').disable();
+        }
         me.setLoading();
         actionTypesStoreProxy.setExtraParam('issueType', rule.getIssueType().getId());
 
@@ -210,14 +214,14 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
             }
         }
 
-        if(rule && rule.getTemplate() && rule.getTemplate().id){
+        if (rule && rule.getTemplate() && rule.getTemplate().id) {
             actionTypesStoreProxy.setExtraParam('template', rule.getTemplate().id);
         }
 
         actionTypesStoreProxy.setExtraParam('phase', newValue.phase);
-        if ( rule && (issueReasonId = rule.get('reason_id')) ){
+        if (rule && (issueReasonId = rule.get('reason_id'))) {
             actionTypesStoreProxy.extraParams['reason'] = issueReasonId;
-        }else{
+        } else {
             delete actionTypesStoreProxy.extraParams['reason'];
         }
         actionTypesStore.load(function () {
@@ -233,7 +237,7 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
         var me = this,
             action = combo.findRecordByValue(newValue);
 
-        if (action) {
+        if (action && !me.isEdit) {
             me.down('property-form').loadRecord(action);
         }
     }

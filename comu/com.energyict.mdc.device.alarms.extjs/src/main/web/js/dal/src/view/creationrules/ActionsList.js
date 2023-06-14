@@ -9,7 +9,8 @@ Ext.define('Dal.view.creationrules.ActionsList', {
         'Uni.grid.column.Action',
         'Dal.store.CreationRuleActionPhases',
         'Dal.store.CreationRuleActions',
-        'Uni.grid.column.RemoveAction'
+        'Uni.grid.column.RemoveAction',
+        'Dal.view.creationrules.ActionsListMenu'
     ],
     viewConfig: {
         markDirty: false
@@ -43,20 +44,12 @@ Ext.define('Dal.view.creationrules.ActionsList', {
                 flex: 1
             },
             {
-                xtype: 'uni-actioncolumn-remove',
-                handler: function (grid, rowIndex) {
-                    var store = grid.getStore(),
-                        gridPanel = grid.up(),
-                        emptyMsg = gridPanel.up().down('displayfield');
-
-                    store.removeAt(rowIndex);
-                    if (!store.getCount()) {
-                        Ext.suspendLayouts();
-                        gridPanel.hide();
-                        emptyMsg.show();
-                        Ext.resumeLayouts(true);
-                    }
+                xtype: 'uni-actioncolumn',
+                menu: {
+                    xtype: 'alarms-creation-rule-action-list-menu',
+                    itemId: 'alarms-creation-rule-action-list-menu'
                 }
+
             }
         ]
     }

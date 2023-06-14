@@ -42,29 +42,40 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             clipboard = me.getStore('Isu.store.Clipboard'),
-            widget = Ext.widget('issues-creation-rules-edit-action', {
-                isEdit: false,
+            record = clipboard.get('creationRuleActionState');
+
+        var widget = Ext.widget('issues-creation-rules-edit-action', {
+                isEdit: clipboard.get('creationRuleActionEdit') || false,
                 router: router,
                 returnLink: router.getRoute(router.currentRoute.replace('/addaction', '')).buildUrl()
             }),
             dependenciesCounter = 1,
             dependenciesOnLoad = function () {
-                dependenciesCounter--;
-                if (!dependenciesCounter) {
+                if (dependenciesCounter) {
+                    dependenciesCounter--;
                     if (widget.rendered) {
-                        widget.down('form').loadRecord(Ext.create('Isu.model.CreationRuleAction'));
-                        me.getStore('Isu.store.CreationRuleActionPhases').load(function (records) {
-                            if (widget.rendered) {
-                                widget.down('issues-creation-rules-edit-action-form').addPhases(records);
-                                widget.setLoading(false);
-                            }
-                        });
+                        if (!record) {
+                            widget.down('form').loadRecord(Ext.create('Isu.model.CreationRuleAction'));
+                            me.getStore('Isu.store.CreationRuleActionPhases').load(function (records) {
+                                if (widget.rendered) {
+                                    widget.down('issues-creation-rules-edit-action-form').addPhases(records);
+                                    widget.setLoading(false);
+                                }
+                            });
+                        } else {
+                            me.getStore('Isu.store.CreationRuleActionPhases').load(function (records) {
+                                if (widget.rendered) {
+                                    widget.down('issues-creation-rules-edit-action-form').addPhases(records);
+                                    widget.down('form').loadRecord(record);
+                                    widget.setLoading(false);
+                                }
+
+                            });
+                        }
                     }
                 }
             };
-
         Ext.util.History.on('change', this.checkRoute, me);
-
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading();
 
@@ -101,7 +112,9 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
 
         Ext.util.History.un('change', me.checkRoute, me);
 
-        if (!Ext.Array.findBy(allowableRoutes, function (item) {return (currentRoute === item || currentRoute.startsWith(item + '/'))})) {
+        if (!Ext.Array.findBy(allowableRoutes, function (item) {
+            return (currentRoute === item || currentRoute.startsWith(item + '/'))
+        })) {
             me.getStore('Isu.store.Clipboard').clear('issuesCreationRuleState');
         }
     },
