@@ -114,7 +114,9 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      *
      * @param code Obis code to match
      * @return the register or null.
+     * @deprecate this method will fetch register on device configuration level rather than overruled OBIS codes on the Device level.
      */
+    @Deprecated
     Optional<Register> getRegisterWithDeviceObisCode(ObisCode code);
 
     /**

@@ -1763,6 +1763,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    @Deprecated
     public Optional<Register> getRegisterWithDeviceObisCode(ObisCode code) {
         for (RegisterSpec registerSpec : getDeviceConfiguration().getRegisterSpecs()) {
             if (registerSpec.getDeviceObisCode().equals(code)) {

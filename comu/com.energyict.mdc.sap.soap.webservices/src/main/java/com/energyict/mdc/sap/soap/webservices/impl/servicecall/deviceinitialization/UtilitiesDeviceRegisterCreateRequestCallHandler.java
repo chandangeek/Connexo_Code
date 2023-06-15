@@ -145,7 +145,12 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
     private void processChannel(Device device, ServiceCall serviceCall, String obis,
                                 Pair<MacroPeriod, TimeAttribute> period, CIMPattern cimPattern) {
         UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
-        Set<Channel> channels = findChannelByObis(device, obis, period);
+        Set<Channel> channels = new HashSet<>();
+        Optional<Channel> channel = findChannelByObis(device, obis, period);
+
+        if (channel.isPresent()) {
+            channels.add(channel.get());
+        }
 
         if (cimPattern != null) {
             channels.addAll(findChannelByReadingType(device, period, cimPattern));
@@ -171,8 +176,10 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
                                  Pair<MacroPeriod, TimeAttribute> period, CIMPattern cimPattern) {
         UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
         Set<Register> registers = new HashSet<>();
-        Optional<Register> register = device.getRegisterWithDeviceObisCode(ObisCode.fromString(obis));
-        if (register.isPresent() && sapCustomPropertySets.doesRegisterHaveSapCPS(register.get())) {
+
+        Optional<Register> register = findRegisterByObis(device, obis, period);
+
+        if (register.isPresent()) {
             registers.add(register.get());
         }
 
@@ -196,6 +203,14 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
         } else {
             failServiceCallByNoFound(extension, period, cimPattern, obis);
         }
+    }
+
+    private Optional<Register> findRegisterByObis(Device device, String obis, Pair<MacroPeriod, TimeAttribute> period) {
+        return device.getRegisters().stream()
+                .filter(r -> r.getObisCode().toString().equals(obis))
+                .filter(r -> r.getReadingType().getMacroPeriod() == period.getFirst()
+                        && r.getReadingType().getMeasuringPeriod() == period.getLast())
+                .filter(r -> sapCustomPropertySets.doesRegisterHaveSapCPS(r)).findAny();
     }
 
     private void failServiceCallBySeveralDataSources(UtilitiesDeviceRegisterCreateRequestDomainExtension extension,
@@ -244,12 +259,11 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
         failServiceCall(extension.getServiceCall(), messageSeed, args);
     }
 
-    private Set<Channel> findChannelByObis(Device device, String obis, Pair<MacroPeriod, TimeAttribute> period) {
+    private Optional<Channel> findChannelByObis(Device device, String obis, Pair<MacroPeriod, TimeAttribute> period) {
         return device.getChannels().stream().filter(c -> c.getObisCode().toString().equals(obis))
                 .filter(c -> c.getReadingType().getMacroPeriod() == period.getFirst()
                         && c.getReadingType().getMeasuringPeriod() == period.getLast())
-                .filter(c -> sapCustomPropertySets.doesChannelHaveSapCPS(c))
-                .collect(Collectors.toSet());
+                .filter(c -> sapCustomPropertySets.doesChannelHaveSapCPS(c)).findAny();
     }
 
     //MacroPeriod.*.TimeAttribute.*.*.*.measurementKind.*.*.*.*.*.*.*.*.*.*.*
