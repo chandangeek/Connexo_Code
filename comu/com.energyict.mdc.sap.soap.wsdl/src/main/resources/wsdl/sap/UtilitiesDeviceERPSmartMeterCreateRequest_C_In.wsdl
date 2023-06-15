@@ -707,6 +707,8 @@
      <xsd:element name="ID" type="UtilitiesDeviceID"/>
      <xsd:element name="StartDate" type="Date"/>
      <xsd:element name="EndDate" type="Date"/>
+     <xsd:element name="RegisterGroup" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+     <xsd:element name="RegisterNumber" minOccurs="0" maxOccurs="1" type="xsd:int"/>
      <xsd:element name="SerialID" type="SerialID"/>
      <xsd:element name="MaterialID" type="ProductInternalID"/>
      <xsd:element name="ProductUniqueItemID" minOccurs="0" type="ProductStandardID_V1"/>

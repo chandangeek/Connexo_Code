@@ -875,6 +875,7 @@
      <xsd:element name="UtilitiesDivisionCategoryCode" minOccurs="0" type="UtilitiesDivisionCategoryCode"/>
      <xsd:element name="UtilitiesMeasurementRecurrenceCode" minOccurs="0" type="UtilitiesMeasurementRecurrenceCode"/>
      <xsd:element name="TimeZoneCode" minOccurs="0" type="TimeZoneCode"/>
+     <xsd:element name="RegisterType" minOccurs="0" type="xsd:string"/>
      <xsd:element name="Specifications" type="UtilsDvceERPSmrtMtrRegCrteReqSpecs"/>
     </xsd:sequence>
    </xsd:complexType>
